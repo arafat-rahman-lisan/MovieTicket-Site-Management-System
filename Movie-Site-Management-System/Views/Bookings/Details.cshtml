@@ -1,0 +1,52 @@
+﻿@model Movie_Site_Management_System.Models.Booking
+@{
+    ViewData["Title"] = "Booking Details";
+}
+
+<h2 class="mb-1">Booking #@Model.BookingId</h2>
+<p class="text-muted">
+    Status: <strong>@Model.Status</strong><br />
+    Created: @Model.CreatedAt.ToString("yyyy-MM-dd HH:mm")
+</p>
+
+<h5 class="mt-3">Show</h5>
+<p>
+    Movie: <strong>@Model.Show.Movie.Title</strong><br />
+    Theatre/Hall: @Model.Show.HallSlot.Hall.Theatre.Name / @Model.Show.HallSlot.Hall.Name<br />
+    Date/Time: @Model.Show.ShowDate.ToString("yyyy-MM-dd") •
+    @Model.Show.HallSlot.StartTime.ToString("HH\\:mm") - @Model.Show.HallSlot.EndTime.ToString("HH\\:mm")
+</p>
+
+<h5>Seats</h5>
+@if (Model.BookingSeats == null || !Model.BookingSeats.Any())
+{
+    <div class="alert alert-warning">No seats recorded.</div>
+}
+else
+{
+    <table class="table table-sm table-striped">
+        <thead>
+            <tr>
+                <th>Seat</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var bs in Model.BookingSeats)
+            {
+                <tr>
+                    <td>@bs.Seat.RowLabel@bs.Seat.SeatNumber</td>
+                    <td>@bs.UnitPrice.ToString("0.00")</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <th>Total (@Model.TicketQuantity tickets)</th>
+                <th>@Model.TotalAmount.ToString("0.00")</th>
+            </tr>
+        </tfoot>
+    </table>
+}
+
+<a asp-controller="Shows" asp-action="Index" class="btn btn-outline-secondary">Back to Shows</a>

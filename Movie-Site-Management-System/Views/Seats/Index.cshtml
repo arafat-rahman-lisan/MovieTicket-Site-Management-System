@@ -1,0 +1,70 @@
+﻿@model IEnumerable<Seat>
+@using Movie_Site_Management_System.Models
+@{
+    ViewData["Title"] = "Seats";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Seats</h2>
+    <a asp-controller="Seats" asp-action="Create" class="btn btn-success btn-sm">+ Add Seat</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-auto">
+        <label class="form-label">Hall</label>
+        <select class="form-select" name="hallId" asp-items="ViewBag.Halls">
+            <option value="">-- Select Hall --</option>
+        </select>
+    </div>
+    <div class="col-auto align-self-end">
+        <button class="btn btn-secondary">Load</button>
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">Pick a hall to view its seat map.</div>
+}
+else
+{
+    <table class="table table-sm table-striped table-bordered align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Row</th>
+                <th>No.</th>
+                <th>Type</th>
+                <th>X</th>
+                <th>Y</th>
+                <th>Disabled</th>
+                <th style="width:220px">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var s in Model)
+            {
+                <tr>
+                    <td>@s.RowLabel</td>
+                    <td>@s.SeatNumber</td>
+                    <td>@s.SeatType?.Name</td>
+                    <td>@s.PosX</td>
+                    <td>@s.PosY</td>
+                    <td>
+                        <span class="badge @(s.IsDisabled ? "bg-secondary" : "bg-success")">
+                            @(s.IsDisabled ? "Yes" : "No")
+                        </span>
+                    </td>
+                    <td class="text-start">
+                        <a asp-controller="Seats" asp-action="Details" asp-route-id="@s.SeatId" class="btn btn-sm btn-secondary me-1">Details</a>
+                        <a asp-controller="Seats" asp-action="Edit" asp-route-id="@s.SeatId" class="btn btn-sm btn-outline-primary me-1">Edit</a>
+                        <a asp-controller="Seats" asp-action="Delete" asp-route-id="@s.SeatId" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <p class="text-muted">
+        JSON for front-end testing:
+        <a href="/seats/grid/@Model.First().HallId">/seats/grid/@Model.First().HallId</a>
+    </p>
+}

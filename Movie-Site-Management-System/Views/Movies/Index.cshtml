@@ -1,0 +1,322 @@
+﻿@model Movie_Site_Management_System.ViewModels.Movies.MoviesIndexVM
+@using Movie_Site_Management_System.Models
+@{
+    ViewData["Title"] = "Movies";
+    var hero = Model.Movies.FirstOrDefault();
+    var heroTitle = hero?.Title ?? "Coming Soon";
+    var heroGenre = hero?.Genre ?? "—";
+    var heroYear = hero?.Year ?? "";
+    var heroImdb = hero?.Imdb ?? 0m;
+    var heroVideo = Url.Content("~/video/Avatar.webm");
+    Layout = null; // remove if you use a shared layout
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css" rel="stylesheet" />
+<link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
+
+<header>
+    <video src="@heroVideo" autoplay muted></video>
+
+    <nav>
+        <div class="logo_ul">
+            <img src="~/img/logo.png" alt="Logo" />
+            <ul class="nav-pills">
+                <li><a href="#" id="nav_now">Now Showing</a></li>
+                <li><a href="#" id="nav_soon">Coming Soon</a></li>
+                <li><a href="#" id="nav_showtime">Show Time</a></li>
+                <li><a href="#" id="nav_genre">Genre</a></li>
+                <li><a href="#" id="nav_top">Top Rated</a></li>
+
+                <!-- Manage button (menu rendered at body level) -->
+                <li class="manage_wrap">
+                    <button type="button" class="manage_btn" id="btnManage">
+                        Manage <i class="bi bi-caret-down-fill"></i>
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="search_user">
+            <form method="get" style="display:inline">
+                <input type="text" placeholder="Search..." id="search_input" name="search" value="@Model.Search" />
+            </form>
+
+            <!-- Location pill -->
+            <button id="locationPill" type="button" class="location_pill" title="Select theatre/location">
+                <i class="bi bi-geo-alt"></i>
+                <span id="locationName">Select location</span>
+                <i class="bi bi-caret-down-fill" style="font-size:12px"></i>
+            </button>
+
+            <img src="~/img/user.jpg" alt="User" />
+            <div class="search" id="search_list"></div>
+        </div>
+    </nav>
+
+    <div class="content">
+        <h1 id="title">@heroTitle</h1>
+        <p>Explore featured films currently in our catalogue.</p>
+        <div class="details">
+            <h6>A Star Cineplex Presentation</h6>
+            <h5 id="gen">@heroGenre</h5>
+            <h4 id="date">@heroYear</h4>
+            <h3 id="rate"><span>IMDB</span><i class="bi bi-star-fill"></i> @heroImdb.ToString("0.0")</h3>
+        </div>
+        <div class="btns">
+            <a href="#" id="play">Watch <i class="bi bi-play-fill"></i></a>
+            <a href="#" id="download_main"><i class="bi bi-cloud-arrow-down-fill"></i></a>
+        </div>
+    </div>
+
+    <section>
+        <h4>Popular</h4>
+        <i class="bi bi-chevron-left"></i>
+        <i class="bi bi-chevron-right"></i>
+
+        <div class="cards" id="cards">
+            @foreach (var m in Model.Movies)
+            {
+                <div class="card">
+                    <img src="@m.SmallPoster" alt="@m.Title" class="poster" />
+                    <div class="rest_card">
+                        <img src="@m.BigPoster" alt="" />
+                        <div class="cont">
+                            <h4>@m.Title</h4>
+                            <div class="sub">
+                                <p>@m.Genre, @m.Year</p>
+                                <h3><span>IMDB</span><i class="bi bi-star-fill"></i> @m.Imdb.ToString("0.0")</h3>
+                            </div>
+                            <div class="actions">
+                                <a class="btn_ticket" href="#">Get Ticket</a>
+                                <a class="btn_details" href="@Url.Action("Details", "Movies", new { id = m.Id })">Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+</header>
+
+<!-- BODY-LEVEL: Manage menu panel (fixed; sits above everything) -->
+<div id="manageMenu" class="manage_menu" aria-labelledby="btnManage">
+    <a href="@Url.Action("Index", "Movies")">Movies</a>
+    <a href="@Url.Action("Index", "Theatres")">Theatres</a>
+    <a href="@Url.Action("Index", "Halls")">Halls</a>
+    <a href="@Url.Action("Index", "HallSlots")">Slots</a>
+    <a href="@Url.Action("Index", "SeatTypes")">Seat Types</a>
+    <a href="@Url.Action("Index", "Seats")">Seats</a>
+    <a href="@Url.Action("Index", "Shows")">Shows</a>
+    <a href="@Url.Action("Index", "ShowSeats")">Show Seats</a>
+    <a href="@Url.Action("Index", "Bookings")">Bookings</a>
+    <a href="@Url.Action("Index", "SeatBlocks")">Seat Blocks</a>
+    <div class="manage_divider"></div>
+    <a href="@Url.Action("Index", "Reports")">Reports (soon)</a>
+</div>
+
+@{
+    // JSON for search dropdown
+    var allDataJson = System.Text.Json.JsonSerializer.Serialize(
+        Model.Movies.Select(m => new
+        {
+            name = m.Title,
+            imdb = m.Imdb.ToString("0.0"),
+            date = m.Year,
+            sposter = m.SmallPoster,
+            genre = m.Genre,
+            url = Url.Action("Details", "Movies", new { id = m.Id })
+        })
+    );
+}
+<script id="movies-json" type="application/json">@Html.Raw(allDataJson)</script>
+
+<script>
+    // ===== arrows =====
+    const left_btn  = document.getElementsByClassName('bi-chevron-left')[0];
+    const right_btn = document.getElementsByClassName('bi-chevron-right')[0];
+    const cards     = document.getElementsByClassName('cards')[0];
+    left_btn?.addEventListener('click', () => { cards.scrollLeft -= 140; });
+    right_btn?.addEventListener('click', () => { cards.scrollLeft += 140; });
+
+    // ===== search dropdown =====
+    const searchBox   = document.getElementById('search_list');
+    const searchInput = document.getElementById('search_input');
+    let allData = [];
+    try { allData = JSON.parse(document.getElementById('movies-json')?.textContent ?? '[]'); } catch { allData = []; }
+
+    function buildSearchList(){
+      if (!searchBox) return;
+      searchBox.innerHTML = '';
+      allData.forEach(el => {
+        const a = document.createElement('a');
+        a.className = 'card';
+        a.href = el.url || '#';
+        a.innerHTML = `
+          <img src="${el.sposter ?? ''}" alt="">
+          <div class="cont">
+            <h3>${el.name ?? ''}</h3>
+            <p>${el.genre ?? ''}, ${el.date ?? ''} , <span>IMDB</span><i class="bi bi-star-fill"></i> ${el.imdb ?? ''}</p>
+          </div>`;
+        searchBox.appendChild(a);
+      });
+    }
+    buildSearchList();
+
+    searchInput?.addEventListener('keyup', () => {
+      if (!searchBox) return;
+      const filter = (searchInput.value || '').toUpperCase();
+      const items = searchBox.getElementsByTagName('a');
+      let anyVisible = false;
+      for (let i = 0; i < items.length; i++) {
+        const text = (items[i].textContent || items[i].innerText || '').toUpperCase();
+        const show = text.indexOf(filter) > -1;
+        items[i].style.display = show ? 'flex' : 'none';
+        if (show) anyVisible = true;
+      }
+      searchBox.style.visibility = anyVisible ? 'visible' : 'hidden';
+      searchBox.style.opacity    = anyVisible ? '1' : '0';
+      if (!searchInput.value) { searchBox.style.visibility = 'hidden'; searchBox.style.opacity = '0'; }
+    });
+
+    // ===== hero video toggle + state flags =====
+    const video = document.getElementsByTagName('video')[0];
+    const play  = document.getElementById('play');
+
+    const headerEl = document.getElementsByTagName('header')[0];
+    video?.addEventListener('loadeddata', () => headerEl?.classList.add('video-ready'));
+    video?.addEventListener('error',      () => headerEl?.classList.add('video-error'));
+
+    play?.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (video?.paused){
+        video.play();
+        play.innerHTML = `Play <i class="bi bi-pause-fill"></i>`;
+      } else {
+        video?.pause();
+        play.innerHTML = `Watch <i class="bi bi-play-fill"></i>`;
+      }
+    });
+
+    // ===== Location picker (glass UI) =====
+    const locationPill   = document.getElementById('locationPill');
+    const locationNameEl = document.getElementById('locationName');
+    const overlayId = 'locationOverlay';
+    const dialogId  = 'locationDialog';
+    const listClass = 'loc_list';
+
+    function ensureModal() {
+      if (document.getElementById(overlayId)) return;
+
+      const overlay = document.createElement('div');
+      overlay.id = overlayId;
+      overlay.className = 'location_modal';
+
+      const dialog = document.createElement('div');
+      dialog.id = dialogId;
+      dialog.className = 'loc_dialog';
+      dialog.innerHTML = `
+        <div class="loc_header">
+          <h3>Select Your Theatre</h3>
+          <button class="loc_close" aria-label="Close">&times;</button>
+        </div>
+        <div class="${listClass}">
+          <div class="location-empty" style="color:#ddd;padding:18px;text-align:center;">Loading theatres...</div>
+        </div>
+      `;
+
+      overlay.appendChild(dialog);
+      document.body.appendChild(overlay);
+
+      dialog.querySelector('.loc_close')?.addEventListener('click', hideModal);
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) hideModal(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hideModal(); });
+    }
+
+    function showModal(){ ensureModal(); document.getElementById(overlayId).style.display = 'flex'; }
+    function hideModal(){ const el = document.getElementById(overlayId); if (el) el.style.display = 'none'; }
+
+    const locationsUrl = '@Url.Action("Locations", "Theatres")';
+    let cachedLocations = null;
+
+    async function loadLocations() {
+      if (cachedLocations) return cachedLocations;
+      try {
+        const res = await fetch(locationsUrl, { credentials: 'same-origin' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        cachedLocations = await res.json();
+      } catch (err) {
+        console.error('Failed to load locations', err);
+        cachedLocations = [];
+      }
+      return cachedLocations;
+    }
+
+    function renderLocations(list) {
+      const listEl = document.querySelector('.' + listClass);
+      if (!listEl) return;
+      if (!list || list.length === 0) {
+        listEl.innerHTML = `<div class="location-empty">No theatres found.</div>`;
+        return;
+      }
+      listEl.innerHTML = '';
+      list.forEach(x => {
+        const div = document.createElement('button');
+        div.type = 'button';
+        div.className = 'loc_item';
+        const addr = [x.address].filter(Boolean).join(', ');
+        div.innerHTML = `
+          <i class="bi bi-geo-alt-fill"></i>
+          <div class="loc_body">
+            <div class="loc_name">${x.name}</div>
+            <div class="loc_addr">${addr}</div>
+          </div>
+        `;
+        div.addEventListener('click', () => {
+          locationNameEl.textContent = x.name;
+          try { localStorage.setItem('selected_theatre_id', String(x.id)); } catch {}
+          hideModal();
+        });
+        listEl.appendChild(div);
+      });
+    }
+
+    locationPill?.addEventListener('click', async () => {
+      showModal();
+      const list = await loadLocations();
+      renderLocations(list);
+    });
+
+    // ===== Manage dropdown (body-level, always on top) =====
+    const btnManage  = document.getElementById('btnManage');
+    const manageMenu = document.getElementById('manageMenu');
+
+    function positionManageMenu() {
+      if (!btnManage || !manageMenu) return;
+      const r = btnManage.getBoundingClientRect();
+      // place menu aligned to button’s right edge with small gap
+      const gap = 8;
+      const top = r.bottom + gap;
+      const right = Math.max(8, window.innerWidth - r.right);
+      manageMenu.style.top = `${Math.round(top)}px`;
+      manageMenu.style.right = `${Math.round(right)}px`;
+    }
+
+    btnManage?.addEventListener('click', (e) => {
+      e.preventDefault();
+      positionManageMenu();
+      manageMenu.classList.toggle('show');
+    });
+
+    // close on outside click / ESC
+    document.addEventListener('click', (e) => {
+      if (!manageMenu) return;
+      const withinButton = btnManage && btnManage.contains(e.target);
+      const withinMenu   = manageMenu.contains(e.target);
+      if (!withinButton && !withinMenu) manageMenu.classList.remove('show');
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') manageMenu?.classList.remove('show');
+    });
+    window.addEventListener('resize', () => { if (manageMenu.classList.contains('show')) positionManageMenu(); });
+    window.addEventListener('scroll', () => { if (manageMenu.classList.contains('show')) positionManageMenu(); });
+</script>

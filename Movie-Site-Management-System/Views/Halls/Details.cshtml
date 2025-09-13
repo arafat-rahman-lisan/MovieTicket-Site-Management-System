@@ -1,0 +1,59 @@
+﻿@model Hall
+@using Movie_Site_Management_System.Models
+@{
+    ViewData["Title"] = "Hall Details";
+    var seats = ViewBag.Seats as IEnumerable<Seat>;
+    var slots = ViewBag.Slots as IEnumerable<HallSlot>;
+}
+
+<h2 class="mb-1">@Model.Name</h2>
+<p class="text-muted">@Model.Theatre?.Name • Capacity: @Model.Capacity</p>
+
+<h5>Slots</h5>
+@if (slots == null || !slots.Any())
+{
+    <div class="alert alert-warning">No slots defined.</div>
+}
+else
+{
+    <ul class="list-group mb-3">
+        @foreach (var s in slots.OrderBy(s => s.SlotNumber))
+        {
+            <li class="list-group-item d-flex justify-content-between">
+                <span>Slot S@s.SlotNumber</span>
+                <span>@s.StartTime.ToString("HH\\:mm") - @s.EndTime.ToString("HH\\:mm")</span>
+                <a asp-controller="HallSlots" asp-action="Details" asp-route-id="@s.HallSlotId" class="btn btn-sm btn-outline-primary">Open</a>
+            </li>
+        }
+    </ul>
+}
+
+<h5>Seats</h5>
+@if (seats == null || !seats.Any())
+{
+    <div class="alert alert-info">No seats yet.</div>
+}
+else
+{
+    <table class="table table-sm table-striped">
+        <thead>
+            <tr>
+                <th>Row</th>
+                <th>No.</th>
+                <th>Type</th>
+                <th>Disabled</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var s in seats)
+            {
+                <tr>
+                    <td>@s.RowLabel</td>
+                    <td>@s.SeatNumber</td>
+                    <td>@s.SeatType?.Name</td>
+                    <td>@(s.IsDisabled ? "Yes" : "No")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

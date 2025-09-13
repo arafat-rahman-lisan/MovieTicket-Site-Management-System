@@ -1,0 +1,60 @@
+﻿@model Movie_Site_Management_System.Models.Theatre
+@{
+    ViewData["Title"] = "Delete Theatre";
+    var hallCount = (int)(ViewBag.HallCount ?? 0);
+}
+
+<h2 class="mb-3">Delete Theatre</h2>
+
+<div class="alert @(hallCount > 0 ? "alert-warning" : "alert-danger")">
+    @if (hallCount > 0)
+    {
+        <div>
+            <strong>Blocked:</strong> This theatre has <strong>@hallCount</strong> hall(s).
+            You must delete or reassign those halls before deleting this theatre.
+        </div>
+    }
+    else
+    {
+        <div>
+            <strong>Are you sure?</strong> This will permanently delete <strong>@Model.Name</strong>.
+        </div>
+    }
+</div>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Name</dt>
+            <dd class="col-sm-9">@Model.Name</dd>
+
+            <dt class="col-sm-3">City</dt>
+            <dd class="col-sm-9">@Model.City</dd>
+
+            <dt class="col-sm-3">Address</dt>
+            <dd class="col-sm-9">@Model.Address</dd>
+
+            <dt class="col-sm-3">Active</dt>
+            <dd class="col-sm-9">
+                <span class="badge @(Model.IsActive ? "bg-success" : "bg-secondary")">
+                    @(Model.IsActive ? "Yes" : "No")
+                </span>
+            </dd>
+        </dl>
+    </div>
+</div>
+
+<div class="text-danger mb-2">
+    @Html.ValidationSummary()
+</div>
+
+<form asp-action="Delete" method="post" class="d-inline">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="TheatreId" />
+
+    <button type="submit" class="btn btn-danger" @(hallCount > 0 ? "disabled" : "")>
+        <i class="bi bi-trash"></i> Delete
+    </button>
+</form>
+
+<a asp-action="Index" class="btn btn-outline-secondary ms-2">Back to List</a>

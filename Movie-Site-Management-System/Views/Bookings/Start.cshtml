@@ -1,0 +1,49 @@
+﻿@model Movie_Site_Management_System.Models.Show
+@{
+    ViewData["Title"] = "Start Booking";
+}
+
+<h2 class="mb-1">Start Booking</h2>
+<p class="text-muted">
+    Movie: <strong>@Model.Movie.Title</strong><br />
+    Theatre/Hall: @Model.HallSlot.Hall.Theatre.Name / @Model.HallSlot.Hall.Name<br />
+    Date/Time: @Model.ShowDate.ToString("yyyy-MM-dd") •
+    @Model.HallSlot.StartTime.ToString("HH\\:mm") - @Model.HallSlot.EndTime.ToString("HH\\:mm")
+</p>
+
+<div class="alert alert-info">
+    Select seats from the seat map, then confirm the booking.
+</div>
+
+<a asp-controller="ShowSeats" asp-action="Map" asp-route-showId="@Model.ShowId" class="btn btn-primary">Open Seat Map</a>
+<a asp-controller="Shows" asp-action="Index" class="btn btn-outline-secondary">Back</a>
+
+<hr />
+
+<h5>Quick input (testing)</h5>
+<p class="small text-muted">Enter comma-separated SeatIds (e.g., <code>1,2,3</code>)</p>
+
+<form asp-action="Confirm" method="post" id="quickForm" class="row g-2">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="showId" value="@Model.ShowId" />
+    <div class="col-auto">
+        <input class="form-control" type="text" id="csv" placeholder="1,2,3" />
+    </div>
+    <div class="col-auto">
+        <button class="btn btn-secondary" onclick="prepare()">Confirm via CSV</button>
+    </div>
+</form>
+
+<script>
+    function prepare() {
+        const f = document.getElementById('quickForm');
+        const csv = document.getElementById('csv').value;
+        // remove any old hidden fields
+        [...f.querySelectorAll('input[name="seatIds"]')].forEach(e => e.remove());
+        csv.split(',').map(s => s.trim()).filter(s => s.length>0).forEach(v => {
+            const h = document.createElement('input');
+            h.type = 'hidden'; h.name = 'seatIds'; h.value = v;
+            f.appendChild(h);
+        });
+    }
+</script>

@@ -1,0 +1,61 @@
+﻿@model IEnumerable<Hall>
+@using Movie_Site_Management_System.Models
+@{
+    ViewData["Title"] = "Halls";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Halls</h2>
+    <a asp-controller="Halls" asp-action="Create" class="btn btn-success btn-sm">+ Add Hall</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-auto">
+        <label class="form-label">Theatre</label>
+        <select class="form-select" name="theatreId" asp-items="ViewBag.Theatres">
+            <option value="">-- All --</option>
+        </select>
+    </div>
+    <div class="col-auto align-self-end">
+        <button class="btn btn-secondary">Filter</button>
+    </div>
+</form>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-warning">No halls found.</div>
+}
+else
+{
+    <table class="table table-striped table-bordered align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Theatre</th>
+                <th>Hall</th>
+                <th>Capacity</th>
+                <th>Active</th>
+                <th style="width:220px">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var h in Model)
+            {
+                <tr>
+                    <td>@h.Theatre?.Name</td>
+                    <td>@h.Name</td>
+                    <td>@h.Capacity</td>
+                    <td>
+                        <span class="badge @(h.IsActive ? "bg-success" : "bg-secondary")">
+                            @(h.IsActive ? "Yes" : "No")
+                        </span>
+                    </td>
+                    <td class="text-start">
+                        <a asp-controller="Halls" asp-action="Details" asp-route-id="@h.HallId" class="btn btn-sm btn-secondary me-1">Details</a>
+                        <a asp-controller="Halls" asp-action="Edit" asp-route-id="@h.HallId" class="btn btn-sm btn-outline-primary me-1">Edit</a>
+                        <a asp-controller="Halls" asp-action="Delete" asp-route-id="@h.HallId" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

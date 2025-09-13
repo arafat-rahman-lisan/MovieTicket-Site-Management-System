@@ -1,0 +1,65 @@
+﻿@model IEnumerable<dynamic>
+@using Movie_Site_Management_System.Models;
+@using System.Linq;
+@{
+    ViewData["Title"] = "Seat Map";
+    // get showId from route data
+    var showIdObj = ViewContext.RouteData.Values["showId"];
+    long showId = 0;
+    if (showIdObj != null) long.TryParse(showIdObj.ToString(), out showId);
+
+    // group by row
+    var rows = Model.GroupBy(x => (string)x.RowLabel)
+                    .OrderBy(g => g.Key);
+}
+
+<h2 class="mb-3">Seat Map</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No seat snapshot found for this show.</div>
+}
+else
+{
+    <div class="mb-2">
+        <span class="badge bg-success">Available</span>
+        <span class="badge bg-danger">Booked</span>
+        <span class="badge bg-secondary">Held/Other</span>
+    </div>
+
+    <form asp-controller="Bookings" asp-action="Confirm" method="post" id="bookingForm">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="showId" value="@showId" />
+
+        @foreach (var row in rows)
+        {
+            <div class="mb-2">
+                <strong>Row @row.Key</strong>
+                <div class="d-flex flex-wrap gap-2 mt-1">
+                    @foreach (var s in row.OrderBy(x => (int)x.SeatNumber))
+                    {
+                        var status = (string)s.Status;
+                        var cls = status == "Available" ? "btn-success"
+                        : status == "Booked" ? "btn-danger" : "btn-secondary";
+                        var disabled = status != "Available" ? "disabled" : null;
+
+                        <div class="form-check">
+                            <input class="form-check-input d-none" type="checkbox" id="seat_@s.SeatId"
+                                   name="seatIds" value="@s.SeatId" @(disabled)>
+                            <label class="btn btn-sm @cls"
+                                   for="seat_@s.SeatId"
+                                   title="Type: @s.SeatTypeId • Price: @(s.PriceAtBooking ?? 0M)">
+                                @row.Key@s.SeatNumber
+                            </label>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        <div class="mt-3">
+            <button class="btn btn-primary">Confirm Booking</button>
+            <a asp-controller="Shows" asp-action="Index" class="btn btn-outline-secondary">Back</a>
+        </div>
+    </form>
+}

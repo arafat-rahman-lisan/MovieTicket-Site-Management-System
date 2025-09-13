@@ -1,0 +1,74 @@
+﻿@model IEnumerable<Movie_Site_Management_System.Models.Show>
+@using Movie_Site_Management_System.Models
+@{
+    ViewData["Title"] = "Showtimes";
+    var date = (DateOnly?)ViewBag.Date ?? DateOnly.FromDateTime(DateTime.UtcNow.Date);
+    string dateStr = date.ToString("yyyy-MM-dd");
+}
+
+<h2 class="mb-3">Showtimes</h2>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-auto">
+        <label class="form-label">Theatre</label>
+        <select class="form-select" name="theatreId" asp-items="ViewBag.Theatres">
+            <option value="">-- All --</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <label class="form-label">Date</label>
+        <input class="form-control" type="date" name="date" value="@dateStr" />
+    </div>
+    <div class="col-auto align-self-end">
+        <button class="btn btn-secondary">Apply</button>
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-warning">No shows found for the selected filters.</div>
+}
+else
+{
+    <table class="table table-striped table-bordered align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Theatre</th>
+                <th>Hall</th>
+                <th>Slot</th>
+                <th>Time</th>
+                <th>Movie</th>
+                <th style="width:220px">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var s in Model)
+            {
+                <tr>
+                    <td>@s.HallSlot.Hall.Theatre.Name</td>
+                    <td>@s.HallSlot.Hall.Name</td>
+                    <td>S@s.HallSlot.SlotNumber</td>
+                    <td>@s.HallSlot.StartTime.ToString("HH\\:mm") - @s.HallSlot.EndTime.ToString("HH\\:mm")</td>
+                    <td>@s.Movie.Title</td>
+                    <td class="text-start">
+                        <a asp-controller="ShowSeats" asp-action="Map" asp-route-showId="@s.ShowId" class="btn btn-sm btn-outline-primary me-1">
+                            Seat Map
+                        </a>
+                        <a asp-controller="Bookings" asp-action="Start" asp-route-showId="@s.ShowId" class="btn btn-sm btn-primary me-1">
+                            Book
+                        </a>
+                        <a asp-controller="Shows" asp-action="Details" asp-route-id="@s.ShowId" class="btn btn-sm btn-secondary me-1">
+                            Details
+                        </a>
+                        <a asp-controller="Shows" asp-action="Edit" asp-route-id="@s.ShowId" class="btn btn-sm btn-outline-success me-1">
+                            Edit
+                        </a>
+                        <a asp-controller="Shows" asp-action="Delete" asp-route-id="@s.ShowId" class="btn btn-sm btn-danger">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
