@@ -1,0 +1,26 @@
+﻿@model Movie_Site_Management_System.Models.HallSlot
+@{
+    ViewData["Title"] = "Delete Slot";
+}
+
+<h2 class="mb-3">Delete Hall Slot</h2>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <div><strong>Theatre / Hall:</strong> @Model.Hall?.Theatre?.Name / @Model.Hall?.Name</div>
+        <div><strong>Slot:</strong> S@Model.SlotNumber</div>
+        <div><strong>Time:</strong> @Model.StartTime.ToString("HH\\:mm") - @Model.EndTime.ToString("HH\\:mm")</div>
+        <div><strong>Active:</strong> @(Model.IsActive ? "Yes" : "No")</div>
+    </div>
+</div>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" name="id" value="@Model.HallSlotId" />
+    <button class="btn btn-danger">Confirm Delete</button>
+    <a asp-action="Index" asp-route-hallId="@Model.HallId" class="btn btn-secondary ms-2">Cancel</a>
+</form>

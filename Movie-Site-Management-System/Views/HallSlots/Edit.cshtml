@@ -1,0 +1,49 @@
+﻿@model Movie_Site_Management_System.ViewModels.HallSlots.HallSlotEditVM
+@{
+    ViewData["Title"] = "Edit Hall Slot";
+}
+
+<h2 class="mb-3">Edit Hall Slot</h2>
+
+<form asp-action="Edit" method="post" class="row g-3">
+    <input type="hidden" asp-for="HallSlotId" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="col-md-6">
+        <label asp-for="HallId" class="form-label"></label>
+        <select asp-for="HallId" class="form-select" asp-items="ViewBag.Halls"></select>
+        <span asp-validation-for="HallId" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-3">
+        <label asp-for="SlotNumber" class="form-label"></label>
+        <input asp-for="SlotNumber" class="form-control" />
+        <span asp-validation-for="SlotNumber" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-3 form-check mt-4">
+        <input asp-for="IsActive" class="form-check-input" />
+        <label asp-for="IsActive" class="form-check-label"></label>
+    </div>
+
+    <div class="col-md-3">
+        <label asp-for="StartTime" class="form-label"></label>
+        <input asp-for="StartTime" class="form-control" type="time" />
+        <span asp-validation-for="StartTime" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-3">
+        <label asp-for="EndTime" class="form-label"></label>
+        <input asp-for="EndTime" class="form-control" type="time" />
+        <span asp-validation-for="EndTime" class="text-danger"></span>
+    </div>
+
+    <div class="col-12">
+        <button class="btn btn-primary">Update</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
