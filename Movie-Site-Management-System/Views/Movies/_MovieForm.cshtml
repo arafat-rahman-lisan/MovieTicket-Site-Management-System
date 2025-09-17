@@ -1,0 +1,65 @@
+﻿@model Movie_Site_Management_System.Models.Movie
+@{
+    var genres = ViewBag.Genres as List<SelectListItem>;
+    var statuses = ViewBag.Statuses as List<SelectListItem>;
+}
+
+<div class="mb-3">
+    <label asp-for="Title" class="form-label"></label>
+    <input asp-for="Title" class="form-control" />
+    <span asp-validation-for="Title" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="RuntimeMinutes" class="form-label"></label>
+    <input asp-for="RuntimeMinutes" class="form-control" />
+    <span asp-validation-for="RuntimeMinutes" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="RatingCertificate" class="form-label"></label>
+    <input asp-for="RatingCertificate" class="form-control" />
+    <span asp-validation-for="RatingCertificate" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="Genre" class="form-label"></label>
+    <select asp-for="Genre" asp-items="genres" class="form-select"></select>
+    <span asp-validation-for="Genre" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="Status" class="form-label"></label>
+    <select asp-for="Status" asp-items="statuses" class="form-select"></select>
+    <span asp-validation-for="Status" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="ReleaseDate" class="form-label"></label>
+    <input asp-for="ReleaseDate" class="form-control" type="date" />
+    <span asp-validation-for="ReleaseDate" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="ImdbRating" class="form-label"></label>
+    <input asp-for="ImdbRating" class="form-control" />
+    <span asp-validation-for="ImdbRating" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="Synopsis" class="form-label"></label>
+    <textarea asp-for="Synopsis" class="form-control"></textarea>
+    <span asp-validation-for="Synopsis" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="SmallPosterPath" class="form-label"></label>
+    <input asp-for="SmallPosterPath" class="form-control" />
+    <span asp-validation-for="SmallPosterPath" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="BigPosterPath" class="form-label"></label>
+    <input asp-for="BigPosterPath" class="form-control" />
+    <span asp-validation-for="BigPosterPath" class="text-danger"></span>
+</div>

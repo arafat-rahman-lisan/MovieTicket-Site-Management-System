@@ -1,5 +1,6 @@
 ﻿@model Movie_Site_Management_System.ViewModels.Movies.MoviesIndexVM
 @using Movie_Site_Management_System.Models
+@using Movie_Site_Management_System.Data.Identity
 @{
     ViewData["Title"] = "Movies";
     var hero = Model.Movies.FirstOrDefault();
@@ -27,12 +28,15 @@
                 <li><a href="#" id="nav_genre">Genre</a></li>
                 <li><a href="#" id="nav_top">Top Rated</a></li>
 
-                <!-- Manage button (menu rendered at body level) -->
-                <li class="manage_wrap">
-                    <button type="button" class="manage_btn" id="btnManage">
-                        Manage <i class="bi bi-caret-down-fill"></i>
-                    </button>
-                </li>
+                @* Manage button only for Admin *@
+                @if (User.IsInRole(Roles.Admin))
+                {
+                    <li class="manage_wrap">
+                        <button type="button" class="manage_btn" id="btnManage">
+                            Manage <i class="bi bi-caret-down-fill"></i>
+                        </button>
+                    </li>
+                }
             </ul>
         </div>
 
@@ -57,7 +61,7 @@
         <h1 id="title">@heroTitle</h1>
         <p>Explore featured films currently in our catalogue.</p>
         <div class="details">
-            <h6>A Star Cineplex Presentation</h6>
+            <h6>A Cinex Cineplex Presentation</h6>
             <h5 id="gen">@heroGenre</h5>
             <h4 id="date">@heroYear</h4>
             <h3 id="rate"><span>IMDB</span><i class="bi bi-star-fill"></i> @heroImdb.ToString("0.0")</h3>
@@ -87,7 +91,9 @@
                                 <h3><span>IMDB</span><i class="bi bi-star-fill"></i> @m.Imdb.ToString("0.0")</h3>
                             </div>
                             <div class="actions">
-                                <a class="btn_ticket" href="#">Get Ticket</a>
+                                @* Get Ticket → requires login; routes to Movies/Ticket (redirects to Details) *@
+                                <a class="btn_ticket" href="@Url.Action("Ticket", "Movies", new { id = m.Id })">Get Ticket</a>
+                                @* Details → requires login ([Authorize] on action) *@
                                 <a class="btn_details" href="@Url.Action("Details", "Movies", new { id = m.Id })">Details</a>
                             </div>
                         </div>
@@ -98,21 +104,24 @@
     </section>
 </header>
 
-<!-- BODY-LEVEL: Manage menu panel (fixed; sits above everything) -->
-<div id="manageMenu" class="manage_menu" aria-labelledby="btnManage">
-    <a href="@Url.Action("Index", "Movies")">Movies</a>
-    <a href="@Url.Action("Index", "Theatres")">Theatres</a>
-    <a href="@Url.Action("Index", "Halls")">Halls</a>
-    <a href="@Url.Action("Index", "HallSlots")">Slots</a>
-    <a href="@Url.Action("Index", "SeatTypes")">Seat Types</a>
-    <a href="@Url.Action("Index", "Seats")">Seats</a>
-    <a href="@Url.Action("Index", "Shows")">Shows</a>
-    <a href="@Url.Action("Index", "ShowSeats")">Show Seats</a>
-    <a href="@Url.Action("Index", "Bookings")">Bookings</a>
-    <a href="@Url.Action("Index", "SeatBlocks")">Seat Blocks</a>
-    <div class="manage_divider"></div>
-    <a href="@Url.Action("Index", "Reports")">Reports (soon)</a>
-</div>
+@* BODY-LEVEL: Manage menu – only render if Admin *@
+@if (User.IsInRole(Roles.Admin))
+{
+    <div id="manageMenu" class="manage_menu" aria-labelledby="btnManage">
+        <a href="@Url.Action("Index", "Movies")">Movies</a>
+        <a href="@Url.Action("Index", "Theatres")">Theatres</a>
+        <a href="@Url.Action("Index", "Halls")">Halls</a>
+        <a href="@Url.Action("Index", "HallSlots")">Slots</a>
+        <a href="@Url.Action("Index", "SeatTypes")">Seat Types</a>
+        <a href="@Url.Action("Index", "Seats")">Seats</a>
+        <a href="@Url.Action("Index", "Shows")">Shows</a>
+        <a href="@Url.Action("Index", "ShowSeats")">Show Seats</a>
+        <a href="@Url.Action("Index", "Bookings")">Bookings</a>
+        <a href="@Url.Action("Index", "SeatBlocks")">Seat Blocks</a>
+        <div class="manage_divider"></div>
+        <a href="@Url.Action("Index", "Reports")">Reports (soon)</a>
+    </div>
+}
 
 @{
     // JSON for search dropdown
@@ -317,6 +326,6 @@
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') manageMenu?.classList.remove('show');
     });
-    window.addEventListener('resize', () => { if (manageMenu.classList.contains('show')) positionManageMenu(); });
-    window.addEventListener('scroll', () => { if (manageMenu.classList.contains('show')) positionManageMenu(); });
+    window.addEventListener('resize', () => { if (manageMenu?.classList.contains('show')) positionManageMenu(); });
+    window.addEventListener('scroll', () => { if (manageMenu?.classList.contains('show')) positionManageMenu(); });
 </script>

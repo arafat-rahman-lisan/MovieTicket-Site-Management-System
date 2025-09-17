@@ -1,0 +1,17 @@
+﻿@model Movie_Site_Management_System.Models.Movie
+@{
+    ViewData["Title"] = "Create Movie";
+}
+
+<h2>Create Movie</h2>
+<hr />
+
+<form asp-action="Create" method="post">
+    <partial name="_MovieForm" model="Model" />
+    <button type="submit" class="btn btn-success">Save</button>
+    <a asp-action="AdminIndex" class="btn btn-secondary">Back</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

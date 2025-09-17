@@ -1,11 +1,10 @@
 ﻿@model Movie_Site_Management_System.ViewModels.Movies.MovieDetailsVM
 @using Movie_Site_Management_System.Models
+
 @{
     ViewData["Title"] = Model.Title;
 }
 <link rel="stylesheet" href="~/css/movie-details.css" asp-append-version="true" />
-
-
 
 <section class="movie-details container py-4">
     <div class="row g-4">
@@ -48,9 +47,14 @@
             <select name="theatreId" class="form-select w-auto d-inline" onchange="this.form.submit()">
                 @foreach (var t in Model.TheatreOptions)
                 {
-                    <option value="@t.TheatreId" selected="@(Model.SelectedTheatreId == t.TheatreId)">
-                        @t.Name @(string.IsNullOrWhiteSpace(t.Location) ? "" : $"— {t.Location}")
-                    </option>
+                    if (Model.SelectedTheatreId == t.TheatreId)
+                    {
+                        <option value="@t.TheatreId" selected>@t.TheatreName</option>
+                    }
+                    else
+                    {
+                        <option value="@t.TheatreId">@t.TheatreName</option>
+                    }
                 }
             </select>
         </form>
@@ -68,16 +72,22 @@
                 <div class="card-header fw-semibold">
                     @block.Date.ToDateTime(new TimeOnly(0, 0)).ToString("dddd, dd MMMM yyyy")
                 </div>
+
                 <div class="card-body d-flex flex-wrap gap-2">
-                    @foreach (var t in block.Times)
+                    @foreach (var s in block.Items)
                     {
-                        <span class="badge bg-warning text-dark p-2">
-                            @t.Start.ToString("hh:mm tt") (@t.HallName)
-                        </span>
+                        <a class="badge bg-warning text-dark p-2 text-decoration-none"
+                           asp-controller="ShowSeats"
+                           asp-action="Map"
+                           asp-route-showId="@s.ShowId"
+                           title="Get Tickets for @s.Hall at @s.StartTime.ToString("hh:mm tt")">
+                            @s.StartTime.ToString("hh:mm tt") (@s.Hall)
+                        </a>
                     }
                 </div>
+
                 <div class="card-footer">
-                    <a href="javascript:void(0)" class="btn btn-sm btn-success">Get Tickets</a>
+                    <span class="text-muted">Pick a time above to get tickets.</span>
                 </div>
             </div>
         }
