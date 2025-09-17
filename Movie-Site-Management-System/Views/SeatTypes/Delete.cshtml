@@ -1,0 +1,33 @@
+﻿@model Movie_Site_Management_System.Models.SeatType
+@{
+    ViewData["Title"] = "Delete Seat Type";
+    var relatedSeats = (int?)ViewBag.RelatedSeatCount ?? 0;
+    // var relatedShowSeats = (int?)ViewBag.RelatedShowSeatCount ?? 0;
+    var hasRelations = relatedSeats /* + relatedShowSeats */ > 0;
+}
+<h2>Delete Seat Type</h2>
+<hr />
+
+@if (hasRelations)
+{
+    <div class="alert alert-danger">
+        <strong>Warning:</strong> This seat type is already used (Seats: @relatedSeats). You cannot delete it.
+    </div>
+}
+
+<dl class="row">
+    <dt class="col-sm-3">Name</dt>
+    <dd class="col-sm-9">@Model.Name</dd>
+
+    <dt class="col-sm-3">Description</dt>
+    <dd class="col-sm-9">@Model.Description</dd>
+
+    <dt class="col-sm-3">Base Price</dt>
+    <dd class="col-sm-9">@String.Format("{0:0.00}", Model.BasePrice)</dd>
+</dl>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="SeatTypeId" />
+    <button type="submit" class="btn btn-danger" @(hasRelations ? "disabled" : "")>Confirm Delete</button>
+    <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+</form>

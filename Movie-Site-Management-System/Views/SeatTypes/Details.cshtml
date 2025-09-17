@@ -1,0 +1,19 @@
+﻿@model Movie_Site_Management_System.Models.SeatType
+@{
+    ViewData["Title"] = "Seat Type Details";
+}
+<h2>Seat Type Details</h2>
+<hr />
+<dl class="row">
+    <dt class="col-sm-3">Name</dt>
+    <dd class="col-sm-9">@Model.Name</dd>
+
+    <dt class="col-sm-3">Description</dt>
+    <dd class="col-sm-9">@Model.Description</dd>
+
+    <dt class="col-sm-3">Base Price</dt>
+    <dd class="col-sm-9">@String.Format("{0:0.00}", Model.BasePrice)</dd>
+</dl>
+
+<a asp-action="Edit" asp-route-id="@Model.SeatTypeId" class="btn btn-outline-primary">Edit</a>
+<a asp-action="Index" class="btn btn-secondary ms-2">Back</a>

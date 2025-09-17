@@ -1,0 +1,15 @@
+﻿@model Movie_Site_Management_System.Models.SeatType
+@{
+    ViewData["Title"] = "Create Seat Type";
+}
+<h2>Create Seat Type</h2>
+<hr />
+<form asp-action="Create" method="post">
+    <partial name="_Form" model="Model" />
+    <button type="submit" class="btn btn-success">Save</button>
+    <a asp-action="Index" class="btn btn-secondary ms-2">Back</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
