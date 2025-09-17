@@ -12,8 +12,8 @@ using Movie_Site_Management_System.Data;
 namespace Movie_Site_Management_System.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250913220028_INITIAL")]
-    partial class INITIAL
+    [Migration("20250914165947_UpdateShowSeatSnapshotFields")]
+    partial class UpdateShowSeatSnapshotFields
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -362,26 +362,42 @@ namespace Movie_Site_Management_System.Migrations
 
             modelBuilder.Entity("Movie_Site_Management_System.Models.ShowSeat", b =>
                 {
-                    b.Property<long>("ShowId")
+                    b.Property<long>("ShowSeatId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ShowSeatId"));
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
 
                     b.Property<long>("SeatId")
                         .HasColumnType("bigint");
 
-                    b.Property<DateTime?>("HoldExpiresAt")
-                        .HasColumnType("datetime2");
+                    b.Property<short>("SeatTypeId")
+                        .HasColumnType("smallint");
 
-                    b.Property<decimal?>("PriceAtBooking")
-                        .HasColumnType("decimal(10,2)");
+                    b.Property<long>("ShowId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
-                    b.HasKey("ShowId", "SeatId");
+                    b.HasKey("ShowSeatId");
 
                     b.HasIndex("SeatId");
+
+                    b.HasIndex("SeatTypeId");
+
+                    b.HasIndex("ShowId", "SeatId")
+                        .IsUnique();
 
                     b.ToTable("ShowSeats");
                 });
@@ -472,7 +488,7 @@ namespace Movie_Site_Management_System.Migrations
                     b.HasOne("Movie_Site_Management_System.Models.Hall", "Hall")
                         .WithMany("HallSlots")
                         .HasForeignKey("HallId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Hall");
@@ -543,7 +559,13 @@ namespace Movie_Site_Management_System.Migrations
                     b.HasOne("Movie_Site_Management_System.Models.Seat", "Seat")
                         .WithMany("ShowSeats")
                         .HasForeignKey("SeatId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Movie_Site_Management_System.Models.SeatType", "SeatType")
+                        .WithMany()
+                        .HasForeignKey("SeatTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Movie_Site_Management_System.Models.Show", "Show")
@@ -553,6 +575,8 @@ namespace Movie_Site_Management_System.Migrations
                         .IsRequired();
 
                     b.Navigation("Seat");
+
+                    b.Navigation("SeatType");
 
                     b.Navigation("Show");
                 });

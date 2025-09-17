@@ -5,7 +5,7 @@
 namespace Movie_Site_Management_System.Migrations
 {
     /// <inheritdoc />
-    public partial class SEEDING : Migration
+    public partial class UpdateMovieAndShowRelations : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

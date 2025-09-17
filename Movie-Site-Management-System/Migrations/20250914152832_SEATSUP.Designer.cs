@@ -12,8 +12,8 @@ using Movie_Site_Management_System.Data;
 namespace Movie_Site_Management_System.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250913220028_INITIAL")]
-    partial class INITIAL
+    [Migration("20250914152832_SEATSUP")]
+    partial class SEATSUP
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -472,7 +472,7 @@ namespace Movie_Site_Management_System.Migrations
                     b.HasOne("Movie_Site_Management_System.Models.Hall", "Hall")
                         .WithMany("HallSlots")
                         .HasForeignKey("HallId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Hall");
