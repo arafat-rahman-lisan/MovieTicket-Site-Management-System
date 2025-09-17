@@ -1,33 +1,13 @@
-﻿using Movie_Site_Management_System.Models;
+﻿// File: Services/Service/ShowSeatsService.cs
+using Movie_Site_Management_System.Data;
+using Movie_Site_Management_System.Data.BaseImpl;
+using Movie_Site_Management_System.Models;
 using Movie_Site_Management_System.Services.Interfaces;
 
-namespace Movie_Site_Management_System.Data.Services.Service
+namespace Movie_Site_Management_System.Services.Service
 {
-    public class ShowSeatsService : IShowSeatsService
+    public class ShowSeatsService : EntityBaseRepository<ShowSeat>, IShowSeatsService
     {
-        public Task AddAsync(ShowSeat showSeat)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task DeleteAsync(long showId, long seatId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<ShowSeat>> GetAllAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<ShowSeat?> GetByIdAsync(long showId, long seatId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task UpdateAsync(ShowSeat showSeat)
-        {
-            throw new NotImplementedException();
-        }
+        public ShowSeatsService(AppDbContext context) : base(context) { }
     }
 }

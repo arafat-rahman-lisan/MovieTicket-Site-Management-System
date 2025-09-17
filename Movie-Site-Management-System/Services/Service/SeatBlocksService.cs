@@ -1,33 +1,13 @@
-﻿using Movie_Site_Management_System.Data.Services.Interfaces;
+﻿// File: Services/Service/SeatBlocksService.cs
+using Movie_Site_Management_System.Data;
+using Movie_Site_Management_System.Data.BaseImpl;
 using Movie_Site_Management_System.Models;
+using Movie_Site_Management_System.Services.Interfaces;
 
-namespace Movie_Site_Management_System.Data.Services.Service
+namespace Movie_Site_Management_System.Services.Service
 {
-    public class SeatBlocksService : ISeatBlocksService
+    public class SeatBlocksService : EntityBaseRepository<SeatBlock>, ISeatBlocksService
     {
-        public Task AddAsync(SeatBlock seatBlock)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task DeleteAsync(long id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<SeatBlock>> GetAllAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<SeatBlock?> GetByIdAsync(long id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task UpdateAsync(SeatBlock seatBlock)
-        {
-            throw new NotImplementedException();
-        }
+        public SeatBlocksService(AppDbContext context) : base(context) { }
     }
 }

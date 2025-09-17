@@ -1,33 +1,13 @@
-﻿using Movie_Site_Management_System.Data.Services.Interfaces;
+﻿// File: Services/Service/SeatTypesService.cs
+using Movie_Site_Management_System.Data;
+using Movie_Site_Management_System.Data.BaseImpl;
 using Movie_Site_Management_System.Models;
+using Movie_Site_Management_System.Services.Interfaces;
 
-namespace Movie_Site_Management_System.Data.Services.Service
+namespace Movie_Site_Management_System.Services.Service
 {
-    public class SeatTypesService : ISeatTypesService
+    public class SeatTypesService : EntityBaseRepository<SeatType>, ISeatTypesService
     {
-        public Task AddAsync(SeatType seatType)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task DeleteAsync(long id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<SeatType>> GetAllAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<SeatType?> GetByIdAsync(long id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task UpdateAsync(SeatType seatType)
-        {
-            throw new NotImplementedException();
-        }
+        public SeatTypesService(AppDbContext context) : base(context) { }
     }
 }

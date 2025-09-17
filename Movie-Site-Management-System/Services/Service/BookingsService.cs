@@ -1,34 +1,13 @@
-﻿using Movie_Site_Management_System.Services.Interfaces;
+﻿// File: Services/Service/BookingsService.cs
+using Movie_Site_Management_System.Data;
+using Movie_Site_Management_System.Data.BaseImpl;
 using Movie_Site_Management_System.Models;
-using Movie_Site_Management_System.Data.Services.Interfaces;
+using Movie_Site_Management_System.Services.Interfaces;
 
 namespace Movie_Site_Management_System.Services.Service
 {
-    public class BookingsService : IBookingsService
+    public class BookingsService : EntityBaseRepository<Booking>, IBookingsService
     {
-        public Task AddAsync(Booking booking)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task DeleteAsync(long id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<Booking>> GetAllAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Booking?> GetByIdAsync(long id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task UpdateAsync(Booking booking)
-        {
-            throw new NotImplementedException();
-        }
+        public BookingsService(AppDbContext context) : base(context) { }
     }
 }

@@ -1,33 +1,13 @@
-﻿using   Movie_Site_Management_System.Data.Services.Interfaces;
+﻿// File: Services/Service/HallsService.cs
+using Movie_Site_Management_System.Data;
+using Movie_Site_Management_System.Data.BaseImpl;
 using Movie_Site_Management_System.Models;
+using Movie_Site_Management_System.Services.Interfaces;
 
-namespace Movie_Site_Management_System.Data.Services.Service
+namespace Movie_Site_Management_System.Services.Service
 {
-    public class HallsService : IHallsService
+    public class HallsService : EntityBaseRepository<Hall>, IHallsService
     {
-        public Task AddAsync(Hall hall)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task DeleteAsync(long id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<Hall>> GetAllAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Hall?> GetByIdAsync(long id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task UpdateAsync(Hall hall)
-        {
-            throw new NotImplementedException();
-        }
+        public HallsService(AppDbContext context) : base(context) { }
     }
 }

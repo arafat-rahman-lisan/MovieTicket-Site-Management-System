@@ -1,33 +1,13 @@
-﻿using Movie_Site_Management_System.Models;
+﻿// File: Services/Service/MoviesService.cs
+using Movie_Site_Management_System.Data;
+using Movie_Site_Management_System.Data.BaseImpl;
+using Movie_Site_Management_System.Models;
 using Movie_Site_Management_System.Services.Interfaces;
 
-namespace Movie_Site_Management_System.Data.Services.Service
+namespace Movie_Site_Management_System.Services.Service
 {
-    public class MoviesService : IMoviesService
+    public class MoviesService : EntityBaseRepository<Movie>, IMoviesService
     {
-        public Task AddAsync(Movie movie)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task DeleteAsync(long id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<Movie>> GetAllAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Movie?> GetByIdAsync(long id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task UpdateAsync(Movie movie)
-        {
-            throw new NotImplementedException();
-        }
+        public MoviesService(AppDbContext context) : base(context) { }
     }
 }
