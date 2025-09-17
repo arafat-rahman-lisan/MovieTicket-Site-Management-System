@@ -1,1 +1,25 @@
+@model IEnumerable<Movie_Site_Management_System.ViewModels.Account.UserRow>
+@{
+    ViewData["Title"] = "Users";
+}
 
+<h3 class="mb-3">Registered Users</h3>
+<table class="table table-striped align-middle">
+    <thead class="table-light">
+        <tr>
+            <th>Email</th>
+            <th>Full name</th>
+            <th>Roles</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var u in Model)
+        {
+            <tr>
+                <td>@u.Email</td>
+                <td>@u.FullName</td>
+                <td>@u.Roles</td>
+            </tr>
+        }
+    </tbody>
+</table>
