@@ -6,8 +6,14 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
+// 🔐
+using Microsoft.AspNetCore.Authorization;
+using Movie_Site_Management_System.Data.Identity;
+
 namespace Movie_Site_Management_System.Controllers
 {
+    // 🔐 Entire controller is Admin-only (except Locations endpoint below)
+    [Authorize(Roles = Roles.Admin)]
     public class TheatresController : Controller
     {
         private readonly AppDbContext _db;
@@ -25,20 +31,14 @@ namespace Movie_Site_Management_System.Controllers
         }
 
         // GET: Theatres/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
+        public IActionResult Create() => View();
 
         // POST: Theatres/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Name,Address,City,Lat,Lng,IsActive")] Theatre theatre)
         {
-            if (!ModelState.IsValid)
-            {
-                return View(theatre);
-            }
+            if (!ModelState.IsValid) return View(theatre);
 
             theatre.CreatedAt = DateTime.UtcNow;
 
@@ -49,28 +49,60 @@ namespace Movie_Site_Management_System.Controllers
         }
 
         // GET: Theatres/Details/5
+        // Shows + Halls (with counts) for the selected date.
         public async Task<IActionResult> Details(long id, DateOnly? date)
         {
             var theatre = await _db.Theatres
-                .Include(t => t.Halls)
+                .Include(t => t.Halls) // for Delete screen & quick checks
                 .AsNoTracking()
                 .FirstOrDefaultAsync(t => t.TheatreId == id);
 
-            if (theatre == null)
-                return NotFound();
+            if (theatre == null) return NotFound();
 
+            // ---- Date handling
             var targetDate = date ?? DateOnly.FromDateTime(DateTime.UtcNow.Date);
+            ViewBag.Date = targetDate;
 
-            var shows = await _db.Shows.AsNoTracking()
+            // ---- Shows for that theatre & date (null-safe)
+            var shows = await _db.Shows
+                .AsNoTracking()
                 .Include(s => s.Movie)
-                .Include(s => s.HallSlot).ThenInclude(hs => hs.Hall)
-                .Where(s => s.HallSlot.Hall.TheatreId == id && s.ShowDate == targetDate)
-                .OrderBy(s => s.HallSlot.HallId)
-                .ThenBy(s => s.HallSlot.SlotNumber)
+                .Include(s => s.HallSlot!).ThenInclude(hs => hs.Hall!)
+                .Where(s =>
+                    s.ShowDate == targetDate &&
+                    s.HallSlot != null &&
+                    s.HallSlot.Hall != null &&
+                    s.HallSlot.Hall.TheatreId == id)
+                .OrderBy(s => s.HallSlot!.HallId)
+                .ThenBy(s => s.HallSlot!.SlotNumber)
                 .ToListAsync();
 
-            ViewBag.Date = targetDate;
             ViewBag.Shows = shows;
+
+            // ---- Halls table with live counts (Seats, Slots, Shows)
+            var halls = await _db.Halls
+                .AsNoTracking()
+                .Where(h => h.TheatreId == id)
+                .Select(h => new
+                {
+                    h.HallId,
+                    h.Name,
+                    h.Capacity,
+                    h.SeatmapVersion,
+                    h.IsActive,
+                    SeatCount = _db.Seats.Count(s => s.HallId == h.HallId),
+                    SlotCount = _db.HallSlots.Count(sl => sl.HallId == h.HallId),
+                    ShowCount = (
+                        from sh in _db.Shows
+                        join hs in _db.HallSlots on sh.HallSlotId equals hs.HallSlotId
+                        where hs.HallId == h.HallId
+                        select sh
+                    ).Count()
+                })
+                .OrderBy(h => h.Name)
+                .ToListAsync();
+
+            ViewBag.Halls = halls;
 
             return View(theatre);
         }
@@ -79,8 +111,7 @@ namespace Movie_Site_Management_System.Controllers
         public async Task<IActionResult> Edit(long id)
         {
             var theatre = await _db.Theatres.FindAsync(id);
-            if (theatre == null)
-                return NotFound();
+            if (theatre == null) return NotFound();
 
             return View(theatre);
         }
@@ -90,11 +121,8 @@ namespace Movie_Site_Management_System.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("TheatreId,Name,Address,City,Lat,Lng,IsActive,CreatedAt")] Theatre theatre)
         {
-            if (id != theatre.TheatreId)
-                return NotFound();
-
-            if (!ModelState.IsValid)
-                return View(theatre);
+            if (id != theatre.TheatreId) return NotFound();
+            if (!ModelState.IsValid) return View(theatre);
 
             try
             {
@@ -103,15 +131,13 @@ namespace Movie_Site_Management_System.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!await _db.Theatres.AnyAsync(e => e.TheatreId == id))
-                    return NotFound();
-                else
-                    throw;
+                var exists = await _db.Theatres.AnyAsync(e => e.TheatreId == id);
+                if (!exists) return NotFound();
+                throw;
             }
 
             return RedirectToAction(nameof(Index));
         }
-
 
         // GET: Theatres/Delete/5
         public async Task<IActionResult> Delete(long id)
@@ -121,8 +147,7 @@ namespace Movie_Site_Management_System.Controllers
                 .AsNoTracking()
                 .FirstOrDefaultAsync(t => t.TheatreId == id);
 
-            if (theatre == null)
-                return NotFound();
+            if (theatre == null) return NotFound();
 
             ViewBag.HallCount = theatre.Halls?.Count ?? 0;
             return View(theatre);
@@ -137,7 +162,6 @@ namespace Movie_Site_Management_System.Controllers
             var hasHalls = await _db.Halls.AnyAsync(h => h.TheatreId == id);
             if (hasHalls)
             {
-                // Reload entity to show on the page again
                 var tAgain = await _db.Theatres.AsNoTracking().FirstOrDefaultAsync(t => t.TheatreId == id);
                 if (tAgain == null) return NotFound();
 
@@ -147,8 +171,7 @@ namespace Movie_Site_Management_System.Controllers
             }
 
             var theatre = await _db.Theatres.FindAsync(id);
-            if (theatre == null)
-                return NotFound();
+            if (theatre == null) return NotFound();
 
             try
             {
@@ -158,7 +181,6 @@ namespace Movie_Site_Management_System.Controllers
             }
             catch (DbUpdateException)
             {
-                // If there are FK constraints we didn’t account for
                 var tAgain = await _db.Theatres.AsNoTracking().FirstOrDefaultAsync(t => t.TheatreId == id);
                 ViewBag.HallCount = await _db.Halls.CountAsync(h => h.TheatreId == id);
                 ModelState.AddModelError(string.Empty, "Delete failed due to related data. Remove dependents and try again.");
@@ -166,9 +188,10 @@ namespace Movie_Site_Management_System.Controllers
             }
         }
 
-
         // GET /theatres/locations
+        // 🌐 Keep this public so anonymous users can open the location picker on Movies page.
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> Locations()
         {
             var items = await _db.Theatres

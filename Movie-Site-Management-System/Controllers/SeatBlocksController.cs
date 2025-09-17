@@ -1,9 +1,11 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Movie_Site_Management_System.Data;
+using Movie_Site_Management_System.Data.Identity;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Movie_Site_Management_System.Controllers
 {
@@ -12,6 +14,7 @@ namespace Movie_Site_Management_System.Controllers
     /// Routes:
     ///   GET /seatblocks?hallId=1
     /// </summary>
+    [Authorize(Roles = Roles.Admin)]
     public class SeatBlocksController : Controller
     {
         private readonly AppDbContext _db;

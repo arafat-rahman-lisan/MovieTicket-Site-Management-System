@@ -1,8 +1,10 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Movie_Site_Management_System.Data;
+using Movie_Site_Management_System.Data.Identity;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Movie_Site_Management_System.Controllers
 {
@@ -11,6 +13,7 @@ namespace Movie_Site_Management_System.Controllers
     /// Routes:
     ///   GET /shownotes?showId=123
     /// </summary>
+    [Authorize(Roles = Roles.Admin)]
     public class ShowNotesController : Controller
     {
         private readonly AppDbContext _db;
