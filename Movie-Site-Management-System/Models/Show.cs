@@ -30,29 +30,22 @@ namespace Movie_Site_Management_System.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        // RELATIONS
-        // Show (N) -> (1) Movie
-        public Movie Movie { get; set; } = default!;
-
-        // Show (N) -> (1) HallSlot
-        public HallSlot HallSlot { get; set; } = default!;
-
-        // Show (1) -> (N) ShowSeat
+        // RELATIONS (nullable at runtime until EF loads them)
+        public Movie? Movie { get; set; }
+        public HallSlot? HallSlot { get; set; }
         public ICollection<ShowSeat> ShowSeats { get; set; } = new List<ShowSeat>();
-
-        // Show (1) -> (N) Booking
         public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
-
-        // Show (1) -> (N) ShowNote (optional ops log)
         public ICollection<ShowNote> ShowNotes { get; set; } = new List<ShowNote>();
 
-        // convenience (not mapped)
+        // Convenience (not mapped) - null-safe so it never throws
         [NotMapped]
         public DateTime StartDateTime =>
-            ShowDate.ToDateTime(HallSlot.StartTime);
+            ShowDate.ToDateTime(HallSlot?.StartTime ?? TimeOnly.MinValue);
 
         [NotMapped]
         public DateTime EndDateTime =>
-            ShowDate.ToDateTime(HallSlot.EndTime);
+            ShowDate.ToDateTime(HallSlot?.EndTime ?? TimeOnly.MinValue);
+
+        public DateOnly Date { get; internal set; }
     }
 }

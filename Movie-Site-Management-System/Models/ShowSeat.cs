@@ -1,26 +1,44 @@
-﻿using Movie_Site_Management_System.Data.Enums;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+using Movie_Site_Management_System.Data.Enums;
 
 namespace Movie_Site_Management_System.Models
 {
+    // Ensure one seat appears at most once per show
+    [Index(nameof(ShowId), nameof(SeatId), IsUnique = true)]
     public class ShowSeat
     {
-        // COMPOSITE KEY: ShowId + SeatId (configured in DbContext)
+        public long ShowSeatId { get; set; }
+
+        // FKs
+        [Required]
         public long ShowId { get; set; }
+
+        [Required]
         public long SeatId { get; set; }
 
-        public ShowSeatStatus Status { get; set; } = ShowSeatStatus.AVAILABLE;
-        public DateTime? HoldExpiresAt { get; set; }
+        // Snapshot fields (copied at show creation time)
+        [Required]
+        public short SeatTypeId { get; set; }   // from Seat.SeatTypeId at snapshot
 
         [Column(TypeName = "decimal(10,2)")]
-        public decimal? PriceAtBooking { get; set; }
+        [Range(0, 9999999999.99)]
+        public decimal Price { get; set; }      // from SeatType.BasePrice at snapshot
 
-        // RELATIONS
-        // ShowSeat (N) -> (1) Show
-        public Show Show { get; set; } = default!;
+        [Required]
+        public ShowSeatStatus Status { get; set; } = ShowSeatStatus.Available;
 
-        // ShowSeat (N) -> (1) Seat
-        public Seat Seat { get; set; } = default!;
+        // Concurrency token to avoid double-booking races
+        [Timestamp]
+        public byte[]? RowVersion { get; set; }
 
+        // Navigations
+        public Show? Show { get; set; }
+        public Seat? Seat { get; set; }
+        public SeatType? SeatType { get; set; }
+
+        // ✅ Back-reference for BookingSeat
+        public ICollection<BookingSeat> BookingSeats { get; set; } = new List<BookingSeat>();
     }
 }

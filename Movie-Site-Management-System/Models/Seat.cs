@@ -1,12 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace Movie_Site_Management_System.Models
 {
+    // Ensure (HallId, RowLabel, SeatNumber) is unique inside a hall
+    [Index(nameof(HallId), nameof(RowLabel), nameof(SeatNumber), IsUnique = true)]
     public class Seat
     {
         public long SeatId { get; set; }
 
-        // FK -> Hall
         [Required(ErrorMessage = "Hall is required.")]
         public long HallId { get; set; }
 
@@ -18,7 +21,6 @@ namespace Movie_Site_Management_System.Models
         [Range(1, int.MaxValue, ErrorMessage = "Seat number must be greater than zero.")]
         public int SeatNumber { get; set; }
 
-        // FK -> SeatType
         [Required(ErrorMessage = "Seat type is required.")]
         public short SeatTypeId { get; set; }
 
@@ -31,20 +33,11 @@ namespace Movie_Site_Management_System.Models
         [Required(ErrorMessage = "Disabled status must be set.")]
         public bool IsDisabled { get; set; }
 
-        // RELATIONS
-        // Seat (N) -> (1) Hall
+        // Relations
         public Hall Hall { get; set; } = default!;
-
-        // Seat (N) -> (1) SeatType
         public SeatType SeatType { get; set; } = default!;
-
-        // Seat (1) -> (N) ShowSeat
         public ICollection<ShowSeat> ShowSeats { get; set; } = new List<ShowSeat>();
-
-        // Seat (1) -> (N) BookingSeat
         public ICollection<BookingSeat> BookingSeats { get; set; } = new List<BookingSeat>();
-
-        // Seat (1) -> (N) SeatBlock
         public ICollection<SeatBlock> SeatBlocks { get; set; } = new List<SeatBlock>();
     }
 }
