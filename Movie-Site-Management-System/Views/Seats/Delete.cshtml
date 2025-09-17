@@ -1,0 +1,23 @@
+﻿@model Movie_Site_Management_System.Models.Seat
+@{
+    ViewData["Title"] = "Delete Seat";
+}
+<h2 class="mb-3">Delete Seat</h2>
+
+<div class="alert alert-warning">
+    Are you sure you want to delete this seat?
+</div>
+
+<table class="table table-bordered w-auto">
+    <tr><th>Hall</th><td>@($"{Model.Hall?.Theatre?.Name} / {Model.Hall?.Name}")</td></tr>
+    <tr><th>Row</th><td>@Model.RowLabel</td></tr>
+    <tr><th>Number</th><td>@Model.SeatNumber</td></tr>
+    <tr><th>Seat Type</th><td>@Model.SeatType?.Name</td></tr>
+</table>
+
+<form asp-action="Delete" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="SeatId" />
+    <button class="btn btn-danger">Delete</button>
+    <a asp-action="Details" asp-route-id="@Model.SeatId" class="btn btn-outline-secondary ms-2">Cancel</a>
+</form>

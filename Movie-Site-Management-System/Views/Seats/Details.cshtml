@@ -1,0 +1,25 @@
+﻿@model Movie_Site_Management_System.Models.Seat
+@{
+    ViewData["Title"] = "Seat Details";
+}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Seat Details</h2>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.SeatId" class="btn btn-sm btn-primary me-2">Edit</a>
+        <a asp-action="Index" asp-route-hallId="@Model.HallId" class="btn btn-sm btn-outline-secondary">Back</a>
+    </div>
+</div>
+
+<table class="table table-bordered w-auto">
+    <tr><th>Hall</th><td>@($"{Model.Hall?.Theatre?.Name} / {Model.Hall?.Name}")</td></tr>
+    <tr><th>Row</th><td>@Model.RowLabel</td></tr>
+    <tr><th>Number</th><td>@Model.SeatNumber</td></tr>
+    <tr><th>Seat Type</th><td>@Model.SeatType?.Name</td></tr>
+    <tr><th>Pos X</th><td>@Model.PosX</td></tr>
+    <tr><th>Pos Y</th><td>@Model.PosY</td></tr>
+    <tr><th>Disabled</th><td>@(Model.IsDisabled ? "Yes" : "No")</td></tr>
+</table>
+
+<div class="alert alert-info mt-3">
+    JSON preview: <a href="/seats/grid/@Model.HallId">/seats/grid/@Model.HallId</a>
+</div>

@@ -1,0 +1,16 @@
+﻿@model Movie_Site_Management_System.Models.Seat
+@{
+    ViewData["Title"] = "Add Seat";
+}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Add Seat</h2>
+    <a asp-action="Index" asp-route-hallId="@Model.HallId" class="btn btn-outline-secondary btn-sm">Back</a>
+</div>
+
+<form asp-action="Create" method="post" class="card card-body">
+    @Html.AntiForgeryToken()
+    <partial name="_SeatForm" model="Model" />
+    <div class="mt-3">
+        <button class="btn btn-success">Save</button>
+    </div>
+</form>
