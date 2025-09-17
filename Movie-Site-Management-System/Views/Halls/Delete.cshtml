@@ -1,0 +1,38 @@
+﻿@model Movie_Site_Management_System.Models.Hall
+@{
+    ViewData["Title"] = "Delete Hall";
+    var slotCount = (int?)ViewBag.SlotCount ?? 0;
+    var seatCount = (int?)ViewBag.SeatCount ?? 0;
+    var showCount = (int?)ViewBag.ShowCount ?? 0;
+    var hasDeps = slotCount + seatCount + showCount > 0;
+}
+
+<h2 class="mb-3">Delete Hall</h2>
+
+<div class="alert @(hasDeps ? "alert-warning" : "alert-danger")">
+    <strong>Are you sure?</strong> You are about to delete <em>@Model.Name</em> in theatre <em>@Model.Theatre?.Name</em>.
+    @if (hasDeps)
+    {
+        <div class="mt-2">
+            <div>Related items:</div>
+            <ul class="mb-0">
+                <li>Slots: @slotCount</li>
+                <li>Seats: @seatCount</li>
+                <li>Shows: @showCount</li>
+            </ul>
+            <div class="mt-2">You must remove these before deletion.</div>
+        </div>
+    }
+</div>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="HallId" />
+    <div class="d-flex gap-2">
+        @if (!hasDeps)
+        {
+            <button type="submit" class="btn btn-danger">Delete</button>
+        }
+        <a asp-action="Details" asp-route-id="@Model.HallId" class="btn btn-secondary">Back</a>
+        <a asp-action="Index" class="btn btn-outline-secondary">All Halls</a>
+    </div>
+</form>

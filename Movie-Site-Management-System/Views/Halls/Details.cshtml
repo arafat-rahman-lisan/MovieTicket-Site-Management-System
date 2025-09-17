@@ -1,59 +1,60 @@
-﻿@model Hall
-@using Movie_Site_Management_System.Models
+﻿@model Movie_Site_Management_System.Models.Hall
 @{
     ViewData["Title"] = "Hall Details";
-    var seats = ViewBag.Seats as IEnumerable<Seat>;
-    var slots = ViewBag.Slots as IEnumerable<HallSlot>;
+    var seatCount = (int?)ViewBag.SeatCount ?? 0;
+    var slotCount = (int?)ViewBag.SlotCount ?? 0;
+    var showCount = (int?)ViewBag.ShowCount ?? 0;
 }
 
-<h2 class="mb-1">@Model.Name</h2>
-<p class="text-muted">@Model.Theatre?.Name • Capacity: @Model.Capacity</p>
+<h2 class="mb-3">Hall: @Model.Name</h2>
 
-<h5>Slots</h5>
-@if (slots == null || !slots.Any())
+@if (TempData["Error"] is string err && !string.IsNullOrWhiteSpace(err))
 {
-    <div class="alert alert-warning">No slots defined.</div>
-}
-else
-{
-    <ul class="list-group mb-3">
-        @foreach (var s in slots.OrderBy(s => s.SlotNumber))
-        {
-            <li class="list-group-item d-flex justify-content-between">
-                <span>Slot S@s.SlotNumber</span>
-                <span>@s.StartTime.ToString("HH\\:mm") - @s.EndTime.ToString("HH\\:mm")</span>
-                <a asp-controller="HallSlots" asp-action="Details" asp-route-id="@s.HallSlotId" class="btn btn-sm btn-outline-primary">Open</a>
-            </li>
-        }
-    </ul>
+    <div class="alert alert-danger">@err</div>
 }
 
-<h5>Seats</h5>
-@if (seats == null || !seats.Any())
-{
-    <div class="alert alert-info">No seats yet.</div>
-}
-else
-{
-    <table class="table table-sm table-striped">
-        <thead>
-            <tr>
-                <th>Row</th>
-                <th>No.</th>
-                <th>Type</th>
-                <th>Disabled</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var s in seats)
-            {
-                <tr>
-                    <td>@s.RowLabel</td>
-                    <td>@s.SeatNumber</td>
-                    <td>@s.SeatType?.Name</td>
-                    <td>@(s.IsDisabled ? "Yes" : "No")</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+<dl class="row">
+    <dt class="col-sm-3">Theatre</dt>
+    <dd class="col-sm-9">@Model.Theatre?.Name</dd>
+
+    <dt class="col-sm-3">Capacity</dt>
+    <dd class="col-sm-9">@Model.Capacity</dd>
+
+    <dt class="col-sm-3">Seatmap Version</dt>
+    <dd class="col-sm-9">@Model.SeatmapVersion</dd>
+
+    <dt class="col-sm-3">Active</dt>
+    <dd class="col-sm-9">@((Model.IsActive) ? "Yes" : "No")</dd>
+</dl>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="fw-semibold">Seats</div>
+                <div class="display-6">@seatCount</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="fw-semibold">Slots</div>
+                <div class="display-6">@slotCount</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="fw-semibold">Shows</div>
+                <div class="display-6">@showCount</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-3 d-flex gap-2">
+    <a asp-action="Edit" asp-route-id="@Model.HallId" class="btn btn-primary">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back</a>
+</div>
