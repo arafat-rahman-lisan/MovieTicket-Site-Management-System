@@ -1,0 +1,19 @@
+﻿@model Movie_Site_Management_System.Models.Show
+@{
+    ViewData["Title"] = "Delete Show";
+}
+<h2>Delete Show</h2>
+<hr />
+<div class="alert alert-danger">
+    Are you sure you want to delete this show?
+</div>
+<ul>
+    <li><strong>Movie:</strong> @Model.Movie?.Title</li>
+    <li><strong>Date:</strong> @Model.ShowDate.ToString("yyyy-MM-dd")</li>
+    <li><strong>Theatre/Hall/Slot:</strong> @Model.HallSlot?.Hall?.Theatre?.Name / @Model.HallSlot?.Hall?.Name / S@Model.HallSlot?.SlotNumber</li>
+</ul>
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="ShowId" />
+    <button class="btn btn-danger">Delete</button>
+    <a asp-action="Details" asp-route-id="@Model.ShowId" class="btn btn-secondary">Cancel</a>
+</form>

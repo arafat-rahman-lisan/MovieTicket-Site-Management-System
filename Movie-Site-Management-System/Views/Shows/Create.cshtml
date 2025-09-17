@@ -1,0 +1,48 @@
+﻿@model Movie_Site_Management_System.Models.Show
+@{
+    ViewData["Title"] = "Create Show";
+}
+<h2>Create Show</h2>
+<hr />
+
+<form asp-action="Create" method="post" class="row g-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="col-md-6">
+        <label class="form-label">Movie</label>
+        <select class="form-select" asp-for="MovieId" asp-items="ViewBag.Movies"></select>
+        <span asp-validation-for="MovieId" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label class="form-label">Hall Slot</label>
+        <select class="form-select" asp-for="HallSlotId" asp-items="ViewBag.HallSlots"></select>
+        <span asp-validation-for="HallSlotId" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4">
+        <label class="form-label">Date</label>
+        <input class="form-control" type="date" asp-for="ShowDate" />
+        <span asp-validation-for="ShowDate" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4">
+        <label class="form-label">Language</label>
+        <input class="form-control" asp-for="Language" />
+        <span asp-validation-for="Language" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4 form-check mt-4">
+        <input class="form-check-input" type="checkbox" asp-for="IsActive" />
+        <label class="form-check-label" asp-for="IsActive">Active</label>
+    </div>
+
+    <div class="col-12">
+        <button class="btn btn-primary">Create</button>
+        <a asp-action="Index" class="btn btn-secondary">Back</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
