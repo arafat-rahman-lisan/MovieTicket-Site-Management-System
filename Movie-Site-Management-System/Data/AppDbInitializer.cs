@@ -2,14 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Movie_Site_Management_System.Data.Enums;
 using Movie_Site_Management_System.Models;
-
-// Enums namespace (adjust if needed)
 
 namespace Movie_Site_Management_System.Data
 {
@@ -27,13 +24,13 @@ namespace Movie_Site_Management_System.Data
             await SeedSeatTypesAsync(context);
             await SeedMoviesAsync(context);
 
-            // Fill poster paths for already-seeded movies (non-destructive)
+            // Patch posters for any movies missing them (non-destructive)
             await SeedMoviePostersAsync(context);
 
             await SeedTheatresHallsSeatsAsync(context);
             await SeedHallSlotsAsync(context);
             await SeedShowsAsync(context);
-            await SeedShowSeatsSnapshotAsync(context); // optional but useful
+            await SeedShowSeatsSnapshotAsync(context); // uses ShowSeat.SeatTypeId + Price
         }
 
         // ---------- SeatTypes ----------
@@ -293,30 +290,31 @@ namespace Movie_Site_Management_System.Data
                 .Select(hs => new { hs.HallSlotId, hs.HallId })
                 .ToDictionaryAsync(x => x.HallSlotId, x => x.HallId);
 
-            // Seats by hall
+            // Seats by hall (need SeatTypeId for snapshot)
             var seatsByHall = await context.Seats
-                .GroupBy(s => s.HallId)
-                .ToDictionaryAsync(g => g.Key, g => g.Select(s => new { s.SeatId, s.SeatTypeId }).ToList());
+                .Select(s => new { s.HallId, s.SeatId, s.SeatTypeId })
+                .GroupBy(x => x.HallId)
+                .ToDictionaryAsync(g => g.Key, g => g.ToList());
 
             var showSeats = new List<ShowSeat>();
 
             foreach (var show in shows)
             {
-                var hallId = hallIdByHallSlot[show.HallSlotId];
-                var seats = seatsByHall[hallId];
+                if (!hallIdByHallSlot.TryGetValue(show.HallSlotId, out var hallId)) continue;
+                if (!seatsByHall.TryGetValue(hallId, out var seats)) continue;
 
                 foreach (var seat in seats)
                 {
+                    // Look up snapshot price from SeatType.BasePrice
+                    var price = seatTypePrice.TryGetValue(seat.SeatTypeId, out var p) ? p : 0m;
+
                     showSeats.Add(new ShowSeat
                     {
                         ShowId = show.ShowId,
                         SeatId = seat.SeatId,
-
-                        // If ShowSeat.Status is a string, use: Status = "Available",
-                        Status = ShowSeatStatus.Available,
-
-                        HoldExpiresAt = null,
-                        PriceAtBooking = seatTypePrice.TryGetValue(seat.SeatTypeId, out var p) ? p : null
+                        SeatTypeId = seat.SeatTypeId, // snapshot the seat type
+                        Price = price,           // snapshot price
+                        Status = Data.Enums.ShowSeatStatus.Available
                     });
                 }
             }

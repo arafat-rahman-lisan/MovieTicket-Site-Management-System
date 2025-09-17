@@ -1,15 +1,23 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+
 using Movie_Site_Management_System.Models;
+using Movie_Site_Management_System.Data.Identity; // ✅ for ApplicationUser
 
 namespace Movie_Site_Management_System.Data
 {
-    public class AppDbContext : DbContext
+    /// <summary>
+    /// AppDbContext with ASP.NET Core Identity (ApplicationUser) + your domain entities.
+    /// IMPORTANT: Inherits IdentityDbContext<ApplicationUser>.
+    /// </summary>
+    public class AppDbContext : IdentityDbContext<ApplicationUser>
     {
-       public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        // DbSets
+        // DbSets (your domain tables)
         public DbSet<Theatre> Theatres => Set<Theatre>();
         public DbSet<Hall> Halls => Set<Hall>();
         public DbSet<HallSlot> HallSlots => Set<HallSlot>();
@@ -25,8 +33,6 @@ namespace Movie_Site_Management_System.Data
 
         protected override void OnModelCreating(ModelBuilder mb)
         {
-            base.OnModelCreating(mb);
-
             // ===== Theatre =====
             mb.Entity<Theatre>()
               .Property(p => p.Lat).HasColumnType("decimal(9,6)");
@@ -49,13 +55,13 @@ namespace Movie_Site_Management_System.Data
               .HasOne(s => s.Hall)
               .WithMany(h => h.HallSlots)
               .HasForeignKey(s => s.HallId)
-              .OnDelete(DeleteBehavior.Cascade);
+              .OnDelete(DeleteBehavior.Restrict);
 
             mb.Entity<HallSlot>()
               .HasIndex(s => new { s.HallId, s.SlotNumber })
               .IsUnique();
 
-            // TimeOnly conversions (EF Core 7/8)
+            // TimeOnly conversions
             mb.Entity<HallSlot>()
               .Property(s => s.StartTime)
               .HasConversion<TimeOnlyToTimeSpanConverter, TimeOnlyComparer>();
@@ -80,7 +86,7 @@ namespace Movie_Site_Management_System.Data
               .HasIndex(s => new { s.HallId, s.RowLabel, s.SeatNumber })
               .IsUnique();
 
-            // ===== Movie: enums as strings (migration friendly)
+            // ===== Movie: enums as strings
             mb.Entity<Movie>()
               .Property(m => m.Status)
               .HasConversion<string>()
@@ -114,9 +120,13 @@ namespace Movie_Site_Management_System.Data
               .Property(p => p.ShowDate)
               .HasConversion<DateOnlyToDateTimeConverter, DateOnlyComparer>();
 
-            // ===== ShowSeat: composite PK, (N)->(1) Show, (N)->(1) Seat
+            // ===== ShowSeat (snapshot pricing & ShowSeatId PK)
             mb.Entity<ShowSeat>()
-              .HasKey(ss => new { ss.ShowId, ss.SeatId });
+              .HasKey(ss => ss.ShowSeatId);
+
+            mb.Entity<ShowSeat>()
+              .HasIndex(ss => new { ss.ShowId, ss.SeatId })
+              .IsUnique();
 
             mb.Entity<ShowSeat>()
               .HasOne(ss => ss.Show)
@@ -128,12 +138,22 @@ namespace Movie_Site_Management_System.Data
               .HasOne(ss => ss.Seat)
               .WithMany(seat => seat.ShowSeats)
               .HasForeignKey(ss => ss.SeatId)
-              .OnDelete(DeleteBehavior.Cascade);
+              .OnDelete(DeleteBehavior.Restrict);
+
+            mb.Entity<ShowSeat>()
+              .HasOne(ss => ss.SeatType)
+              .WithMany()
+              .HasForeignKey(ss => ss.SeatTypeId)
+              .OnDelete(DeleteBehavior.Restrict);
 
             mb.Entity<ShowSeat>()
               .Property(p => p.Status)
               .HasConversion<string>()
               .HasMaxLength(10);
+
+            mb.Entity<ShowSeat>()
+              .Property(p => p.Price)
+              .HasColumnType("decimal(10,2)");
 
             // ===== Booking: (N)->(1) Show (restrict)
             mb.Entity<Booking>()
@@ -147,40 +167,52 @@ namespace Movie_Site_Management_System.Data
               .HasConversion<string>()
               .HasMaxLength(10);
 
-            // ===== BookingSeat: composite PK, to Booking (cascade) + Seat (restrict)
+            // ===== BookingSeat
+            // Composite PK (BookingId, SeatId)
             mb.Entity<BookingSeat>()
               .HasKey(bs => new { bs.BookingId, bs.SeatId });
 
+            // BookingSeat -> Booking (CASCADE)
             mb.Entity<BookingSeat>()
               .HasOne(bs => bs.Booking)
               .WithMany(b => b.BookingSeats)
               .HasForeignKey(bs => bs.BookingId)
               .OnDelete(DeleteBehavior.Cascade);
 
+            // BookingSeat -> Seat (RESTRICT)
             mb.Entity<BookingSeat>()
               .HasOne(bs => bs.Seat)
               .WithMany(s => s.BookingSeats)
               .HasForeignKey(bs => bs.SeatId)
               .OnDelete(DeleteBehavior.Restrict);
 
-            // ===== SeatBlock: (N)->(1) Seat (cascade)
+            // ✅ BookingSeat -> ShowSeat (RESTRICT) via required FK ShowSeatId
+            mb.Entity<BookingSeat>()
+              .HasOne(bs => bs.ShowSeat)
+              .WithMany(ss => ss.BookingSeats)
+              .HasForeignKey(bs => bs.ShowSeatId)
+              .OnDelete(DeleteBehavior.Restrict);
+
+            // ===== SeatBlock
             mb.Entity<SeatBlock>()
               .HasOne(sb => sb.Seat)
               .WithMany(s => s.SeatBlocks)
               .HasForeignKey(sb => sb.SeatId)
               .OnDelete(DeleteBehavior.Cascade);
 
-            // ===== ShowNote: (N)->(1) Show (cascade)
+            // ===== ShowNote
             mb.Entity<ShowNote>()
               .HasOne(sn => sn.Show)
               .WithMany(s => s.ShowNotes)
               .HasForeignKey(sn => sn.ShowId)
               .OnDelete(DeleteBehavior.Cascade);
+
+            // IMPORTANT: call Identity base mapping LAST so Identity tables configure correctly.
+            base.OnModelCreating(mb);
         }
     }
 
     // ---------- Converters & Comparers ----------
-    // DateOnly <-> DateTime
     public sealed class DateOnlyToDateTimeConverter : ValueConverter<DateOnly, DateTime>
     {
         public DateOnlyToDateTimeConverter() :
@@ -197,7 +229,6 @@ namespace Movie_Site_Management_System.Data
         { }
     }
 
-    // TimeOnly <-> TimeSpan
     public sealed class TimeOnlyToTimeSpanConverter : ValueConverter<TimeOnly, TimeSpan>
     {
         public TimeOnlyToTimeSpanConverter() :
@@ -213,5 +244,4 @@ namespace Movie_Site_Management_System.Data
                  t => t.GetHashCode())
         { }
     }
-
 }
