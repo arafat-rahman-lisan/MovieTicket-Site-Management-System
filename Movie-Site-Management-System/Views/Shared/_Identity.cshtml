@@ -1,0 +1,40 @@
+@using Microsoft.AspNetCore.Identity
+@using Movie_Site_Management_System.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@if (!User.Identity!.IsAuthenticated)
+{
+    <a class="btn btn-outline-success me-2" asp-controller="Account" asp-action="Login">
+        <i class="bi bi-box-arrow-in-right"></i> Log in
+    </a>
+    <a class="btn btn-outline-primary" asp-controller="Account" asp-action="Register">
+        <i class="bi bi-person-plus"></i> Register
+    </a>
+}
+else
+{
+    <div class="dropdown">
+        <button class="btn btn-outline-success dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person-badge"></i> Hello @UserManager.GetUserName(User)
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+                <a class="dropdown-item" asp-controller="Account" asp-action="Profile">
+                    <i class="bi bi-person"></i> My profile
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item" asp-controller="Orders" asp-action="Index">
+                    <i class="bi bi-list"></i> Orders
+                </a>
+            </li>
+            <li><hr class="dropdown-divider" /></li>
+            <li>
+                <a class="dropdown-item text-danger" asp-controller="Account" asp-action="Logout">
+                    <i class="bi bi-box-arrow-left"></i> Log out
+                </a>
+            </li>
+        </ul>
+    </div>
+}
