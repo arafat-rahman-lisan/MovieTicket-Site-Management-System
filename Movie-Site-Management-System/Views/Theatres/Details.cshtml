@@ -1,0 +1,191 @@
+﻿@model Movie_Site_Management_System.Models.Theatre
+@using System
+@using System.Linq
+@using System.Collections.Generic
+
+@{
+    ViewData["Title"] = "Theatre Details";
+
+    DateOnly currentDate = (ViewBag.Date is DateOnly d)
+        ? d
+        : DateOnly.FromDateTime(DateTime.UtcNow.Date);
+
+    var shows = ViewBag.Shows as IEnumerable<Movie_Site_Management_System.Models.Show>
+                ?? Enumerable.Empty<Movie_Site_Management_System.Models.Show>();
+
+    var prevDate = currentDate.AddDays(-1);
+    var nextDate = currentDate.AddDays(1);
+
+    var grouped = shows
+        .GroupBy(s => s.HallSlot?.Hall?.Name ?? $"Hall #{s.HallSlot?.HallId}")
+        .OrderBy(g => g.Key)
+        .ToList();
+
+    // Halls table from controller (anonymous types)
+    var halls = ViewBag.Halls as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+}
+
+<h2 class="mb-3">@Model?.Name</h2>
+
+<!-- Theatre info -->
+<div class="card mb-4">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Address</dt>
+            <dd class="col-sm-9">@Model?.Address</dd>
+
+            <dt class="col-sm-3">City</dt>
+            <dd class="col-sm-9">@Model?.City</dd>
+
+            <dt class="col-sm-3">Latitude / Longitude</dt>
+            <dd class="col-sm-9">@Model?.Lat.ToString() / @Model?.Lng.ToString()</dd>
+
+            <dt class="col-sm-3">Active</dt>
+            <dd class="col-sm-9">@(Model?.IsActive == true ? "Yes" : "No")</dd>
+
+            <dt class="col-sm-3">Created At (UTC)</dt>
+            <dd class="col-sm-9">@Model?.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")</dd>
+        </dl>
+    </div>
+</div>
+
+<!-- Halls of this theatre -->
+<div class="card mb-4">
+    <div class="card-header fw-semibold">Halls</div>
+    <div class="card-body p-0">
+        @if (!halls.Any())
+        {
+            <div class="p-3 text-muted">No halls found for this theatre.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Name</th>
+                            <th class="text-end" style="width:110px;">Capacity</th>
+                            <th class="text-center" style="width:110px;">Seatmap</th>
+                            <th class="text-center" style="width:100px;">Active</th>
+                            <th class="text-end" style="width:90px;">Seats</th>
+                            <th class="text-end" style="width:90px;">Slots</th>
+                            <th class="text-end" style="width:90px;">Shows</th>
+                            <th style="width:180px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var h in halls)
+                        {
+                            <tr>
+                                <td>@h.Name</td>
+                                <td class="text-end">@h.Capacity</td>
+                                <td class="text-center">@h.SeatmapVersion</td>
+                                <td class="text-center">
+                                    @if ((bool)h.IsActive)
+                                    {
+                                        <span class="badge bg-success">Yes</span>
+                                    }
+                                    else
+                                    {
+
+                                        <span class="badge bg-secondary">No</span>
+                                    }
+                                </td>
+                                <td class="text-end">@h.SeatCount</td>
+                                <td class="text-end">@h.SlotCount</td>
+                                <td class="text-end">@h.ShowCount</td>
+                                <td class="text-end">
+                                    <a class="btn btn-sm btn-outline-secondary"
+                                       asp-controller="Halls" asp-action="Details" asp-route-id="@(h.HallId)">Details</a>
+                                    <a class="btn btn-sm btn-outline-primary"
+                                       asp-controller="Halls" asp-action="Edit" asp-route-id="@(h.HallId)">Edit</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Date navigation -->
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h4 class="mb-0">Shows on @currentDate.ToString("yyyy-MM-dd")</h4>
+    <div class="d-flex gap-2">
+        <a asp-action="Details" asp-route-id="@Model?.TheatreId" asp-route-date="@prevDate"
+           class="btn btn-outline-secondary btn-sm">◀ Previous</a>
+
+        <form method="get" asp-action="Details" class="d-flex gap-2">
+            <input type="hidden" name="id" value="@Model?.TheatreId" />
+            <input type="date" class="form-control form-control-sm"
+                   name="date" value="@currentDate.ToString("yyyy-MM-dd")" />
+            <button class="btn btn-primary btn-sm" type="submit">Go</button>
+        </form>
+
+        <a asp-action="Details" asp-route-id="@Model?.TheatreId" asp-route-date="@nextDate"
+           class="btn btn-outline-secondary btn-sm">Next ▶</a>
+    </div>
+</div>
+
+@if (!grouped.Any())
+{
+    <div class="alert alert-info">No shows scheduled for this date.</div>
+}
+else
+{
+    @foreach (var hallGroup in grouped)
+    {
+        <div class="card mb-3">
+            <div class="card-header fw-semibold">@hallGroup.Key</div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width:90px;">Slot</th>
+                                <th>Movie</th>
+                                <th style="width:180px;">Start</th>
+                                <th style="width:120px;">Language</th>
+                                <th style="width:120px;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var s in hallGroup.OrderBy(x => x.HallSlot?.SlotNumber))
+                            {
+                                var slotText = s.HallSlot?.SlotNumber.ToString() ?? "—";
+                                var startText = s.HallSlot?.StartTime.ToString("HH\\:mm") ?? "—";
+
+                                <tr>
+                                    <td>@slotText</td>
+                                    <td>@(s.Movie?.Title ?? $"Movie #{s.MovieId}")</td>
+                                    <td>@startText</td>
+                                    <td>@(s.Language ?? "—")</td>
+                                    <td>
+                                        @if (s.IsCancelled)
+                                        {
+                                            <span class="badge bg-danger">Cancelled</span>
+                                        }
+                                        else if (s.IsActive)
+                                        {
+                                            <span class="badge bg-success">Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Inactive</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+<div class="mt-3 d-flex gap-2">
+    <a asp-action="Edit" asp-route-id="@Model?.TheatreId" class="btn btn-primary">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>
