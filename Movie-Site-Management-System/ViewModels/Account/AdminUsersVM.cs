@@ -2,9 +2,8 @@
 
 namespace Movie_Site_Management_System.ViewModels.Account
 {
-    public class UsersVM
+    public class AdminUsersVM
     {
-        public List<UserRow> Users { get; set; } = new();
+        public List<AdminUserRow> Users { get; set; } = new();
     }
-
 }
