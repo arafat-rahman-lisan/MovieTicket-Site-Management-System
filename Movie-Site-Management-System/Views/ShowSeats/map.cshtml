@@ -1,65 +1,213 @@
-﻿@model IEnumerable<dynamic>
-@using Movie_Site_Management_System.Models;
-@using System.Linq;
+﻿@model Movie_Site_Management_System.ViewModels.Shows.ShowMapVM
+
+
+@using Movie_Site_Management_System.Data.Enums
+
 @{
-    ViewData["Title"] = "Seat Map";
-    // get showId from route data
-    var showIdObj = ViewContext.RouteData.Values["showId"];
-    long showId = 0;
-    if (showIdObj != null) long.TryParse(showIdObj.ToString(), out showId);
-
-    // group by row
-    var rows = Model.GroupBy(x => (string)x.RowLabel)
-                    .OrderBy(g => g.Key);
+    ViewData["Title"] = "Select Seats";
+    var grouped = Model.Seats
+        .GroupBy(s => s.RowLabel)
+        .OrderBy(g => g.Key)
+        .ToList();
 }
 
-<h2 class="mb-3">Seat Map</h2>
-
-@if (!Model.Any())
-{
-    <div class="alert alert-info">No seat snapshot found for this show.</div>
-}
-else
-{
-    <div class="mb-2">
-        <span class="badge bg-success">Available</span>
-        <span class="badge bg-danger">Booked</span>
-        <span class="badge bg-secondary">Held/Other</span>
+<div class="container py-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="mb-0">@Model.MovieTitle</h3>
+        <div class="text-end">
+            <div><strong>@Model.TheatreName</strong></div>
+            <div class="text-muted">@Model.HallName</div>
+        </div>
     </div>
 
-    <form asp-controller="Bookings" asp-action="Confirm" method="post" id="bookingForm">
+    <div class="alert alert-info py-2">
+        Click available seats to select. Selected seats appear in the cart below.
+    </div>
+
+    <style>
+        .screen-bar {
+            height: 6px;
+            background: linear-gradient(90deg, rgba(0,0,0,.2), rgba(0,0,0,.6), rgba(0,0,0,.2));
+            border-radius: 999px;
+            margin: 10px 0 24px 0;
+        }
+
+        .row-label {
+            width: 40px;
+            text-align: right;
+            margin-right: 8px;
+            font-weight: 600;
+        }
+
+        .seat-grid {
+            display: grid;
+            grid-auto-flow: column;
+            gap: 8px;
+        }
+
+        .seat {
+            min-width: 36px;
+            padding: 8px 0;
+            text-align: center;
+            border-radius: 8px;
+            border: 1px solid rgba(0,0,0,.15);
+            cursor: pointer;
+            user-select: none;
+            font-weight: 600;
+        }
+
+            .seat.available {
+                background: #f8f9fa;
+            }
+
+            .seat.selected {
+                outline: 3px solid #0d6efd;
+            }
+
+            .seat.booked {
+                background: #e9ecef;
+                color: #6c757d;
+                text-decoration: line-through;
+                cursor: not-allowed;
+            }
+
+        .legend .box {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-right: 6px;
+            border: 1px solid rgba(0,0,0,.2);
+        }
+
+        .legend .available {
+            background: #f8f9fa;
+        }
+
+        .legend .selected {
+            outline: 2px solid #0d6efd;
+        }
+
+        .legend .booked {
+            background: #e9ecef;
+        }
+
+        .price-badge {
+            font-size: .85rem;
+            font-weight: 600;
+        }
+    </style>
+
+    <div class="screen-bar" aria-hidden="true"></div>
+
+    <form method="post" asp-controller="Bookings" asp-action="Confirm" id="bookingForm">
         @Html.AntiForgeryToken()
-        <input type="hidden" name="showId" value="@showId" />
+        <input type="hidden" name="showId" value="@Model.ShowId" />
+        <div id="selectedContainer"></div> @* hidden seatIds injected here *@
 
-        @foreach (var row in rows)
+        @foreach (var row in grouped)
         {
-            <div class="mb-2">
-                <strong>Row @row.Key</strong>
-                <div class="d-flex flex-wrap gap-2 mt-1">
-                    @foreach (var s in row.OrderBy(x => (int)x.SeatNumber))
+            var seats = row.OrderBy(s => s.SeatNumber).ToList();
+            <div class="d-flex align-items-center mb-2">
+                <div class="row-label">@row.Key</div>
+                <div class="seat-grid" style="grid-template-columns: repeat(@seats.Count, minmax(36px, auto));">
+                    @foreach (var s in seats)
                     {
-                        var status = (string)s.Status;
-                        var cls = status == "Available" ? "btn-success"
-                        : status == "Booked" ? "btn-danger" : "btn-secondary";
-                        var disabled = status != "Available" ? "disabled" : null;
-
-                        <div class="form-check">
-                            <input class="form-check-input d-none" type="checkbox" id="seat_@s.SeatId"
-                                   name="seatIds" value="@s.SeatId" @(disabled)>
-                            <label class="btn btn-sm @cls"
-                                   for="seat_@s.SeatId"
-                                   title="Type: @s.SeatTypeId • Price: @(s.PriceAtBooking ?? 0M)">
-                                @row.Key@s.SeatNumber
-                            </label>
+                        var isBooked = s.Status != ShowSeatStatus.Available;
+                        var css = isBooked ? "seat booked"
+                        : "seat available";
+                        <div class="@css"
+                             data-seat-id="@s.SeatId"
+                             data-seat-price="@s.Price"
+                             data-seat-label="@row.Key-@s.SeatNumber"
+                             tabindex="0"
+                             aria-disabled="@(isBooked ? "true" : "false")">
+                            @s.SeatNumber
+                            <div class="price-badge text-muted">৳@s.Price</div>
                         </div>
                     }
                 </div>
             </div>
         }
 
-        <div class="mt-3">
-            <button class="btn btn-primary">Confirm Booking</button>
-            <a asp-controller="Shows" asp-action="Index" class="btn btn-outline-secondary">Back</a>
+        <div class="legend d-flex gap-4 my-3">
+            <div><span class="box available"></span>Available</div>
+            <div><span class="box selected"></span>Selected</div>
+            <div><span class="box booked"></span>Booked</div>
+        </div>
+
+        <div class="card">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="fw-semibold">Selected seats: <span id="selList">None</span></div>
+                    <div class="text-muted">Total: <span id="selTotal">৳0</span></div>
+                </div>
+                <button type="submit" class="btn btn-primary" id="payBtn" disabled>Confirm Booking</button>
+            </div>
         </div>
     </form>
+</div>
+
+@section Scripts {
+    <script>
+        (function() {
+            const seatEls = Array.from(document.querySelectorAll('.seat'));
+            const selectedIds = new Set();
+            const selectedMeta = new Map(); // id -> {label, price}
+            const selList = document.getElementById('selList');
+            const selTotal = document.getElementById('selTotal');
+            const payBtn   = document.getElementById('payBtn');
+            const hiddenContainer = document.getElementById('selectedContainer');
+
+            function refreshSummary() {
+                const labels = Array.from(selectedMeta.values()).map(v => v.label);
+                selList.textContent = labels.length ? labels.join(', ') : 'None';
+
+                const total = Array.from(selectedMeta.values())
+                    .reduce((sum, v) => sum + (parseFloat(v.price) || 0), 0);
+                selTotal.textContent = '৳' + total.toFixed(2);
+
+                payBtn.disabled = selectedIds.size === 0;
+
+                // rebuild hidden inputs
+                hiddenContainer.innerHTML = '';
+                selectedIds.forEach(id => {
+                    const inp = document.createElement('input');
+                    inp.type = 'hidden';
+                    inp.name = 'seatIds';
+                    inp.value = id;
+                    hiddenContainer.appendChild(inp);
+                });
+            }
+
+            seatEls.forEach(el => {
+                const isBooked = el.classList.contains('booked');
+                if (isBooked) return;
+
+                el.addEventListener('click', () => toggle(el));
+                el.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(el); }
+                });
+            });
+
+            function toggle(el) {
+                const id    = el.dataset.seatId;
+                const label = el.dataset.seatLabel;
+                const price = el.dataset.seatPrice;
+
+                if (selectedIds.has(id)) {
+                    selectedIds.delete(id);
+                    selectedMeta.delete(id);
+                    el.classList.remove('selected');
+                } else {
+                    selectedIds.add(id);
+                    selectedMeta.set(id, { label, price });
+                    el.classList.add('selected');
+                }
+                refreshSummary();
+            }
+
+            refreshSummary();
+        })();
+    </script>
 }
