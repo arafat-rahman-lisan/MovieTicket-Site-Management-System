@@ -1,15 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿// File: Services/Interfaces/IHallsService.cs
+using Movie_Site_Management_System.Data.Base;
 using Movie_Site_Management_System.Models;
 
-namespace Movie_Site_Management_System.Data.Services.Interfaces
+namespace Movie_Site_Management_System.Services.Interfaces
 {
-    public interface IHallsService
-    {
-        Task<IEnumerable<Hall>> GetAllAsync();
-        Task<Hall?> GetByIdAsync(long id);
-        Task AddAsync(Hall hall);
-        Task UpdateAsync(Hall hall);
-        Task DeleteAsync(long id);
-    }
+    public interface IHallsService : IEntityBaseRepository<Hall> { }
 }

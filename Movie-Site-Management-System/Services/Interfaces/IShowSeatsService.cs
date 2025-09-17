@@ -1,15 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿// File: Services/Interfaces/IShowSeatsService.cs
+using Movie_Site_Management_System.Data.Base;
 using Movie_Site_Management_System.Models;
 
 namespace Movie_Site_Management_System.Services.Interfaces
 {
-    public interface IShowSeatsService
-    {
-        Task<IEnumerable<ShowSeat>> GetAllAsync();
-        Task<ShowSeat?> GetByIdAsync(long showId, long seatId);
-        Task AddAsync(ShowSeat showSeat);
-        Task UpdateAsync(ShowSeat showSeat);
-        Task DeleteAsync(long showId, long seatId);
-    }
+    public interface IShowSeatsService : IEntityBaseRepository<ShowSeat> { }
 }

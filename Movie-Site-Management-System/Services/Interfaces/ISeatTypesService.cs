@@ -1,15 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿// File: Services/Interfaces/ISeatTypesService.cs
+using Movie_Site_Management_System.Data.Base;
 using Movie_Site_Management_System.Models;
 
-namespace Movie_Site_Management_System.Data.Services.Interfaces
+namespace Movie_Site_Management_System.Services.Interfaces
 {
-    public interface ISeatTypesService
-    {
-        Task<IEnumerable<SeatType>> GetAllAsync();
-        Task<SeatType?> GetByIdAsync(long id);
-        Task AddAsync(SeatType seatType);
-        Task UpdateAsync(SeatType seatType);
-        Task DeleteAsync(long id);
-    }
+    public interface ISeatTypesService : IEntityBaseRepository<SeatType> { }
 }
