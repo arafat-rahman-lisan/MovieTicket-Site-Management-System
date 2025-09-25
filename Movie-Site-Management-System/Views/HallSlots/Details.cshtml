@@ -1,75 +1,82 @@
 ﻿@model Movie_Site_Management_System.Models.HallSlot
-@using System.Linq
 @{
     ViewData["Title"] = "Slot Details";
+    ViewBag.GlassHeader = true;
     var show = ViewBag.Show as Movie_Site_Management_System.Models.Show;
     var date = ViewBag.Date is DateOnly d ? d : DateOnly.FromDateTime(DateTime.UtcNow.Date);
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="mb-0">Slot @($"S{Model.SlotNumber}") — @(Model.Hall?.Theatre?.Name ?? "Unknown Theatre") / @(Model.Hall?.Name ?? "Unknown Hall")</h2>
-    <div>
-        <a asp-action="Edit" asp-route-id="@Model.HallSlotId" class="btn btn-outline-primary btn-sm me-1">Edit</a>
-        <a asp-action="Index" class="btn btn-secondary btn-sm">Back</a>
-    </div>
-</div>
-
-<div class="card mb-3">
-    <div class="card-body">
-        <div><strong>Time:</strong> @Model.StartTime.ToString("HH\\:mm") - @Model.EndTime.ToString("HH\\:mm")</div>
-        <div><strong>Active:</strong> @(Model.IsActive ? "Yes" : "No")</div>
-    </div>
-</div>
-
-<form method="get" class="row g-2 mb-3" asp-action="Details" asp-route-id="@Model.HallSlotId">
-    <div class="col-auto">
-        <label class="form-label">Date</label>
-        <input type="date" class="form-control" name="date" value="@date.ToString("yyyy-MM-dd")" />
-    </div>
-    <div class="col-auto align-self-end">
-        <button class="btn btn-secondary">Load</button>
-    </div>
-</form>
-
-@if (show == null)
-{
-    <div class="alert alert-warning">
-        No show scheduled for <strong>@date.ToString("yyyy-MM-dd")</strong> on this slot.
-        <div class="mt-2">
-            <a asp-controller="Shows" asp-action="Create"
-               asp-route-hallSlotId="@Model.HallSlotId"
-               asp-route-date="@date.ToString("yyyy-MM-dd")"
-               class="btn btn-sm btn-success">Create Show for this date</a>
-        </div>
-    </div>
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-glass-ultra.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/theatre/theatre-crud.css" asp-append-version="true" />
 }
-else
-{
-    // Collect distinct base prices from SeatTypes via ShowSeats -> Seat -> SeatType
-    var prices = (show.ShowSeats ?? Enumerable.Empty<Movie_Site_Management_System.Models.ShowSeat>())
-        .Select(ss => ss.Seat?.SeatType?.BasePrice)    // nullable decimal?
-        .Where(p => p.HasValue)                         // keep only non-null
-        .Select(p => p!.Value)                          // materialize decimal
-        .Distinct()
-        .OrderBy(p => p)
-        .ToList();
 
-    string priceDisplay = prices.Count switch
-    {
-        0 => "-",
-        1 => prices[0].ToString("0.##"),
-        _ => $"{prices.First():0.##} - {prices.Last():0.##}"
-    };
+<section class="admin-ultra-shell">
+    <div class="film-rail film-rail--left" aria-hidden="true"></div>
+    <div class="film-rail film-rail--right" aria-hidden="true"></div>
+    <div class="ultra-aura"></div>
+    <div class="film-grain"></div>
 
-    <div class="card">
-        <div class="card-body">
-            <h5 class="card-title mb-2">@show.Movie?.Title</h5>
-            <div><strong>Date:</strong> @show.ShowDate.ToString("yyyy-MM-dd")</div>
-            <div><strong>Ticket Price:</strong> @priceDisplay</div>
-            <div class="mt-2">
-                <a asp-controller="Shows" asp-action="Details" asp-route-id="@show.ShowId" class="btn btn-sm btn-primary">View Show</a>
-                <a asp-controller="Shows" asp-action="Edit" asp-route-id="@show.ShowId" class="btn btn-sm btn-outline-primary">Edit Show</a>
+    <div class="container py-4 position-relative">
+        <div class="ultra-card">
+            <div class="ultra-card__shine"></div>
+
+            <div class="ultra-card__header d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">Slot @($"S{Model.SlotNumber}") — @(Model.Hall?.Theatre?.Name ?? "Unknown Theatre") / @(Model.Hall?.Name ?? "Unknown Hall")</h2>
+                <div class="d-flex gap-2">
+                    <a asp-action="Edit" asp-route-id="@Model.HallSlotId" class="btn chip btn-sm">Edit</a>
+                    <a asp-action="Index" class="btn chip chip--muted btn-sm">Back</a>
+                </div>
+            </div>
+
+            <div class="ultra-scroll p-3">
+                <div class="kv-dim">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-3">Time</dt>
+                        <dd class="col-sm-9">@Model.StartTime.ToString("HH\\:mm") - @Model.EndTime.ToString("HH\\:mm")</dd>
+
+                        <dt class="col-sm-3">Active</dt>
+                        <dd class="col-sm-9">@((Model.IsActive ? "Yes" : "No"))</dd>
+                    </dl>
+                </div>
+
+                <form method="get" class="row g-2 my-3" asp-action="Details" asp-route-id="@Model.HallSlotId">
+                    <div class="col-auto">
+                        <label class="form-label fw-bold text-glass">Date</label>
+                        <input type="date" class="form-control glass-control" name="date" value="@date.ToString("yyyy-MM-dd")" />
+                    </div>
+                    <div class="col-auto align-self-end">
+                        <button class="btn chip btn-sm">Load</button>
+                    </div>
+                </form>
+
+                @if (show == null)
+                {
+                    <div class="ultra-empty">
+                        <div class="ultra-empty__title">No show scheduled</div>
+                        <div class="ultra-empty__desc">For <strong>@date.ToString("yyyy-MM-dd")</strong> on this slot.</div>
+                        <div class="mt-2">
+                            <a asp-controller="Shows" asp-action="Create"
+                               asp-route-hallSlotId="@Model.HallSlotId"
+                               asp-route-date="@date.ToString("yyyy-MM-dd")"
+                               class="btn chip btn-sm">Create Show for this date</a>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <!-- Keep your existing price-range logic in controller/ViewBag if you prefer -->
+                    <div class="ultra-card mt-2">
+                        <div class="ultra-card__shine"></div>
+                        <h5 class="mb-2">@show.Movie?.Title</h5>
+                        <div><strong>Date:</strong> @show.ShowDate.ToString("yyyy-MM-dd")</div>
+                        <div class="mt-2 d-flex gap-2">
+                            <a asp-controller="Shows" asp-action="Details" asp-route-id="@show.ShowId" class="btn chip btn-sm">View Show</a>
+                            <a asp-controller="Shows" asp-action="Edit" asp-route-id="@show.ShowId" class="btn chip btn-sm">Edit Show</a>
+                        </div>
+                    </div>
+                }
             </div>
         </div>
     </div>
-}
+</section>

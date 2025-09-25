@@ -1,48 +1,40 @@
 ﻿@model Movie_Site_Management_System.ViewModels.HallSlots.HallSlotEditVM
 @{
     ViewData["Title"] = "Edit Hall Slot";
+    ViewBag.GlassHeader = true;
 }
 
-<h2 class="mb-3">Edit Hall Slot</h2>
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-glass-ultra.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/theatre/theatre-crud.css" asp-append-version="true" />
+}
 
-<form asp-action="Edit" method="post" class="row g-3">
-    <input type="hidden" asp-for="HallSlotId" />
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<section class="admin-ultra-shell">
+    <div class="film-rail film-rail--left" aria-hidden="true"></div>
+    <div class="film-rail film-rail--right" aria-hidden="true"></div>
+    <div class="ultra-aura"></div>
+    <div class="film-grain"></div>
 
-    <div class="col-md-6">
-        <label asp-for="HallId" class="form-label"></label>
-        <select asp-for="HallId" class="form-select" asp-items="ViewBag.Halls"></select>
-        <span asp-validation-for="HallId" class="text-danger"></span>
+    <div class="container py-4 position-relative">
+        <div class="ultra-card">
+            <div class="ultra-card__shine"></div>
+
+            <div class="ultra-card__header d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">Edit Hall Slot</h2>
+                <a asp-action="Index" class="btn chip btn-sm">Back to List</a>
+            </div>
+
+            <form asp-action="Edit" method="post" class="ultra-form">
+                <input type="hidden" asp-for="HallSlotId" />
+                <partial name="_HallSlotFields" />
+                <div class="mt-3 d-flex gap-2">
+                    <button class="btn chip">Update</button>
+                    <a asp-action="Index" class="btn chip chip--muted">Cancel</a>
+                </div>
+            </form>
+        </div>
     </div>
-
-    <div class="col-md-3">
-        <label asp-for="SlotNumber" class="form-label"></label>
-        <input asp-for="SlotNumber" class="form-control" />
-        <span asp-validation-for="SlotNumber" class="text-danger"></span>
-    </div>
-
-    <div class="col-md-3 form-check mt-4">
-        <input asp-for="IsActive" class="form-check-input" />
-        <label asp-for="IsActive" class="form-check-label"></label>
-    </div>
-
-    <div class="col-md-3">
-        <label asp-for="StartTime" class="form-label"></label>
-        <input asp-for="StartTime" class="form-control" type="time" />
-        <span asp-validation-for="StartTime" class="text-danger"></span>
-    </div>
-
-    <div class="col-md-3">
-        <label asp-for="EndTime" class="form-label"></label>
-        <input asp-for="EndTime" class="form-control" type="time" />
-        <span asp-validation-for="EndTime" class="text-danger"></span>
-    </div>
-
-    <div class="col-12">
-        <button class="btn btn-primary">Update</button>
-        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-    </div>
-</form>
+</section>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

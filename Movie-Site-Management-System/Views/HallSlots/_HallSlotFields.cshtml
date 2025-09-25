@@ -1,0 +1,37 @@
+﻿@model Movie_Site_Management_System.ViewModels.HallSlots.HallSlotEditVM
+
+<div asp-validation-summary="ModelOnly" class="text-danger small"></div>
+
+<div class="row g-3 ultra-form">
+    <div class="col-md-6">
+        <label asp-for="HallId" class="form-label fw-bold text-glass"></label>
+        <select asp-for="HallId" class="form-select glass-control" asp-items="ViewBag.Halls"></select>
+        <span asp-validation-for="HallId" class="text-danger small"></span>
+    </div>
+
+    <div class="col-md-3">
+        <label asp-for="SlotNumber" class="form-label fw-bold text-glass"></label>
+        <input asp-for="SlotNumber" class="form-control glass-control" />
+        <span asp-validation-for="SlotNumber" class="text-danger small"></span>
+    </div>
+
+    <div class="col-md-3">
+        <label asp-for="IsActive" class="form-label fw-bold text-glass d-block">Active</label>
+        <div class="form-check form-switch glass-switch">
+            <input class="form-check-input" asp-for="IsActive" />
+        </div>
+        <span asp-validation-for="IsActive" class="text-danger small"></span>
+    </div>
+
+    <div class="col-md-3">
+        <label asp-for="StartTime" class="form-label fw-bold text-glass"></label>
+        <input asp-for="StartTime" class="form-control glass-control" type="time" />
+        <span asp-validation-for="StartTime" class="text-danger small"></span>
+    </div>
+
+    <div class="col-md-3">
+        <label asp-for="EndTime" class="form-label fw-bold text-glass"></label>
+        <input asp-for="EndTime" class="form-control glass-control" type="time" />
+        <span asp-validation-for="EndTime" class="text-danger small"></span>
+    </div>
+</div>

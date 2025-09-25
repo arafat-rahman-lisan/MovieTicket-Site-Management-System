@@ -1,61 +1,107 @@
-﻿@model IEnumerable<HallSlot>
-@using Movie_Site_Management_System.Models
+﻿@model IEnumerable<Movie_Site_Management_System.Models.HallSlot>
 @{
     ViewData["Title"] = "Hall Slots";
+    ViewBag.GlassHeader = true;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="mb-0">Hall Slots</h2>
-    <a asp-controller="HallSlots" asp-action="Create" class="btn btn-success btn-sm">+ Add Slot</a>
-</div>
-
-<form method="get" class="row g-2 mb-3">
-    <div class="col-auto">
-        <label class="form-label">Hall</label>
-        <select class="form-select" name="hallId" asp-items="ViewBag.Halls">
-            <option value="">-- All --</option>
-        </select>
-    </div>
-    <div class="col-auto align-self-end">
-        <button class="btn btn-secondary">Filter</button>
-    </div>
-</form>
-
-@if (Model == null || !Model.Any())
-{
-    <div class="alert alert-warning">No hall slots found.</div>
+@section Styles {
+    <!-- Use the same CSS stack your Theatre Index uses -->
+    <link rel="stylesheet" href="~/css/admin-glass-ultra.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/theatre/theatre-crud.css" asp-append-version="true" />
 }
-else
-{
-    <table class="table table-striped table-bordered align-middle">
-        <thead class="table-light">
-            <tr>
-                <th>Theatre / Hall</th>
-                <th>Slot</th>
-                <th>Time</th>
-                <th>Active</th>
-                <th style="width:220px">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var s in Model)
+
+<section class="admin-ultra-shell">
+    <!-- Rails -->
+    <div class="film-rail film-rail--left" aria-hidden="true"></div>
+    <div class="film-rail film-rail--right" aria-hidden="true"></div>
+
+    <!-- Aura + grain -->
+    <div class="ultra-aura"></div>
+    <div class="film-grain"></div>
+
+    <div class="container py-4 position-relative">
+        <div class="ultra-card">
+            <div class="ultra-card__shine"></div>
+
+            <!-- Header row (same pattern as Theatres) -->
+            <div class="ultra-card__header d-flex justify-content-between align-items-center">
+                <h2 class="mb-0 d-flex align-items-center gap-2">
+                    <!-- The same tiny “dot + text” header vibe -->
+                    <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+                        <defs>
+                            <radialGradient id="cinexGradH" cx="50%" cy="50%" r="50%">
+                                <stop offset="0%" stop-color="#7c3aed" />
+                                <stop offset="100%" stop-color="#2563eb" />
+                            </radialGradient>
+                        </defs>
+                        <circle cx="9" cy="9" r="7" fill="url(#cinexGradH)" />
+                    </svg>
+                    <span>Hall Slots</span>
+                </h2>
+                <a asp-action="Create" class="btn chip btn-sm">+ Add Slot</a>
+            </div>
+
+            <!-- Top toolbar (Hall filter) -->
+            <div class="ultra-toolbar mb-3">
+                <form method="get" class="row g-2 align-items-end">
+                    <div class="col-auto">
+                        <label class="form-label fw-bold text-glass">Hall</label>
+                        <select class="form-select glass-control" name="hallId" asp-items="ViewBag.Halls">
+                            <option value="">-- All --</option>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn chip btn-sm">Filter</button>
+                    </div>
+                </form>
+            </div>
+
+            @if (Model == null || !Model.Any())
             {
-                <tr>
-                    <td>@s.Hall?.Theatre?.Name / @s.Hall?.Name</td>
-                    <td>S@s.SlotNumber</td>
-                    <td>@s.StartTime.ToString("HH\\:mm") - @s.EndTime.ToString("HH\\:mm")</td>
-                    <td>
-                        <span class="badge @(s.IsActive ? "bg-success" : "bg-secondary")">
-                            @(s.IsActive ? "Yes" : "No")
-                        </span>
-                    </td>
-                    <td class="text-start">
-                        <a asp-controller="HallSlots" asp-action="Details" asp-route-id="@s.HallSlotId" class="btn btn-sm btn-secondary me-1">Details</a>
-                        <a asp-controller="HallSlots" asp-action="Edit" asp-route-id="@s.HallSlotId" class="btn btn-sm btn-outline-primary me-1">Edit</a>
-                        <a asp-controller="HallSlots" asp-action="Delete" asp-route-id="@s.HallSlotId" class="btn btn-sm btn-danger">Delete</a>
-                    </td>
-                </tr>
+                <div class="ultra-empty">
+                    <div class="ultra-empty__title">No hall slots found</div>
+                    <div class="ultra-empty__desc">Try changing the filter or add a new slot.</div>
+                </div>
             }
-        </tbody>
-    </table>
-}
+            else
+            {
+                <!-- Table section (same spacing/grid rhythm as Theatres) -->
+                <div class="table-responsive ultra-scroll">
+                    <table class="table ultra-table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Theatre / Hall</th>
+                                <th>Slot</th>
+                                <th>Time</th>
+                                <th class="text-center">Active</th>
+                                <th class="text-center" style="width:240px">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var s in Model)
+                            {
+                                <tr>
+                                    <td>@s.Hall?.Theatre?.Name / @s.Hall?.Name</td>
+                                    <td>S@s.SlotNumber</td>
+                                    <td>@s.StartTime.ToString("HH\\:mm") - @s.EndTime.ToString("HH\\:mm")</td>
+                                    <td class="text-center">
+                                        <span class="badge @(s.IsActive ? "bg-success" : "bg-secondary")">
+                                            @(s.IsActive ? "Yes" : "No")
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="actions-grid">
+                                            <a asp-action="Details" asp-route-id="@s.HallSlotId" class="btn chip btn-sm">Details</a>
+                                            <a asp-action="Edit" asp-route-id="@s.HallSlotId" class="btn chip btn-sm">Edit</a>
+                                            <a asp-action="Delete" asp-route-id="@s.HallSlotId" class="btn chip chip--danger btn-sm">Delete</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</section>

@@ -1,26 +1,54 @@
 ﻿@model Movie_Site_Management_System.Models.HallSlot
 @{
     ViewData["Title"] = "Delete Slot";
+    ViewBag.GlassHeader = true;
 }
 
-<h2 class="mb-3">Delete Hall Slot</h2>
-
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-glass-ultra.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/theatre/theatre-crud.css" asp-append-version="true" />
 }
 
-<div class="card mb-3">
-    <div class="card-body">
-        <div><strong>Theatre / Hall:</strong> @Model.Hall?.Theatre?.Name / @Model.Hall?.Name</div>
-        <div><strong>Slot:</strong> S@Model.SlotNumber</div>
-        <div><strong>Time:</strong> @Model.StartTime.ToString("HH\\:mm") - @Model.EndTime.ToString("HH\\:mm")</div>
-        <div><strong>Active:</strong> @(Model.IsActive ? "Yes" : "No")</div>
+<section class="admin-ultra-shell">
+    <div class="film-rail film-rail--left" aria-hidden="true"></div>
+    <div class="film-rail film-rail--right" aria-hidden="true"></div>
+    <div class="ultra-aura"></div>
+    <div class="film-grain"></div>
+
+    <div class="container py-4 position-relative">
+        <div class="ultra-card">
+            <div class="ultra-card__shine"></div>
+
+            <div class="ultra-card__header">
+                <h2 class="mb-0">Delete Hall Slot</h2>
+            </div>
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="ultra-alert ultra-alert--danger">@TempData["Error"]</div>
+            }
+
+            <div class="kv-dim mb-3">
+                <dl class="row mb-0">
+                    <dt class="col-sm-3">Theatre / Hall</dt>
+                    <dd class="col-sm-9">@Model.Hall?.Theatre?.Name / @Model.Hall?.Name</dd>
+
+                    <dt class="col-sm-3">Slot</dt>
+                    <dd class="col-sm-9">S@Model.SlotNumber</dd>
+
+                    <dt class="col-sm-3">Time</dt>
+                    <dd class="col-sm-9">@Model.StartTime.ToString("HH\\:mm") - @Model.EndTime.ToString("HH\\:mm")</dd>
+
+                    <dt class="col-sm-3">Active</dt>
+                    <dd class="col-sm-9">@((Model.IsActive ? "Yes" : "No"))</dd>
+                </dl>
+            </div>
+
+            <form asp-action="Delete" method="post" class="d-flex gap-2">
+                <input type="hidden" name="id" value="@Model.HallSlotId" />
+                <button class="btn chip chip--danger">Confirm Delete</button>
+                <a asp-action="Index" asp-route-hallId="@Model.HallId" class="btn chip chip--muted">Cancel</a>
+            </form>
+        </div>
     </div>
-</div>
-
-<form asp-action="Delete" method="post">
-    <input type="hidden" name="id" value="@Model.HallSlotId" />
-    <button class="btn btn-danger">Confirm Delete</button>
-    <a asp-action="Index" asp-route-hallId="@Model.HallId" class="btn btn-secondary ms-2">Cancel</a>
-</form>
+</section>
