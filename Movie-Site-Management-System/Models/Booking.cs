@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Movie_Site_Management_System.Models
 {
-
     public class Booking
     {
         public long BookingId { get; set; }
@@ -11,7 +10,13 @@ namespace Movie_Site_Management_System.Models
         // FK -> Show
         public long ShowId { get; set; }
 
-        public long? CustomerId { get; set; } // optional, future
+        // Legacy placeholder (not linked). Keep if you want backwards compatibility.
+        public long? CustomerId { get; set; } // optional, legacy
+
+        // NEW: FK -> AspNetUsers (ApplicationUser.Id, string)
+        public string? UserId { get; set; }
+        public ApplicationUser? User { get; set; }
+
         public BookingStatus Status { get; set; } = BookingStatus.CREATED;
         public int TicketQuantity { get; set; }
 
@@ -27,5 +32,8 @@ namespace Movie_Site_Management_System.Models
 
         // Booking (1) -> (N) BookingSeat
         public ICollection<BookingSeat> BookingSeats { get; set; } = new List<BookingSeat>();
+
+        // Optional convenience nav (payments made for this booking)
+        public ICollection<Payment> Payments { get; set; } = new List<Payment>();
     }
 }

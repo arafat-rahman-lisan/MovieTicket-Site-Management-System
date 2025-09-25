@@ -20,7 +20,7 @@ namespace Movie_Site_Management_System.Models
 
         [Required(ErrorMessage = "Language is required.")]
         [MaxLength(30, ErrorMessage = "Language cannot exceed 30 characters.")]
-        public string Language { get; set; } = default!;
+        public string? Language { get; set; } = default!;
 
         [Required(ErrorMessage = "Active status must be set.")]
         public bool IsActive { get; set; } = true;

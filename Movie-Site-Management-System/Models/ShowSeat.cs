@@ -29,6 +29,10 @@ namespace Movie_Site_Management_System.Models
         [Required]
         public ShowSeatStatus Status { get; set; } = ShowSeatStatus.Available;
 
+        // ⏲️ When a seat is temporarily reserved. UTC; null when not held.
+        [Column(TypeName = "datetime2")]
+        public DateTime? HoldUntil { get; set; }
+
         // Concurrency token to avoid double-booking races
         [Timestamp]
         public byte[]? RowVersion { get; set; }
@@ -38,7 +42,7 @@ namespace Movie_Site_Management_System.Models
         public Seat? Seat { get; set; }
         public SeatType? SeatType { get; set; }
 
-        // ✅ Back-reference for BookingSeat
+        // Back-reference for BookingSeat (many BookingSeats can point to this ShowSeat)
         public ICollection<BookingSeat> BookingSeats { get; set; } = new List<BookingSeat>();
     }
 }
