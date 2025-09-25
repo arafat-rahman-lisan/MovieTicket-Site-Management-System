@@ -1,1 +1,647 @@
+﻿/* ===========================================================
+   STAR CINEPLEX — HALL CRUD (Ultra Glass + Film Rails MATCH Theatre)
+   Path: /wwwroot/css/hall/hall-crud.css
+   =========================================================== */
 
+/* ---------- Theme tokens ---------- */
+:root {
+    --cine-bg: #07090f;
+    --cine-card: rgba(20,26,36,.55);
+    --cine-card-br: rgba(115,130,165,.25);
+    --cine-text: #eaf0f7;
+    --cine-muted: #a9b4c7;
+    --cine-accent: #2563eb; /* neon blue  */
+    --cine-highlight: #7c3aed; /* neon purple */
+    --cine-success: #22c55e;
+    --cine-danger: #ef4444;
+    --cine-warn: #f59e0b;
+}
+
+/* ===========================================================
+   Page shell + cinematic layers (MATCH Theatre)
+   =========================================================== */
+.admin-ultra-shell {
+    position: relative;
+    min-height: calc(100vh - 120px);
+    padding-block: 16px 48px;
+    /* room so content doesn’t collide with rails */
+    padding-left: 62px;
+    padding-right: 62px;
+    color: var(--cine-text);
+    background: linear-gradient(180deg,#07090f 0%,#0a0e15 100%);
+    isolation: isolate;
+    overflow: hidden;
+    z-index: 0;
+}
+
+    /* Put core content above decorative layers */
+    .admin-ultra-shell > .container,
+    .admin-ultra-shell .ultra-card,
+    .admin-ultra-shell .sticky-controls {
+        position: relative;
+        z-index: 1;
+    }
+
+/* ===========================================================
+   FILM RAILS — same visual as Theatre (square perforations)
+   =========================================================== */
+.film-rail {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 72px; /* same width as Theatre */
+    z-index: -1; /* always behind content */
+    pointer-events: none;
+}
+
+.film-rail--left {
+    left: 0;
+}
+
+.film-rail--right {
+    right: 0;
+}
+
+/* Base rail + perforations (SVG tiles) with straight edges */
+.film-rail::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(12,18,34,.96), rgba(9,14,28,.98));
+    background-image: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='72' height='64' viewBox='0 0 72 64'>\
+  <rect width='72' height='64' fill='none'/>\
+  <!-- square-ish perforations -->\
+  <rect x='8'  y='10' width='18' height='18' rx='2' ry='2' fill='transparent'/>\
+  <rect x='46' y='10' width='18' height='18' rx='2' ry='2' fill='transparent'/>\
+</svg>");
+    background-repeat: repeat-y;
+    background-size: 72px 64px;
+    border-left: 1px solid rgba(255,255,255,.08);
+    border-right: 1px solid rgba(255,255,255,.08);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.05), inset 0 8px 24px rgba(0,0,0,.35), 0 0 48px rgba(0,0,0,.5);
+}
+
+/* Neon halo hugging the perforations & rail body */
+.film-rail::after {
+    content: "";
+    position: absolute;
+    inset: 4px 8px;
+    box-shadow: inset 0 0 0 1px rgba(96,165,250,.10), 0 0 16px rgba(96,165,250,.45), 0 0 30px rgba(147,51,234,.32);
+    pointer-events: none;
+}
+
+/* Subtle vertical sheen sweep (rails only) */
+.film-rail > i,
+.film-rail .rail-sheen {
+    display: none;
+}
+/* guard if markup existed */
+.film-rail::marker {
+    content: "";
+}
+/* no-op for safety */
+
+.film-rail::before,
+.film-rail::after {
+    will-change: transform, opacity;
+}
+
+/* optional separate sheen layer using :before is already present above;
+   we emulate motion via a light grain/aura that passes near rails */
+
+/* ===========================================================
+   Ambient AURA + FILM GRAIN — full body animation (Theatre)
+   =========================================================== */
+.ultra-aura {
+    position: absolute;
+    inset: -15%;
+    z-index: -3;
+    pointer-events: none;
+    background: conic-gradient(from 0deg at 20% 0%, rgba(59,130,246,.22), transparent 32% 60%, rgba(147,51,234,.22) 0), radial-gradient(900px 500px at 100% 10%, rgba(147,51,234,.18), transparent 60%), radial-gradient(900px 500px at 0% 10%, rgba(59,130,246,.18), transparent 60%);
+    animation: aura-rotate 28s linear infinite;
+    filter: saturate(150%);
+}
+
+@keyframes aura-rotate {
+    from {
+        transform: rotate(0);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.film-grain {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    background-image: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px), radial-gradient(rgba(255,255,255,.03) 1px, transparent 1px);
+    background-size: 3px 3px, 5px 5px;
+    background-position: 0 0, 25px 25px;
+    opacity: .22;
+    animation: grain-move 9s steps(10) infinite;
+}
+
+@keyframes grain-move {
+    from {
+        transform: translate(0,0);
+    }
+
+    to {
+        transform: translate(-25px,-20px);
+    }
+}
+
+/* ===========================================================
+   Ultra card (glass container)
+   =========================================================== */
+.ultra-card {
+    position: relative;
+    background: var(--cine-card);
+    border: 1px solid var(--cine-card-br);
+    border-radius: 28px;
+    box-shadow: 0 10px 40px rgba(5,9,16,.45), inset 0 0 0 1px rgba(255,255,255,.04);
+    backdrop-filter: blur(14px) saturate(160%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    overflow: hidden;
+    z-index: 1;
+}
+
+.ultra-card--floating {
+    box-shadow: 0 24px 60px rgba(0,0,0,.5);
+}
+
+.ultra-card__shine {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 120px;
+    pointer-events: none;
+    background: radial-gradient(600px 120px at 50% -20px, rgba(125,211,252,.25), transparent 70%), radial-gradient(600px 120px at 10% -30px, rgba(147,51,234,.18), transparent 80%);
+    mix-blend-mode: screen;
+    opacity: .7;
+    animation: topSheen 10s linear infinite;
+}
+
+@keyframes topSheen {
+    0% {
+        background-position: 50% -20px, 10% -30px;
+        opacity: .5;
+    }
+
+    50% {
+        background-position: 48% -10px, 14% -25px;
+        opacity: .8;
+    }
+
+    100% {
+        background-position: 50% -20px, 10% -30px;
+        opacity: .5;
+    }
+}
+
+.ultra-card__header,
+.ultra-card__footer {
+    padding: .9rem 1.25rem;
+    border-bottom: 1px solid var(--cine-card-br);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    flex-wrap: wrap;
+}
+
+.ultra-card__footer {
+    border-top: 1px solid var(--cine-card-br);
+    border-bottom: 0;
+}
+
+.ultra-card__body {
+    padding: 1rem 1.25rem;
+}
+
+/* Scrollable content */
+.ultra-scroll {
+    max-height: calc(100vh - 260px);
+    overflow: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding-right: .25rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(96,165,250,.8) transparent;
+}
+
+    .ultra-scroll::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    .ultra-scroll::-webkit-scrollbar-thumb {
+        background-image: linear-gradient(180deg, rgba(96,165,250,.85), rgba(147,51,234,.85));
+        border-radius: 8px;
+        border: 2px solid rgba(0,0,0,.25);
+    }
+
+    .ultra-scroll:hover::-webkit-scrollbar-thumb {
+        background-image: linear-gradient(180deg, rgba(96,165,250,.95), rgba(147,51,234,.95));
+    }
+
+/* ===========================================================
+   Titles
+   =========================================================== */
+.ultra-title {
+    margin: 0;
+    font-weight: 800;
+    letter-spacing: .2px;
+}
+
+.ultra-title__glow {
+    --_clip: text;
+    background: linear-gradient(90deg,var(--cine-accent),var(--cine-highlight));
+    -webkit-background-clip: var(--_clip);
+    -webkit-text-fill-color: transparent;
+    color: #cfe3ff; /* fallback */
+}
+
+.title-icon {
+    margin-right: .45rem;
+    vertical-align: -3px;
+}
+
+/* ===========================================================
+   FORM STYLING (glass + custom select dropdown)
+   =========================================================== */
+.ultra-form .form-label {
+    font-weight: 700;
+    opacity: .92;
+}
+
+.glass-input,
+.ultra-form .form-control,
+.ultra-form .form-select {
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.18);
+    color: #eaf2ff;
+    border-radius: 16px;
+}
+
+/* Custom styled select */
+.form-select.glass-input,
+.ultra-form .form-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-right: 2.25rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23cfe3ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right .8rem center;
+    background-size: 14px;
+    color-scheme: dark;
+}
+
+    .form-select.glass-input::-ms-expand {
+        display: none;
+    }
+
+.ultra-form .form-control::placeholder {
+    color: #cbd5e1;
+}
+
+.glass-input:focus,
+.ultra-form .form-control:focus,
+.ultra-form .form-select:focus {
+    box-shadow: 0 0 0 .2rem rgba(96,165,250,.25);
+    border-color: rgba(147,51,234,.38);
+    outline: 0;
+}
+
+/* Dark dropdown list */
+.form-select.glass-input option,
+.ultra-form .form-select option {
+    background: #0a0e15;
+    color: var(--cine-text);
+}
+
+    .form-select.glass-input option:checked {
+        background-color: rgba(124,58,237,.35);
+    }
+
+/* Switch */
+.ultra-switch .form-check-input {
+    width: 3rem;
+    height: 1.5rem;
+    background-color: rgba(255,255,255,.15);
+    border: 1px solid rgba(255,255,255,.25);
+}
+
+    .ultra-switch .form-check-input:checked {
+        background-color: var(--cine-accent);
+        border-color: var(--cine-accent);
+    }
+
+/* ===========================================================
+   Buttons / Chips
+   =========================================================== */
+.btn {
+    border-radius: 14px;
+}
+
+.btn-primary {
+    background: linear-gradient(90deg,var(--cine-accent),var(--cine-highlight));
+    border: none;
+}
+
+    .btn-primary:focus,
+    .btn-primary:active,
+    .btn-primary:active:focus {
+        background: linear-gradient(90deg,var(--cine-accent),var(--cine-highlight));
+        box-shadow: 0 0 0 .2rem rgba(124,58,237,.25);
+    }
+
+.btn-outline-secondary {
+    border-color: rgba(148,163,184,.45);
+    color: var(--cine-text);
+}
+
+    .btn-outline-secondary:hover {
+        background: rgba(148,163,184,.12);
+        border-color: rgba(148,163,184,.65);
+    }
+
+.btn-danger {
+    border: 1px solid rgba(244,63,94,.45);
+    background: linear-gradient(180deg, rgba(244,63,94,.55), rgba(190,18,60,.38));
+}
+
+    .btn-danger:focus,
+    .btn-danger:active,
+    .btn-danger:active:focus {
+        box-shadow: 0 0 0 .2rem rgba(244,63,94,.25);
+    }
+
+/* Chip buttons */
+.btn.chip, .chip {
+    width: auto !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    padding: .55rem 1rem;
+    font-size: 1rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,.18);
+    background: rgba(255,255,255,.06);
+    transition: transform .15s ease, background-color .15s ease, border-color .15s ease;
+}
+
+    .btn.chip:hover, .chip:hover {
+        transform: translateY(-1px);
+    }
+
+    .btn.chip.btn-sm {
+        padding: .4rem .8rem;
+        font-size: .9rem;
+        border-radius: 999px;
+    }
+
+.chip--primary {
+    border-color: var(--cine-accent);
+}
+
+.chip--danger {
+    border-color: var(--cine-danger);
+}
+
+.chip--dim {
+    opacity: .85;
+}
+
+/* ===========================================================
+   Alerts
+   =========================================================== */
+.glass-alert {
+    background: rgba(30,38,52,.65) !important;
+    border: 1px solid rgba(115,130,165,.35) !important;
+    color: var(--cine-text) !important;
+    border-radius: 16px !important;
+    padding: 1rem 1.25rem !important;
+}
+
+    .glass-alert.alert-danger {
+        border-color: rgba(239,68,68,.55) !important;
+        color: #ffe5e5 !important;
+    }
+
+    .glass-alert.alert-warning {
+        border-color: rgba(250,204,21,.55) !important;
+        color: #fff7d6 !important;
+    }
+
+    .glass-alert.alert-success {
+        border-color: rgba(34,197,94,.55) !important;
+        color: #eafff1 !important;
+    }
+
+.ultra-alert {
+    margin-top: .25rem;
+    border-radius: 16px;
+    padding: 1rem 1.1rem;
+}
+
+.ultra-alert--danger {
+    background: linear-gradient(180deg, rgba(244,63,94,.20), rgba(190,18,60,.12));
+    border: 1px solid rgba(244,63,94,.35);
+    color: #ffe8ed;
+}
+
+.ultra-alert--warning {
+    background: linear-gradient(180deg, rgba(251,191,36,.20), rgba(161,98,7,.12));
+    border: 1px solid rgba(251,191,36,.35);
+    color: #fff3d9;
+}
+
+.ultra-alert--info {
+    background: linear-gradient(180deg, rgba(56,189,248,.20), rgba(12,74,110,.12));
+    border: 1px solid rgba(56,189,248,.35);
+    color: #e0f6ff;
+}
+
+/* ===========================================================
+   Row-card table (Theatre style)
+   =========================================================== */
+.ultra-table thead th {
+    background: rgba(255,255,255,.06);
+    font-weight: 700;
+    border-bottom: 1px solid rgba(255,255,255,.12);
+    padding: .85rem 1rem;
+}
+
+.ultra-table tbody {
+    border: 0;
+}
+
+.ultra-table .ultra-row {
+    --row-bg: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+    background: var(--row-bg);
+    border-radius: 18px;
+    box-shadow: 0 10px 24px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.05);
+}
+
+    .ultra-table .ultra-row > * {
+        background: transparent !important;
+        border: 0 !important;
+        padding: 1rem 1rem;
+    }
+
+.ultra-row + .ultra-row > * {
+    border-top: 0;
+}
+
+.ultra-row:hover {
+    background: linear-gradient(180deg, rgba(124,58,237,.16), rgba(37,99,235,.10));
+    transition: background .2s ease;
+}
+
+.ultra-row--inactive {
+    opacity: .85;
+    filter: saturate(.85);
+}
+
+/* Title + subtitle */
+.cell-title {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    font-weight: 800;
+    letter-spacing: .2px;
+}
+
+.cell-sub {
+    font-size: .9rem;
+    color: #c7d2fe;
+    opacity: .85;
+    margin-top: .15rem;
+}
+
+/* Neon dot */
+.movie-dot {
+    width: .7rem;
+    height: .7rem;
+    display: inline-block;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #93c5fd, #60a5fa 60%, #3b82f6 100%);
+    box-shadow: 0 0 10px #60a5fa, 0 0 18px #3b82f6;
+}
+
+/* Pills */
+.pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 68px;
+    padding: .35rem .75rem;
+    border-radius: 999px;
+    font-weight: 700;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.18);
+}
+
+.pill--yes {
+    color: #eafff1;
+    background: linear-gradient(180deg,#0f5132,#166534);
+}
+
+.pill--no {
+    color: #f3f4f6;
+    background: linear-gradient(180deg,#334155,#475569);
+}
+
+/* Actions grid */
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(90px,1fr));
+    gap: .5rem;
+}
+
+.btn.chip.chip--muted {
+    border-color: rgba(148,163,184,.45);
+    color: var(--cine-text);
+}
+
+/* ===========================================================
+   Definition list + metrics
+   =========================================================== */
+.kv-dim {
+    background: rgba(255,255,255,.05);
+    border-radius: 18px;
+    padding: 1rem;
+}
+
+    .kv-dim dt, .kv-dim dd {
+        color: #cfe0ff;
+        opacity: .9;
+    }
+
+.ultra-dl dt {
+    opacity: .8;
+}
+
+.ultra-dl dd {
+    margin-bottom: .35rem;
+}
+
+.ultra-metric {
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.12);
+    padding: 1rem 1.25rem;
+    border-radius: 1.25rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,.25);
+}
+
+.ultra-metric__label {
+    opacity: .85;
+    font-weight: 600;
+    margin-bottom: .25rem;
+}
+
+.ultra-metric__value {
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+/* ===========================================================
+   Responsive tweaks (rails width + offsets)
+   =========================================================== */
+@media (max-width: 992px) {
+    .film-rail {
+        width: 68px;
+    }
+
+    .admin-ultra-shell {
+        padding-left: 58px;
+        padding-right: 58px;
+    }
+}
+
+@media (max-width: 576px) {
+    .film-rail {
+        width: 56px;
+    }
+
+    .admin-ultra-shell {
+        padding-left: 48px;
+        padding-right: 48px;
+    }
+}
+
+/* ===========================================================
+   Motion accessibility
+   =========================================================== */
+@media (prefers-reduced-motion: reduce) {
+    .ultra-aura, .film-grain, .ultra-card__shine {
+        animation: none !important;
+    }
+}
