@@ -1,0 +1,48 @@
+﻿@model Movie_Site_Management_System.Models.Movie
+@{
+    ViewData["Title"] = "Movie Details";
+    ViewBag.GlassHeader = true;
+}
+<link rel="stylesheet" href="~/css/admin-glass-ultra.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/movies/movies-crud.css" asp-append-version="true" />
+
+<section class="admin-ultra-shell">
+    <div class="film-rail film-rail--left" aria-hidden="true"></div>
+    <div class="film-rail film-rail--right" aria-hidden="true"></div>
+    <div class="ultra-aura"></div>
+    <div class="film-grain"></div>
+
+    <div class="container py-4 position-relative">
+        <div class="ultra-card">
+            <div class="ultra-card__shine"></div>
+
+            <div class="ultra-card__header">
+                <h2 class="ultra-title">@Model.Title</h2>
+                <div class="ms-auto d-flex gap-2">
+                    <a asp-action="Edit" asp-route-id="@Model.MovieId" class="btn glass-btn">Edit</a>
+                    <a asp-action="MovieManagement" class="btn glass-btn alt">Back</a>
+                </div>
+            </div>
+
+            <div class="px-2">
+                <div class="row g-4 align-items-start">
+                    <div class="col-md-3">
+                        @{
+                            var thumb = string.IsNullOrWhiteSpace(Model.SmallPosterPath) ? "/img/placeholder-small.jpg" : Model.SmallPosterPath!;
+                        }
+                        <img src="@thumb" alt="@Model.Title" class="poster-thumb" style="width:100px;height:140px" />
+                    </div>
+                    <div class="col-md-9">
+                        <div class="kv-dim">Genre</div><div>@Model.Genre</div>
+                        <div class="kv-dim mt-2">Status</div><div>@Model.Status</div>
+                        <div class="kv-dim mt-2">Runtime</div><div>@Model.RuntimeMinutes min</div>
+                        <div class="kv-dim mt-2">IMDB</div><div>@(Model.ImdbRating?.ToString("0.0") ?? "—")</div>
+                        <div class="kv-dim mt-2">Release</div><div>@(Model.ReleaseDate?.ToString("M/d/yyyy") ?? "—")</div>
+                        <div class="kv-dim mt-2">Synopsis</div><div>@(Model.Synopsis ?? "—")</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
