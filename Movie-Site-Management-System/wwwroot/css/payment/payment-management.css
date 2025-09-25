@@ -1,1 +1,304 @@
+﻿/* ===========================================================
+   PAYMENTS — Management (Finance Glass, lighter palette)
+   Matching outer shell + improved striping + finance animation
+   =========================================================== */
 
+:root {
+    --fin-card: rgba(22, 34, 42, 0.55); /* light glass */
+    --fin-card-br: rgba(120, 180, 200, .28);
+    --fin-text: #ecf7ff;
+    --fin-muted: #b7c8d6;
+    --fin-teal: #22d3ee;
+    --fin-mint: #34d399;
+    --fin-blue: #60a5fa;
+    --fin-amber: #f59e0b;
+    --fin-red: #ef4444;
+    --row-odd: rgba(255,255,255,.065);
+    --row-even: rgba(12, 20, 26, .22);
+    --row-hover: rgba(34,211,238,.18);
+    --row-border: rgba(255,255,255,.10);
+}
+
+/* ---------- Page Shell (finance pages) ---------- */
+.finance-shell,
+.finance-shell body {
+    background: #090f14;
+}
+
+    /* vignette + ambient */
+    .finance-shell::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background: radial-gradient(1400px 600px at 10% 0%, rgba(34,211,238,.08), transparent 60%), radial-gradient(1200px 520px at 90% 0%, rgba(52,211,153,.07), transparent 60%), linear-gradient(180deg, rgba(0,0,0,.22), rgba(0,0,0,0));
+        z-index: 0;
+    }
+
+    /* FINANCE SPIN — soft conic glow across whole page */
+    .finance-shell::after {
+        content: "";
+        position: fixed;
+        inset: -25%;
+        pointer-events: none;
+        background: conic-gradient(from 0deg, rgba(34,211,238,.08), rgba(52,211,153,.10), rgba(96,165,250,.08), rgba(34,211,238,.08));
+        filter: blur(60px);
+        opacity: .35;
+        mix-blend-mode: screen;
+        animation: finance-spin 48s linear infinite;
+        z-index: 0;
+    }
+
+@keyframes finance-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* rails look like Theatre */
+.finance-shell .film-rail--left,
+.finance-shell .film-rail--right {
+    opacity: .55;
+    background: linear-gradient(180deg, rgba(10,16,24,.8), rgba(10,16,24,.92) 30%, rgba(10,16,24,.8));
+    box-shadow: inset 0 0 0 1px rgba(120,180,200,.18);
+}
+
+/* ---------- Top bar blend (navbar from _Layout) ---------- */
+body:has(.finance-shell) .navbar,
+body:has(.finance-shell) .navbar.bg-light,
+body:has(.finance-shell) .navbar.bg-white,
+body:has(.finance-shell) .navbar-light {
+    background: linear-gradient(180deg, rgba(10,16,24,.78), rgba(10,16,24,.55)) !important;
+    border-bottom: 1px solid rgba(120,180,200,.18);
+    box-shadow: none !important;
+    backdrop-filter: blur(6px);
+}
+
+    body:has(.finance-shell) .navbar .navbar-brand,
+    body:has(.finance-shell) .navbar .nav-link,
+    body:has(.finance-shell) .navbar .navbar-text {
+        color: #e5f1ff !important;
+    }
+
+        body:has(.finance-shell) .navbar .nav-link:hover,
+        body:has(.finance-shell) .navbar .nav-link:focus,
+        body:has(.finance-shell) .navbar .nav-link.active {
+            color: #a7ecff !important;
+        }
+
+    body:has(.finance-shell) .navbar .dropdown-menu {
+        background: rgba(16,24,34,.92);
+        border: 1px solid rgba(120,180,200,.18);
+        backdrop-filter: blur(8px);
+    }
+
+    body:has(.finance-shell) .navbar .dropdown-item {
+        color: #e5f1ff;
+    }
+
+        body:has(.finance-shell) .navbar .dropdown-item:hover {
+            background: rgba(34,211,238,.12);
+        }
+
+/* ---------- Finance card ---------- */
+.finance-card {
+    background: var(--fin-card);
+    border: 1px solid var(--fin-card-br);
+    position: relative;
+    overflow: hidden;
+}
+
+    .finance-card::before {
+        content: "";
+        position: absolute;
+        inset: -2px;
+        pointer-events: none;
+        border-radius: 26px;
+        background: linear-gradient(135deg, rgba(34,211,238,.25) 0%, rgba(34,211,238,0) 18%, rgba(52,211,153,.22) 50%, rgba(34,211,238,0) 82%, rgba(34,211,238,.22) 100%);
+        filter: blur(0.3px);
+        mix-blend-mode: screen;
+        background-size: 200% 200%;
+        animation: finance-shimmer 16s ease-in-out infinite;
+        opacity: .32;
+    }
+
+@keyframes finance-shimmer {
+    0% {
+        background-position: 0% 0%;
+    }
+
+    50% {
+        background-position: 100% 100%;
+    }
+
+    100% {
+        background-position: 0% 0%;
+    }
+}
+
+/* header glass */
+.finance-card .ultra-card__header {
+    background: linear-gradient(180deg, rgba(18,28,36,.62), rgba(18,28,36,.42));
+    border-bottom: 1px solid var(--fin-card-br);
+}
+
+/* ---------- Toolbar + inputs ---------- */
+.finance-toolbar .form-control,
+.finance-toolbar .form-select {
+    background: rgba(255,255,255,.06);
+    border: 1px solid var(--fin-card-br);
+    color: var(--fin-text);
+    border-radius: 12px;
+}
+
+.finance-toolbar .form-select {
+    color: var(--fin-teal);
+}
+
+    .finance-toolbar .form-select:focus {
+        border-color: rgba(52,211,153,.6);
+        box-shadow: 0 0 0 .2rem rgba(52,211,153,.18);
+    }
+
+/* ---------- KPI cards ---------- */
+.finance-kpis .kpi {
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.035));
+    border: 1px solid var(--fin-card-br);
+}
+
+.kpi-label {
+    color: var(--fin-muted);
+    font-size: .9rem;
+}
+
+.kpi-value {
+    color: var(--fin-text);
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    font-size: 1.15rem;
+}
+
+.kpi-sub {
+    color: var(--fin-muted);
+    font-size: .85rem;
+}
+
+/* chart panel */
+.glass-panel {
+    padding: 16px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.03));
+    border: 1px solid var(--fin-card-br);
+}
+
+.muted {
+    color: var(--fin-muted);
+}
+
+/* ---------- Table (better visibility) ---------- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;600&display=swap');
+
+.finance-table {
+    color: var(--fin-text);
+    border-color: var(--row-border);
+}
+
+    .finance-table td, .finance-table th {
+        vertical-align: middle;
+        color: var(--fin-text) !important;
+    }
+
+    /* header */
+    .finance-table thead th {
+        background: linear-gradient(145deg, rgba(96,165,250,.16) 0%, rgba(34,211,238,.16) 50%, rgba(52,211,153,.14) 100%) !important;
+        color: var(--fin-text) !important;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        text-align: center;
+        letter-spacing: .2px;
+        border: none !important;
+        padding: 14px 12px;
+        position: relative;
+        font-size: 1rem;
+    }
+
+        .finance-table thead th::after {
+            content: "";
+            position: absolute;
+            left: 12%;
+            right: 12%;
+            bottom: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--fin-teal), var(--fin-mint), transparent);
+            opacity: .9;
+            border-radius: 2px;
+        }
+
+    .finance-table thead {
+        box-shadow: 0 3px 10px rgba(34,211,238,.16);
+    }
+
+    /* striping */
+    .finance-table.table-striped > tbody > tr:nth-of-type(odd) {
+        background-color: var(--row-odd) !important;
+    }
+
+    .finance-table.table-striped > tbody > tr:nth-of-type(even) {
+        background-color: var(--row-even) !important;
+    }
+
+    .finance-table tbody tr:nth-child(odd) {
+        background-color: var(--row-odd);
+    }
+
+    .finance-table tbody tr:nth-child(even) {
+        background-color: var(--row-even);
+    }
+
+    .finance-table tbody tr {
+        border-bottom: 1px solid var(--row-border) !important;
+    }
+
+    .finance-table.table-hover > tbody > tr:hover {
+        background-color: var(--row-hover) !important;
+    }
+
+/* ---------- Status badges ---------- */
+.badge.bg-status-paid {
+    background: rgba(52,211,153,.22);
+    color: #d1fae5;
+    border: 1px solid rgba(16,185,129,.35);
+}
+
+.badge.bg-status-pending {
+    background: rgba(245,158,11,.22);
+    color: #fde68a;
+    border: 1px solid rgba(245,158,11,.35);
+}
+
+.badge.bg-status-failed {
+    background: rgba(239,68,68,.22);
+    color: #fecaca;
+    border: 1px solid rgba(248,113,113,.35);
+}
+
+/* ---------- Buttons ---------- */
+.header-actions .btn.btn-outline-light {
+    color: #eaf6ff;
+    border-color: rgba(255,255,255,.35);
+}
+
+    .header-actions .btn.btn-outline-light:hover {
+        background: rgba(255,255,255,.10);
+    }
+
+.btn-danger {
+    background: rgba(239,68,68,.9);
+    border-color: rgba(248,113,113,.55);
+}
+
+    .btn-danger:hover {
+        background: rgba(239,68,68,1);
+    }
