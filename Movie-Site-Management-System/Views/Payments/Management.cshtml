@@ -1,0 +1,253 @@
+﻿@model Movie_Site_Management_System.ViewModels.Payments.PaymentsDashboardVM
+@using Movie_Site_Management_System.Data.Enums
+@using System.Text.Json
+@{
+    ViewData["Title"] = "Payments";
+
+    // body class for finance skin
+    ViewBag.BodyClass = "finance-root";
+    ViewBag.GlassHeader = true;
+
+    var labelsJson = JsonSerializer.Serialize(Model.RevenueSeries.Select(s => s.Day.ToString("MM-dd")).ToList());
+    var dataJson = JsonSerializer.Serialize(Model.RevenueSeries.Select(s => s.Amount).ToList());
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-glass-ultra.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/payment/payment-management.css" asp-append-version="true" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600&display=swap" rel="stylesheet">
+}
+
+<section class="admin-ultra-shell finance-shell">
+    <div class="film-rail film-rail--left" aria-hidden="true"></div>
+    <div class="film-rail film-rail--right" aria-hidden="true"></div>
+    <div class="ultra-aura"></div>
+    <div class="film-grain"></div>
+
+    <div class="container py-4 position-relative">
+        <div class="ultra-card finance-card">
+            <div class="ultra-card__shine"></div>
+
+            <div class="ultra-card__header d-flex align-items-center justify-content-between">
+                <h2 class="ultra-title mb-0 d-flex align-items-center">
+                    <svg class="me-2" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="payMgmtGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#34d399" />
+                                <stop offset="50%" stop-color="#22d3ee" />
+                                <stop offset="100%" stop-color="#60a5fa" />
+                            </linearGradient>
+                        </defs>
+                        <rect x="3" y="5" width="18" height="14" rx="3" fill="url(#payMgmtGrad)" />
+                        <rect x="3" y="8" width="18" height="2" rx="1" fill="rgba(255,255,255,.7)" />
+                        <rect x="7" y="13" width="6" height="2" rx="1" fill="rgba(255,255,255,.85)" />
+                    </svg>
+                    Payments
+                </h2>
+
+                <div class="header-actions">
+                    <a class="btn btn-outline-light" asp-controller="Payments" asp-action="Export">Export CSV</a>
+                </div>
+            </div>
+
+            <div class="p-3 p-md-4">
+
+                <!-- KPIs -->
+                <div class="row g-3 mb-3 finance-kpis">
+                    <div class="col-12 col-md-3">
+                        <div class="kpi glass-lite">
+                            <div class="kpi-label">Total payments</div>
+                            <div class="kpi-value">@Model.TotalCount</div>
+                            <div class="kpi-sub">last @Model.Days days</div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <div class="kpi glass-lite">
+                            <div class="kpi-label">Paid revenue</div>
+                            <div class="kpi-value">৳ @Model.PaidAmount.ToString("0.##")</div>
+                            <div class="kpi-sub">captured</div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <div class="kpi glass-lite">
+                            <div class="kpi-label">Pending</div>
+                            <div class="kpi-value">@Model.PendingCount</div>
+                            <div class="kpi-sub">awaiting</div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <div class="kpi glass-lite">
+                            <div class="kpi-label">Failed / cancelled</div>
+                            <div class="kpi-value">@Model.FailedCount</div>
+                            <div class="kpi-sub">last @Model.Days days</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <form method="get" class="row g-2 align-items-end mb-3 finance-toolbar">
+                    <div class="col-12 col-md-3">
+                        <label class="form-label">Range</label>
+                        <select name="days" class="form-select">
+                            @foreach (var d in new[] { 7, 14, 30, 90 })
+                            {
+                                <option value="@d" selected="@(Model.Days == d)">@($"Last {d} days")</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <label class="form-label">Method</label>
+                        <select name="methodId" class="form-select">
+                            <option value="">All methods</option>
+                            @foreach (var m in Model.Methods)
+                            {
+                                <option value="@m.Id" selected="@(Model.MethodId == m.Id)">@m.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-select">
+                            <option value="">All statuses</option>
+                            @foreach (PaymentStatus s in Enum.GetValues(typeof(PaymentStatus)))
+                            {
+                                <option value="@((int)s)" selected="@(Model.Status == s)">@s</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <label class="form-label">Search</label>
+                        <input name="q" class="form-control" placeholder="Invoice / Email / Movie" value="@Model.Q" />
+                    </div>
+                    <div class="col-12 mt-2">
+                        <button class="btn btn-secondary">Apply</button>
+                    </div>
+                </form>
+
+                <!-- Revenue chart -->
+                <div class="glass-panel mb-3">
+                    <div class="muted mb-2">Revenue</div>
+                    <canvas id="revChart" height="80"></canvas>
+                </div>
+
+                <!-- Table -->
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped table-hover table-bordered align-middle finance-table mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Payment</th>
+                                <th>Customer</th>
+                                <th>Method</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Items.Any())
+                            {
+                                foreach (var p in Model.Items)
+                                {
+                                    var pillClass = p.Status switch
+                                    {
+                                        PaymentStatus.Paid => "badge bg-status-paid",
+                                        PaymentStatus.Pending => "badge bg-status-pending",
+                                        PaymentStatus.Failed or PaymentStatus.Cancelled => "badge bg-status-failed",
+                                        _ => "badge bg-secondary"
+                                    };
+                                    <tr>
+                                        <td>
+                                            <div class="fw-semibold">#@p.PaymentId &nbsp;<span class="muted">@p.InvoiceNo</span></div>
+                                            <div class="muted">Booking #@p.BookingId</div>
+                                        </td>
+                                        <td>@p.CustomerEmail</td>
+                                        <td>@p.Method</td>
+                                        <td class="text-nowrap fw-semibold">৳ @p.Amount.ToString("0.##")</td>
+                                        <td><span class="@pillClass">@p.Status</span></td>
+                                        <td class="text-nowrap">@p.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                                        <td class="text-nowrap">
+                                            <a class="btn btn-sm btn-outline-light"
+                                               asp-controller="Payments" asp-action="Invoice" asp-route-bookingId="@p.BookingId">View</a>
+
+                                            @if (p.Status == PaymentStatus.Pending)
+                                            {
+                                                <form method="post"
+                                                      asp-controller="Payments"
+                                                      asp-action="CancelPayment"
+                                                      asp-route-paymentId="@p.PaymentId"
+                                                      class="d-inline"
+                                                      onsubmit="return confirm('Cancel this pending payment?');">
+                                                    <button class="btn btn-sm btn-danger" type="submit">Cancel</button>
+                                                </form>
+                                            }
+                                            else if (p.Status == PaymentStatus.Paid || p.Status == PaymentStatus.Success)
+                                            {
+                                                <form method="post"
+                                                      asp-controller="Payments"
+                                                      asp-action="AdminCancelPaid"
+                                                      asp-route-paymentId="@p.PaymentId"
+                                                      class="d-inline"
+                                                      onsubmit="return confirm('Cancel this PAID payment and release seats?');">
+                                                    <button class="btn btn-sm btn-warning" type="submit">Cancel Paid</button>
+                                                </form>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="7" class="text-center muted">No payments found.</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Emit JSON for Chart.js -->
+<script id="rev-labels" type="application/json">
+    @Html.Raw(labelsJson)
+</script>
+<script id="rev-data" type="application/json">
+    @Html.Raw(dataJson)
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script>
+    (function () {
+        const canvas = document.getElementById('revChart');
+        if (!canvas) return;
+
+        const labels = JSON.parse(document.getElementById('rev-labels').textContent || '[]');
+        const data   = JSON.parse(document.getElementById('rev-data').textContent || '[]');
+
+        new Chart(canvas, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [{
+                    data,
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    borderColor: '#22d3ee',
+                    tension: 0.35,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { ticks: { color: '#b7c8d6' }, grid: { display: false } },
+                    y: { ticks: { color: '#b7c8d6' }, grid: { color: 'rgba(183,200,214,0.18)' } }
+                }
+            }
+        });
+    })();
+</script>

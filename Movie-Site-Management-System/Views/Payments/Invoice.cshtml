@@ -1,0 +1,164 @@
+﻿@model Movie_Site_Management_System.Models.Booking
+@using Movie_Site_Management_System.Data.Enums
+@{
+    ViewData["Title"] = "Invoice";
+    ViewBag.GlassHeader = true;
+
+    // Safe unwraps
+    var show = Model?.Show;
+    var movieTitle = show?.Movie?.Title ?? "(Untitled)";
+    var theatreName = show?.HallSlot?.Hall?.Theatre?.Name ?? "(Theatre)";
+    var hallName = show?.HallSlot?.Hall?.Name ?? "(Hall)";
+    var showDateStr = (show?.ShowDate ?? DateOnly.MinValue).ToString("yyyy-MM-dd");
+    var startStr = show?.HallSlot?.StartTime.ToString(@"HH\:mm") ?? "--:--";
+    var endStr = show?.HallSlot?.EndTime.ToString(@"HH\:mm") ?? "--:--";
+
+    var methods = ViewBag?.PaymentMethods as IEnumerable<Movie_Site_Management_System.Models.PaymentMethod>
+                  ?? Enumerable.Empty<Movie_Site_Management_System.Models.PaymentMethod>();
+
+    var bookingSeats = Model?.BookingSeats ?? Enumerable.Empty<Movie_Site_Management_System.Models.BookingSeat>();
+
+    bool canPay = Model?.Status == BookingStatus.CREATED;
+
+    string SeatLabel(Movie_Site_Management_System.Models.Seat? s)
+        => s is null ? "(Seat N/A)" : $"{(s.RowLabel ?? "").Trim()}{s.SeatNumber}";
+}
+
+<link rel="stylesheet" href="~/css/checkout/checkout-glass.css" asp-append-version="true" />
+
+<section class="checkout-shell">
+    <div class="checkout-bg"></div>
+    <div class="checkout-aura"></div>
+
+    <div class="container py-4 position-relative">
+        <div class="checkout-glass glass-shine p-4">
+
+            <div class="d-flex align-items-start justify-content-between mb-3">
+                <div>
+                    <div class="checkout-title">Invoice</div>
+                    <div class="small text-muted">Created: @(Model?.CreatedAt.ToString("yyyy-MM-dd HH:mm") ?? "—")</div>
+                    <dl class="kv mt-2">
+                        <dt>Movie</dt>
+                        <dd>@movieTitle</dd>
+                        <dt>Venue</dt>
+                        <dd>@theatreName — @hallName</dd>
+                        <dt>Show</dt>
+                        <dd>@showDateStr • @startStr–@endStr</dd>
+                        <dt>Booking #</dt>
+                        <dd>@(Model?.BookingId.ToString().PadLeft(6, '0'))</dd>
+                    </dl>
+                </div>
+                <div class="text-end">
+                    <div class="small text-muted">Status</div>
+                    <div class="fw-bold">@((Model?.Status.ToString()) ?? "Unknown")</div>
+                </div>
+            </div>
+
+            @if (TempData["Error"] is string errMsg)
+            {
+                <div class="glass-alert">@errMsg</div>
+            }
+            @if (TempData["Success"] is string okMsg)
+            {
+                <div class="glass-alert success">@okMsg</div>
+            }
+
+            <div class="row g-3">
+                <div class="col-lg-7">
+                    <div class="ticket-card">
+                        <div class="fw-semibold">Seats</div>
+                        <hr class="mt-2 mb-3" />
+                        @if (!bookingSeats.Any())
+                        {
+                            <div class="text-muted">No seats recorded.</div>
+                        }
+                        else
+                        {
+                            <table class="table table-sm glass align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Seat</th>
+                                        <th class="text-end">Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        decimal grand = 0m;
+                                        int qty = 0;
+                                    }
+                                    @foreach (var bs in bookingSeats)
+                                    {
+                                        var seat = bs?.Seat;
+                                        decimal price = (bs?.UnitPrice) ?? (bs?.ShowSeat?.Price ?? 0m);
+                                        grand += price; qty++;
+                                        <tr>
+                                            <td>@SeatLabel(seat)</td>
+                                            <td class="text-end">৳@price.ToString("0.00")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th>Total (@(Model?.TicketQuantity ?? 0) tickets)</th>
+                                        <th class="text-end">৳@((Model?.TotalAmount ?? 0m).ToString("0.00"))</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        }
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="ticket-card">
+                        <div class="fw-semibold">Choose a payment method</div>
+                        <hr class="mt-2 mb-3" />
+
+                        @if (!canPay)
+                        {
+                            <div class="glass-alert info">
+                                This booking is not in a payable state. Current status:
+                                <strong>@Model?.Status</strong>.
+                                @if (Model?.Status == BookingStatus.CONFIRMED)
+                                {
+                                    <span class="ms-1">
+                                        View booking
+                                        <a asp-controller="Bookings" asp-action="Details" asp-route-id="@Model!.BookingId">here</a>.
+                                    </span>
+                                }
+                            </div>
+                        }
+                        else if (!methods.Any())
+                        {
+                            <div class="glass-alert info">No payment methods are configured.</div>
+                        }
+                        else
+                        {
+                            <div class="d-grid gap-2">
+                                @foreach (var m in methods)
+                                {
+                                    <form asp-controller="Payments" asp-action="Pay" method="post" class="d-grid">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="bookingId" value="@Model!.BookingId" />
+                                        <input type="hidden" name="methodId" value="@m.PaymentMethodId" />
+                                        <button type="submit"
+                                                class="action-btn @(string.IsNullOrWhiteSpace(m.CssClass) ? "" : m.CssClass)">
+                                            Pay with @m.Name
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                            <div class="small text-muted mt-2">
+                                You’ll be taken to a demo gateway. No real transaction occurs.
+                            </div>
+                        }
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 mt-3">
+                        <a class="btn btn-ghost" asp-controller="Movies" asp-action="Index">← Back to Movies</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>

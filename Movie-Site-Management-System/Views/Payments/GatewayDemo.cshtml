@@ -1,1 +1,39 @@
+﻿@model Movie_Site_Management_System.Models.Payment
+@{
+    var methodName = Model?.PaymentMethod?.Name ?? "Payment";
+    ViewData["Title"] = methodName + " Checkout";
+    ViewBag.GlassHeader = true;
+}
 
+<link rel="stylesheet" href="~/css/checkout/checkout-glass.css" asp-append-version="true" />
+
+<section class="checkout-shell">
+    <div class="checkout-bg"></div>
+    <div class="checkout-aura"></div>
+
+    <div class="container py-4 position-relative">
+        <div class="checkout-glass glass-shine p-4">
+            <div class="d-flex align-items-start justify-content-between mb-3">
+                <div>
+                    <div class="checkout-title">@methodName Checkout</div>
+                    <div class="small text-muted">Invoice: <strong>@(Model?.InvoiceNo ?? "—")</strong></div>
+                </div>
+            </div>
+
+            <div class="ticket-card mb-3">
+                <div class="d-flex align-items-baseline justify-content-between">
+                    <div>Amount</div>
+                    <div class="display-6">৳@(Model?.Amount.ToString("0.00"))</div>
+                </div>
+                <div class="text-muted mt-2">This is a demo gateway screen. No real transaction will occur.</div>
+            </div>
+
+            <form asp-controller="Payments" asp-action="ConfirmPayment" method="post" class="d-flex gap-2">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="paymentId" value="@(Model?.PaymentId)" />
+                <button type="submit" class="action-btn">Confirm Payment</button>
+                <a asp-controller="Payments" asp-action="Invoice" asp-route-bookingId="@(Model?.BookingId)" class="btn btn-ghost">Cancel</a>
+            </form>
+        </div>
+    </div>
+</section>
