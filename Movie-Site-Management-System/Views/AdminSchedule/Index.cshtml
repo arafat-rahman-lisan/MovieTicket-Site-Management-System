@@ -1,1 +1,104 @@
+﻿@model Movie_Site_Management_System.ViewModels.Schedule.ScheduleWizardVM
+@using System.Globalization
+@{
+    ViewData["Title"] = "Schedule Builder";
+    ViewBag.FullBleed = true;
+    ViewBag.GlassHeader = true; // navbar translucent
+    var movies = ViewBag.MovieOptions as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+}
 
+@section Styles {
+    <link rel="stylesheet" href="~/css/schedule-builder.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin-schedule-glass.css" asp-append-version="true" />
+}
+
+<div class="admin-schedule-shell">
+    <!-- animated background layers -->
+    <div class="admin-schedule-bg" aria-hidden="true"></div>
+    <div class="admin-schedule-doodles" aria-hidden="true"></div>
+    <div class="admin-schedule-shine" aria-hidden="true"></div>
+
+    <div class="admin-schedule-content container py-5">
+        <!-- Page header -->
+        <div class="d-flex align-items-center justify-content-between mb-5">
+            <h1 class="fw-bold text-gradient">🎬 Schedule Builder</h1>
+            <a class="btn btn-outline-light btn-sm glass-btn" asp-controller="Shows" asp-action="Index">
+                All Shows
+            </a>
+        </div>
+
+        <!-- Alerts -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success glass-alert">@TempData["Success"]</div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger glass-alert">@TempData["Error"]</div>
+        }
+
+        <!-- Sticky input toolbar -->
+        <div class="sticky-controls glass-card border-0 mb-4">
+            <!-- Centered Date + Language row -->
+            <div class="center-pair mb-4">
+                <div class="field">
+                    <label for="dateInput" class="form-label text-light">Date</label>
+                    <input id="dateInput" name="Date" type="date"
+                           class="form-control glass-input"
+                           value="@Model.Date.ToString("yyyy-MM-dd")" />
+                </div>
+
+                <div class="field">
+                    <label for="languageInput" class="form-label text-light">
+                        Language <span class="text-danger">*</span>
+                    </label>
+                    <input id="languageInput" name="Language" type="text"
+                           class="form-control glass-input"
+                           value="@(Model?.Language ?? string.Empty)"
+                           maxlength="50" placeholder="e.g., English, Bangla, Hindi" required />
+                    <div class="form-text text-muted">Required — admin must enter language.</div>
+                </div>
+            </div>
+
+            <!-- Movies full-width below -->
+            <div class="mb-1">
+                <label for="movieSelect" class="form-label text-light">Movies (multi-select)</label>
+                <select id="movieSelect" class="form-select glass-input" multiple size="6" aria-describedby="movieHelp">
+                    @foreach (var m in movies)
+                    {
+                        <option value="@m.MovieId">@m.Title</option>
+                    }
+                </select>
+                <small id="movieHelp" class="text-muted">Hold Ctrl/Cmd to select multiple.</small>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <form id="scheduleForm" method="post" asp-action="Create" asp-controller="AdminSchedule">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="Date" id="formDate" value="@Model?.Date.ToString("yyyy-MM-dd")" />
+
+            <!-- Dynamic Movies + Slots -->
+            <div id="moviesContainer" class="mb-4 glass-card border-0">
+                <p class="text-muted mb-0">Pick a date and one or more movies to begin.</p>
+            </div>
+
+            <!-- hidden fields -->
+            <div id="hiddenFields"></div>
+
+            <!-- Actions -->
+            <div class="d-flex gap-3">
+                <button type="button" class="btn btn-outline-light glass-btn px-4" id="previewBtn">
+                    Preview
+                </button>
+                <button type="submit" class="btn btn-primary glass-btn px-4" id="createBtn" disabled>
+                    Confirm & Create Shows
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/schedule-builder.js" asp-append-version="true"></script>
+}
