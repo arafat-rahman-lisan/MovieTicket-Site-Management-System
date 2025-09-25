@@ -1,1 +1,70 @@
+﻿@model Movie_Site_Management_System.Models.Hall
+@{
+    ViewData["Title"] = "Seat Map – " + (Model?.Name ?? "Hall");
+    ViewBag.GlassHeader = true;
+}
+@Html.AntiForgeryToken()
 
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <h2 class="m-0">Seat Map – @(Model?.Theatre?.Name ?? "Theatre") / @(Model?.Name ?? "Hall")</h2>
+    <a asp-action="Select" class="btn btn-outline-secondary">Change Hall</a>
+</div>
+
+<p class="text-muted mb-2">
+    Click a seat to toggle <strong>Enabled/Disabled</strong>. Disabled seats appear as <em>Not Available</em> for customers.
+</p>
+
+<div class="mb-2 small text-muted">
+    Legend:
+    <span class="badge bg-success">Enabled</span>
+    <span class="badge bg-secondary">Disabled</span>
+    <span class="ms-3">Changes pending: <strong id="pendingCount">0</strong></span>
+</div>
+
+<form asp-action="Save" asp-controller="SeatMap" method="post" class="mb-3">
+    <input type="hidden" name="hallId" value="@(Model?.HallId ?? 0)" />
+    <input type="hidden" id="disabledSeatIds" name="disabledSeatIds" />
+
+    <div class="seatmap-stage glass-card position-relative">
+
+        <!-- Emoji doodles -->
+        <div class="doodles" aria-hidden="true">
+            <span class="doodle" style="--x:8%;--y:10%;--d:6s">⭐</span>
+            <span class="doodle" style="--x:90%;--y:20%;--d:7s">🎞️</span>
+            <span class="doodle" style="--x:6%;--y:72%;--d:9s">🍿</span>
+            <span class="doodle" style="--x:92%;--y:66%;--d:8s">🎬</span>
+        </div>
+
+        <div id="seatmap" class="seatmap-grid">
+            @foreach (var s in (Model?.Seats ?? Enumerable.Empty<Movie_Site_Management_System.Models.Seat>())
+                        .OrderBy(x => x.RowLabel).ThenBy(x => x.SeatNumber))
+            {
+                var seatText = $"{s.RowLabel}{s.SeatNumber}";
+                <button type="button"
+                        class="seat-tile @(s.IsDisabled ? "is-disabled" : "is-enabled")"
+                        data-seat-id="@s.SeatId"
+                        data-disabled-initial="@(s.IsDisabled ? "1" : "0")"
+                        title="@seatText (@s.SeatType?.Name)">
+                    @seatText
+                </button>
+            }
+        </div>
+
+        <div class="editor-screen-wrap">
+            <div class="editor-screen-glow"></div>
+            <div class="editor-screen-bar"></div>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2 mt-3">
+        <button type="submit" class="btn btn-primary px-4" id="saveLayoutBtn" disabled>Save Layout</button>
+        <button type="button" class="btn btn-outline-secondary" id="resetChangesBtn" disabled>Reset</button>
+    </div>
+</form>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/seatmap/seatmap-editor.css" asp-append-version="true" />
+}
+@section Scripts {
+    <script src="~/js/seatmap-editor.js" asp-append-version="true"></script>
+}

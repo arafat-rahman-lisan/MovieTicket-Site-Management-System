@@ -1,0 +1,19 @@
+﻿@{
+    ViewData["Title"] = "Seat Map – Select Hall";
+    ViewBag.GlassHeader = true;
+}
+
+<h2 class="mb-3">Seat Map Editor</h2>
+<p class="text-muted">Pick a hall to edit its seat layout visually (click seats to enable/disable).</p>
+
+<form asp-action="Index" asp-controller="SeatMap" method="get" class="row gy-2 gx-2 align-items-end">
+    <div class="col-md-6">
+        <label class="form-label">Hall</label>
+        <select class="form-select" asp-items="ViewBag.Halls" name="hallId">
+            <option value="">-- Select Hall --</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <button type="submit" class="btn btn-primary w-100">Open Seat Map</button>
+    </div>
+</form>
