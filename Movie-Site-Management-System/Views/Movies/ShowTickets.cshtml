@@ -1,0 +1,195 @@
+﻿@model Movie_Site_Management_System.ViewModels.Movies.ShowTicketsIndexVM
+@using System.Globalization
+@{
+    ViewData["Title"] = "Show Tickets";
+}
+
+@{
+    ViewBag.GlassHeader = true;
+}
+
+<link rel="stylesheet" href="~/css/schedule.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/showtickets-glass.css" asp-append-version="true" />
+
+<section class="showtickets-shell">
+    <!-- Page background & aura -->
+    <div class="showtickets-bg"></div>
+    <div class="showtickets-aura"></div>
+    <!-- Subtle cinema doodles -->
+    <div class="showtickets-doodles"></div>
+
+    <div class="container py-4 position-relative">
+        <!-- LANDING STYLE GLASS WRAPPER -->
+        <div class="showtickets-card glass-shine">
+            <!-- Top toolbar (inside the card) -->
+            <div class="glass-toolbar d-flex justify-content-between align-items-center mb-4">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="toolbar-dot"></span>
+                    <h3 class="mb-0 title-text">Show Tickets</h3>
+                </div>
+
+                @if (Model.Items.Any() && Model.Items.First().TheatreOptions.Any())
+                {
+                    <form method="get" asp-action="ShowTickets" class="d-flex gap-2 align-items-center">
+                        <select name="theatreId" class="glass-select">
+                            @foreach (var t in Model.Items.First().TheatreOptions)
+                            {
+                                <option value="@t.TheatreId" selected="@(t.TheatreId == Model.SelectedTheatreId)">
+                                    @t.Name
+                                </option>
+                            }
+                        </select>
+                        <button class="glass-btn small" type="submit">Apply</button>
+                    </form>
+                }
+            </div>
+
+            @if (!Model.Items.Any())
+            {
+                <div class="glass-empty text-center py-5">No upcoming shows available.</div>
+            }
+            else
+            {
+                @* Each movie block *@
+                @foreach (var movie in Model.Items)
+                {
+                    <div class="row g-4 mb-5">
+                        <!-- Left: poster + info -->
+                        <div class="col-lg-4">
+                            <div class="glass-card movie-card floatable glass-shine">
+                                <div class="poster-wrap">
+                                    <img class="poster-img"
+                                         src="@(movie.BigPoster ?? movie.PosterUrl ?? "/img/placeholder-big.jpg")"
+                                         alt="@movie.Title" />
+                                    <div class="poster-glow"></div>
+                                </div>
+
+                                <div class="glass-body">
+                                    <h3 class="movie-title">@movie.Title</h3>
+                                    <div class="meta-row">
+                                        <span class="chip">⭐ @(movie.Imdb?.ToString("0.0") ?? "0.0")</span>
+                                        <span class="chip alt">2D</span>
+                                    </div>
+                                    <div class="meta-grid">
+                                        <div><span class="label">Genre</span><span class="value">@movie.Genre</span></div>
+                                        <div><span class="label">Release</span><span class="value">@movie.Year</span></div>
+                                    </div>
+
+                                    <div class="btn-row">
+                                        <a class="glass-btn outline"
+                                           asp-controller="Movies" asp-action="Details" asp-route-id="@movie.MovieId">
+                                            Details
+                                        </a>
+                                        <a class="glass-btn outline dim">Watch Trailer</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right: date columns with times -->
+                        <div class="col-lg-8">
+                            @if (movie.DateBlocks.Any())
+                            {
+                                <div class="schedule-grid">
+                                    @foreach (var block in movie.DateBlocks)
+                                    {
+                                        <div class="glass-card schedule-col floatable glass-shine" data-selected-show-id="">
+                                            <div class="schedule-col-header">
+                                                <div class="dow">
+                                                    @block.Date.ToDateTime(new TimeOnly(0, 0)).ToString("dddd", CultureInfo.InvariantCulture)
+                                                </div>
+                                                <div class="date">
+                                                    @block.Date.ToDateTime(new TimeOnly(0, 0)).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture)
+                                                </div>
+                                            </div>
+
+                                            <div class="schedule-col-body">
+                                                @foreach (var s in block.Items)
+                                                {
+                                                    <button type="button"
+                                                            class="time-btn"
+                                                            data-show-id="@s.ShowId">
+                                                        @s.StartTime.ToString("hh:mm tt")
+                                                    </button>
+                                                }
+                                            </div>
+
+                                            <div class="schedule-col-footer">
+                                                <button type="button"
+                                                        class="glass-btn primary w-100 get-ticket"
+                                                        data-map-base="@Url.Action("Map", "ShowSeats")"
+                                                        disabled>
+                                                    Get Ticket
+                                                </button>
+                                                <small class="muted d-block mt-2 status-text">Pick a time above</small>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="glass-empty">No upcoming shows for this movie in the selected theatre.</div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+        </div> <!-- /showtickets-card -->
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        // existing seat selection logic
+        document.querySelectorAll('.schedule-col').forEach(function (col) {
+            const timeButtons = col.querySelectorAll('.time-btn');
+            const getBtn = col.querySelector('.get-ticket');
+            const statusText = col.querySelector('.status-text');
+            const baseUrl = getBtn?.getAttribute('data-map-base') || '/ShowSeats/Map';
+
+            function clearActive() {
+                timeButtons.forEach(function (b) { b.classList.remove('active'); });
+            }
+
+            // Toggle behavior: click to select; click again to deselect
+            timeButtons.forEach(function (btn) {
+                btn.addEventListener('click', function (e) {
+                    // ripple coordinates for nicer hover (optional)
+                    const rect = this.getBoundingClientRect();
+                    this.style.setProperty('--x', (e.clientX - rect.left) + 'px');
+                    this.style.setProperty('--y', (e.clientY - rect.top) + 'px');
+
+                    const showId = this.getAttribute('data-show-id');
+                    const isActive = this.classList.contains('active');
+
+                    if (isActive) {
+                        this.classList.remove('active');
+                        col.setAttribute('data-selected-show-id', '');
+                        if (getBtn) getBtn.disabled = true;
+                        if (statusText) statusText.textContent = 'Pick a time above';
+                    } else {
+                        clearActive();
+                        this.classList.add('active');
+                        col.setAttribute('data-selected-show-id', showId);
+                        if (getBtn) getBtn.disabled = false;
+                        if (statusText) statusText.textContent = 'Selected: ' + this.textContent.trim();
+                    }
+                });
+            });
+
+            // Navigate only when a time is selected
+            getBtn?.addEventListener('click', function () {
+                const showId = col.getAttribute('data-selected-show-id');
+                if (!showId) {
+                    alert('Please select a showtime first.');
+                    return;
+                }
+                window.location.href = baseUrl + '?showId=' + encodeURIComponent(showId);
+            });
+        });
+    </script>
+
+    <!-- Micro-interactions (tilt + ripple) -->
+    <script src="~/js/showtickets-glass.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,25 @@
+﻿@model IEnumerable<Movie_Site_Management_System.ViewModels.Movies.MovieIndexItemVM>
+
+<div class="cards" id="cards">
+    @foreach (var m in Model)
+    {
+        <div class="card">
+            <img src="@m.SmallPoster" alt="@m.Title" class="poster" />
+            <div class="rest_card">
+                <img src="@m.BigPoster" alt="" />
+                <div class="cont">
+                    <h4>@m.Title</h4>
+                    <div class="sub">
+                        <p>@m.Genre, @m.Year</p>
+                        <h3><span>IMDB</span><i class="bi bi-star-fill"></i> @m.Imdb.ToString("0.0")</h3>
+                    </div>
+                    <div class="actions">
+                        <!-- Get Ticket now opens the new Schedule page -->
+                        <a class="btn_ticket" href="@Url.Action("Schedule", "Movies", new { id = m.Id })">Get Ticket</a>
+                        <a class="btn_details" href="@Url.Action("Details", "Movies", new { id = m.Id })">Details</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

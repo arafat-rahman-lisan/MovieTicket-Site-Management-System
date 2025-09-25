@@ -1,0 +1,176 @@
+﻿@model Movie_Site_Management_System.ViewModels.Movies.MovieDetailsVM
+@using System.Globalization
+@{
+    ViewData["Title"] = $"{Model.Title} – Showtimes";
+    ViewBag.GlassHeader = true; // keep the glass header from _Layout
+}
+
+<link rel="stylesheet" href="~/css/movies/schedule.css" asp-append-version="true" />
+
+<section class="schedule-shell">
+    <!-- background layers -->
+    <div class="schedule-bg"></div>
+    <div class="schedule-aura"></div>
+
+    <div class="container py-4 position-relative">
+        <!-- landing-style glass wrapper (lighter than ShowTickets) -->
+        <div class="schedule-card glass-shine">
+            <!-- Toolbar -->
+            <div class="schedule-toolbar d-flex flex-wrap justify-content-between align-items-center mb-4">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="sched-dot"></span>
+                    <h3 class="mb-0 sched-title">Schedule</h3>
+                </div>
+
+                @if (Model.TheatreOptions.Any())
+                {
+                    <form method="get" asp-action="Schedule" asp-route-id="@Model.MovieId" class="d-flex gap-2 align-items-center">
+                        <select name="theatreId" class="sched-select">
+                            @foreach (var t in Model.TheatreOptions)
+                            {
+                                <option value="@t.TheatreId" selected="@(t.TheatreId == Model.SelectedTheatreId)">
+                                    @t.Name
+                                </option>
+                            }
+                        </select>
+                        <button class="sched-btn small" type="submit">Apply</button>
+                    </form>
+                }
+            </div>
+
+            <div class="row g-4">
+                <!-- Left: poster + info -->
+                <div class="col-lg-4">
+                    <div class="glass-card movie-card floatable glass-shine">
+                        <div class="poster-wrap">
+                            <img class="poster-img"
+                                 src="@(Model.BigPoster ?? Model.PosterUrl ?? "/img/placeholder-big.jpg")"
+                                 alt="@Model.Title" />
+                            <div class="poster-glow"></div>
+                        </div>
+
+                        <div class="glass-body">
+                            <h3 class="movie-title">@Model.Title</h3>
+                            <div class="meta-row">
+                                <span class="chip">⭐ @(Model.Imdb?.ToString("0.0") ?? "0.0")</span>
+                                <span class="chip alt">2D</span>
+                            </div>
+                            <div class="meta-grid">
+                                <div><span class="label">Genre</span><span class="value">@Model.Genre</span></div>
+                                <div><span class="label">Release</span><span class="value">@Model.Year</span></div>
+                            </div>
+
+                            <div class="btn-row">
+                                <a class="sched-btn outline" asp-action="Details" asp-route-id="@Model.MovieId">Details</a>
+                                <a class="sched-btn outline dim">Watch Trailer</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: date columns -->
+                <div class="col-lg-8">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="mb-0 text-light-50">Select Showtime</h5>
+                    </div>
+
+                    @if (Model.DateBlocks.Any())
+                    {
+                        <div class="schedule-grid">
+                            @foreach (var block in Model.DateBlocks)
+                            {
+                                <div class="glass-card schedule-col floatable glass-shine" data-selected-show-id="">
+                                    <div class="schedule-col-header">
+                                        <div class="dow">
+                                            @block.Date.ToDateTime(new TimeOnly(0, 0)).ToString("dddd", CultureInfo.InvariantCulture)
+                                        </div>
+                                        <div class="date">
+                                            @block.Date.ToDateTime(new TimeOnly(0, 0)).ToString("dd MMMM yyyy", CultureInfo.InvariantCulture)
+                                        </div>
+                                    </div>
+
+                                    <div class="schedule-col-body">
+                                        @foreach (var s in block.Items)
+                                        {
+                                            <!-- SELECT ONLY (no navigation here) -->
+                                            <button type="button"
+                                                    class="time-btn"
+                                                    data-show-id="@s.ShowId">
+                                                @s.StartTime.ToString("hh:mm tt")
+                                            </button>
+                                        }
+                                    </div>
+
+                                    <div class="schedule-col-footer">
+                                        <button type="button"
+                                                class="sched-btn primary w-100 get-ticket"
+                                                data-map-base="@Url.Action("Map", "ShowSeats")"
+                                                disabled>
+                                            Get Ticket
+                                        </button>
+                                        <small class="muted d-block mt-2 status-text">Pick a time above</small>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="schedule-empty">No upcoming shows found for this selection.</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        // Same behavior as ShowTickets: time selects, Get Ticket navigates
+        document.querySelectorAll('.schedule-col').forEach(function (col) {
+            const timeButtons = col.querySelectorAll('.time-btn');
+            const getBtn = col.querySelector('.get-ticket');
+            const statusText = col.querySelector('.status-text');
+            const baseUrl = getBtn?.getAttribute('data-map-base') || '/ShowSeats/Map';
+
+            function clearActive() {
+                timeButtons.forEach(b => b.classList.remove('active'));
+            }
+
+            // Toggle selection per column + ripple coordinates
+            timeButtons.forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    const rect = this.getBoundingClientRect();
+                    this.style.setProperty('--x', (e.clientX - rect.left) + 'px');
+                    this.style.setProperty('--y', (e.clientY - rect.top) + 'px');
+
+                    const showId = this.getAttribute('data-show-id');
+                    const isActive = this.classList.contains('active');
+
+                    if (isActive) {
+                        this.classList.remove('active');
+                        col.setAttribute('data-selected-show-id', '');
+                        if (getBtn) getBtn.disabled = true;
+                        if (statusText) statusText.textContent = 'Pick a time above';
+                    } else {
+                        clearActive();
+                        this.classList.add('active');
+                        col.setAttribute('data-selected-show-id', showId);
+                        if (getBtn) getBtn.disabled = false;
+                        if (statusText) statusText.textContent = 'Selected: ' + this.textContent.trim();
+                    }
+                });
+            });
+
+            // Navigate only when a time is selected
+            getBtn?.addEventListener('click', function () {
+                const showId = col.getAttribute('data-selected-show-id');
+                if (!showId) {
+                    alert('Please select a showtime first.');
+                    return;
+                }
+                window.location.href = baseUrl + '?showId=' + encodeURIComponent(showId);
+            });
+        });
+    </script>
+}

@@ -1,0 +1,81 @@
+﻿@model IEnumerable<Movie_Site_Management_System.Models.Movie>
+@using Movie_Site_Management_System.Data.Identity
+@{
+    ViewData["Title"] = "Manage Movies";
+    ViewBag.GlassHeader = true;
+}
+<link rel="stylesheet" href="~/css/admin-glass-ultra.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/movies/movies-crud.css" asp-append-version="true" />
+
+<section class="admin-ultra-shell">
+    <div class="film-rail film-rail--left" aria-hidden="true"></div>
+    <div class="film-rail film-rail--right" aria-hidden="true"></div>
+    <div class="ultra-aura"></div>
+    <div class="film-grain"></div>
+
+    <div class="container py-4 position-relative">
+        <div class="ultra-card">
+            <div class="ultra-card__shine"></div>
+
+            <div class="ultra-card__header">
+                <h2 class="ultra-title">Manage Movies</h2>
+                <div class="ms-auto d-flex gap-2">
+                    <a asp-action="Create" class="btn chip btn-sm">+ Add New Movie</a>
+                </div>
+            </div>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="ultra-alert ultra-alert--success">@TempData["Success"]</div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="ultra-alert ultra-alert--danger">@TempData["Error"]</div>
+            }
+
+            <div class="ultra-scroll">
+                <table class="ultra-table">
+                    <thead>
+                        <tr>
+                            <th>Poster</th>
+                            <th>Title</th>
+                            <th>Genre</th>
+                            <th>Status</th>
+                            <th>Runtime</th>
+                            <th>IMDB</th>
+                            <th>Release</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var m in Model)
+                        {
+                            <tr>
+                                <td style="width:70px">
+                                    @{
+                                        var thumb = string.IsNullOrWhiteSpace(m.SmallPosterPath) ? "/img/placeholder-small.jpg" : m.SmallPosterPath!;
+                                    }
+                                    <img src="@thumb" alt="@m.Title" class="poster-thumb" />
+                                </td>
+                                <td>@m.Title</td>
+                                <td>@m.Genre</td>
+                                <td>@m.Status</td>
+                                <td>@m.RuntimeMinutes min</td>
+                                <td>@(m.ImdbRating?.ToString("0.0") ?? "—")</td>
+                                <td>@(m.ReleaseDate?.ToString("M/d/yyyy") ?? "—")</td>
+                                <td class="text-end">
+                                    <div class="btn-group gap-2">
+                                        <a asp-action="Edit" asp-route-id="@m.MovieId" class="btn glass-btn">Edit</a>
+                                        <a asp-action="Delete" asp-route-id="@m.MovieId" class="btn glass-btn danger">Delete</a>
+                                        <a asp-action="Details" asp-route-id="@m.MovieId" class="btn glass-btn alt">View</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</section>

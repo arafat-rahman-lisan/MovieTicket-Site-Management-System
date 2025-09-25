@@ -1,95 +1,140 @@
 ﻿@model Movie_Site_Management_System.ViewModels.Movies.MovieDetailsVM
-@using Movie_Site_Management_System.Models
-
 @{
-    ViewData["Title"] = Model.Title;
+    ViewData["Title"] = Model?.Title ?? "Movie";
+    ViewBag.GlassHeader = true;
+
+    // Prefer BigPoster for the right-side background, fallback to PosterUrl, then placeholder
+    var bigPosterRaw = Model?.BigPoster ?? Model?.PosterUrl ?? "/img/placeholder-big.jpg";
+    var smallPosterRaw = Model?.PosterUrl ?? "/img/placeholder.jpg";
+
+    var bigPoster = Url.Content(bigPosterRaw);
+    var smallPoster = Url.Content(smallPosterRaw);
+
+    DateOnly? sel = ViewBag.SelectedDate is DateOnly d ? d : (DateOnly?)null;
 }
-<link rel="stylesheet" href="~/css/movie-details.css" asp-append-version="true" />
 
-<section class="movie-details container py-4">
-    <div class="row g-4">
-        <!-- Poster -->
-        <div class="col-md-4">
-            <img src="@(Model.BigPoster ?? Model.PosterUrl ?? "/img/placeholder-big.jpg")"
-                 alt="@Model.Title"
-                 class="img-fluid rounded-3 shadow" />
-        </div>
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-glass-ultra.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/movies/details.css" asp-append-version="true" />
+}
 
-        <!-- Info -->
-        <div class="col-md-8">
-            <h2>@Model.Title</h2>
-            <p class="text-muted mb-1">⭐ @(Model.Imdb?.ToString("0.0") ?? "0.0")</p>
-            <p><strong>Genre:</strong> @Model.Genre</p>
-            <p><strong>Year:</strong> @Model.Year</p>
-            <p><strong>Runtime:</strong> @Model.RuntimeMinutes min</p>
-            @if (!string.IsNullOrWhiteSpace(Model.RatingCertificate))
-            {
-                <p><strong>Certificate:</strong> @Model.RatingCertificate</p>
-            }
+<section class="movie-details-shell">
+    <!-- Card frame wrapper -->
+    <div class="hero-stage">
+        <div class="hero-content">
+            <div class="row g-4 align-items-start">
+                <!-- LEFT: Poster & meta (kept intact) -->
+                <div class="col-lg-4">
+                    <div class="poster-stack">
+                        <img class="poster-main" src="@smallPoster" alt="@Model?.Title" />
+                        <div class="poster-glow"></div>
+                        <div class="poster-tag">
+                            @(!string.IsNullOrWhiteSpace(Model?.RatingCertificate) ? Model!.RatingCertificate : "2D")
+                        </div>
+                    </div>
 
-            <div class="d-flex gap-2 my-3 flex-wrap">
-                <a class="btn btn-primary">Show Time</a>
-                <a class="btn btn-outline-secondary">Watch Trailer</a>
+                    <h1 class="movie-title">@Model?.Title</h1>
+
+                    <div class="meta-row">
+                        <span class="chip">⭐ @(Model?.Imdb?.ToString("0.0") ?? "0.0")</span>
+                        <span class="chip alt">@(!string.IsNullOrWhiteSpace(Model?.Year) ? Model!.Year : DateTime.Now.Year.ToString())</span>
+                    </div>
+
+                    <div class="meta-grid">
+                        <div class="label">Genre</div>
+                        <div class="value">@Model?.Genre</div>
+
+                        <div class="label">Runtime</div>
+                        <div class="value">@Model?.RuntimeMinutes min</div>
+                    </div>
+
+                    <div class="actions">
+                        <a asp-action="Schedule" asp-route-id="@Model!.MovieId" class="btn-glass">Show Time</a>
+                        <a href="#" class="btn-glass btn-ghost">Watch Trailer</a>
+                    </div>
+                </div>
+
+                <!-- RIGHT: BigPosterPath background + content -->
+                <div class="col-lg-8">
+                    <div class="hero-right" style="--hero: url('@bigPoster');">
+                        <div class="hero-right__overlay"></div>
+
+                        <div class="glass-card">
+                            <h5 class="section-title">Synopsis</h5>
+                            <p>@(string.IsNullOrWhiteSpace(Model?.Synopsis) ? "Coming soon..." : Model!.Synopsis)</p>
+                        </div>
+
+                        <div class="glass-card mt-3">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                <h5 class="section-title mb-0">Showtime</h5>
+
+                                <!-- Date filter -->
+                                <form method="get" asp-action="Details" class="d-flex align-items-center gap-2">
+                                    <input type="hidden" name="id" value="@Model!.MovieId" />
+                                    <input type="date"
+                                           name="date"
+                                           class="form-control form-control-sm w-auto form-glass"
+                                           value="@(sel.HasValue? sel.Value.ToString("yyyy-MM-dd") : "")" />
+                                    <button type="submit" class="btn-glass btn-sm">Filter</button>
+                                    <a asp-action="Details" asp-route-id="@Model!.MovieId" class="btn-glass btn-ghost btn-sm">Clear</a>
+                                </form>
+                            </div>
+
+                            <hr class="hr-soft" />
+
+                            @if ((Model?.DateBlocks?.Count ?? 0) == 0)
+                            {
+                                <div class="schedule-empty">No shows for this date.</div>
+                            }
+                            else
+                            {
+                                @foreach (var block in Model!.DateBlocks!)
+                                {
+                                    <div class="day-wrapper">
+                                        <div class="day-header">
+                                            <div class="day">
+                                                @block.Date.ToDateTime(new TimeOnly(0, 0)).ToString("dddd")
+                                            </div>
+                                            <div class="date">
+                                                @block.Date.ToDateTime(new TimeOnly(0, 0)).ToString("dd MMM yyyy")
+                                            </div>
+                                        </div>
+
+                                        <!-- GRID OF THEATRE CELLS -->
+                                        <div class="date-grid">
+                                            @foreach (var theatreGroup in (block.Items ?? Enumerable.Empty<Movie_Site_Management_System.ViewModels.Shows.ShowtimeItemVM>())
+                                                                                .GroupBy(s => string.IsNullOrWhiteSpace(s.Theatre) ? "Unknown Theatre" : s.Theatre))
+                                            {
+                                                <div class="theatre-cell">
+                                                    <div class="theatre-name">@theatreGroup.Key</div>
+
+                                                    @foreach (var hallGroup in theatreGroup.GroupBy(s => string.IsNullOrWhiteSpace(s.Hall) ? "Hall" : s.Hall))
+                                                    {
+                                                        <div class="hall-row">
+                                                            <div class="hall-name">@hallGroup.Key</div>
+                                                            <div class="times-list">
+                                                                @foreach (var s in hallGroup.OrderBy(x => x.StartTime))
+                                                                {
+                                                                    <a class="time-btn"
+                                                                       asp-controller="ShowSeats"
+                                                                       asp-action="Map"
+                                                                       asp-route-showId="@s.ShowId">
+                                                                        @s.StartTime.ToString("hh:mm tt")
+                                                                    </a>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div><!-- /.hero-right -->
+                </div>
             </div>
-
-            <h5>Synopsis</h5>
-            <p>@(string.IsNullOrWhiteSpace(Model.Synopsis) ? "Coming soon..." : Model.Synopsis)</p>
         </div>
     </div>
-
-    <hr class="my-4" />
-
-    <h5 class="mb-3">Showtime</h5>
-
-    @if (Model.TheatreOptions.Any())
-    {
-        <form method="get" asp-action="Details" asp-route-id="@Model.MovieId" class="mb-3">
-            <select name="theatreId" class="form-select w-auto d-inline" onchange="this.form.submit()">
-                @foreach (var t in Model.TheatreOptions)
-                {
-                    if (Model.SelectedTheatreId == t.TheatreId)
-                    {
-                        <option value="@t.TheatreId" selected>@t.TheatreName</option>
-                    }
-                    else
-                    {
-                        <option value="@t.TheatreId">@t.TheatreName</option>
-                    }
-                }
-            </select>
-        </form>
-    }
-
-    @if (Model.DateBlocks.Count == 0)
-    {
-        <div class="alert alert-warning">No upcoming shows scheduled.</div>
-    }
-    else
-    {
-        foreach (var block in Model.DateBlocks)
-        {
-            <div class="card my-3">
-                <div class="card-header fw-semibold">
-                    @block.Date.ToDateTime(new TimeOnly(0, 0)).ToString("dddd, dd MMMM yyyy")
-                </div>
-
-                <div class="card-body d-flex flex-wrap gap-2">
-                    @foreach (var s in block.Items)
-                    {
-                        <a class="badge bg-warning text-dark p-2 text-decoration-none"
-                           asp-controller="ShowSeats"
-                           asp-action="Map"
-                           asp-route-showId="@s.ShowId"
-                           title="Get Tickets for @s.Hall at @s.StartTime.ToString("hh:mm tt")">
-                            @s.StartTime.ToString("hh:mm tt") (@s.Hall)
-                        </a>
-                    }
-                </div>
-
-                <div class="card-footer">
-                    <span class="text-muted">Pick a time above to get tickets.</span>
-                </div>
-            </div>
-        }
-    }
 </section>

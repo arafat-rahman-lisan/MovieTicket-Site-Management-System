@@ -9,7 +9,7 @@
     var heroYear = hero?.Year ?? "";
     var heroImdb = hero?.Imdb ?? 0m;
     var heroVideo = Url.Content("~/video/Avatar.webm");
-    Layout = null; // remove if you use a shared layout
+    Layout = null; // keep custom full-bleed page without _Layout
 }
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css" rel="stylesheet" />
@@ -22,13 +22,32 @@
         <div class="logo_ul">
             <img src="~/img/logo.png" alt="Logo" />
             <ul class="nav-pills">
-                <li><a href="#" id="nav_now">Now Showing</a></li>
+                <li><a href="#" id="nav_now" class="active">Now Showing</a></li>
                 <li><a href="#" id="nav_soon">Coming Soon</a></li>
-                <li><a href="#" id="nav_showtime">Show Time</a></li>
-                <li><a href="#" id="nav_genre">Genre</a></li>
+                <li>
+                    <a href="@Url.Action("ShowTickets", "Movies")" id="nav_showtime">Show Time</a>
+                </li>
+
+                <!-- Genre pill + dropdown -->
+                <li class="genre-filter-wrap" style="position:relative; display:inline-block;">
+                    <a href="#" id="nav_genre">Genre</a>
+                    <span id="genre-selected-count" class="hidden"
+                          style="margin-left:6px; font-size:11px; padding:2px 6px; border-radius:10px; background:rgba(255,255,255,.1)">0</span>
+
+                    <div id="genre_panel" class="genre_dropdown">
+                        <div class="gd_header">
+                            <span>Filter by genre</span>
+                            <button id="genre_clear" type="button">Clear</button>
+                        </div>
+                        <div id="genre_list" class="gd_list"></div>
+                        <div class="gd_footer">
+                            <button id="genre_apply" type="button">Apply</button>
+                        </div>
+                    </div>
+                </li>
+
                 <li><a href="#" id="nav_top">Top Rated</a></li>
 
-                @* Manage button only for Admin *@
                 @if (User.IsInRole(Roles.Admin))
                 {
                     <li class="manage_wrap">
@@ -52,7 +71,7 @@
                 <i class="bi bi-caret-down-fill" style="font-size:12px"></i>
             </button>
 
-            <img src="~/img/user.jpg" alt="User" />
+            <img src="~/img/profile.jpg" alt="User" />
             <div class="search" id="search_list"></div>
         </div>
     </nav>
@@ -80,7 +99,7 @@
         <div class="cards" id="cards">
             @foreach (var m in Model.Movies)
             {
-                <div class="card">
+                <div class="card" data-id="@m.Id">
                     <img src="@m.SmallPoster" alt="@m.Title" class="poster" />
                     <div class="rest_card">
                         <img src="@m.BigPoster" alt="" />
@@ -91,9 +110,7 @@
                                 <h3><span>IMDB</span><i class="bi bi-star-fill"></i> @m.Imdb.ToString("0.0")</h3>
                             </div>
                             <div class="actions">
-                                @* Get Ticket → requires login; routes to Movies/Ticket (redirects to Details) *@
                                 <a class="btn_ticket" href="@Url.Action("Ticket", "Movies", new { id = m.Id })">Get Ticket</a>
-                                @* Details → requires login ([Authorize] on action) *@
                                 <a class="btn_details" href="@Url.Action("Details", "Movies", new { id = m.Id })">Details</a>
                             </div>
                         </div>
@@ -104,27 +121,8 @@
     </section>
 </header>
 
-@* BODY-LEVEL: Manage menu – only render if Admin *@
-@if (User.IsInRole(Roles.Admin))
-{
-    <div id="manageMenu" class="manage_menu" aria-labelledby="btnManage">
-        <a href="@Url.Action("Index", "Movies")">Movies</a>
-        <a href="@Url.Action("Index", "Theatres")">Theatres</a>
-        <a href="@Url.Action("Index", "Halls")">Halls</a>
-        <a href="@Url.Action("Index", "HallSlots")">Slots</a>
-        <a href="@Url.Action("Index", "SeatTypes")">Seat Types</a>
-        <a href="@Url.Action("Index", "Seats")">Seats</a>
-        <a href="@Url.Action("Index", "Shows")">Shows</a>
-        <a href="@Url.Action("Index", "ShowSeats")">Show Seats</a>
-        <a href="@Url.Action("Index", "Bookings")">Bookings</a>
-        <a href="@Url.Action("Index", "SeatBlocks")">Seat Blocks</a>
-        <div class="manage_divider"></div>
-        <a href="@Url.Action("Index", "Reports")">Reports (soon)</a>
-    </div>
-}
-
+<!-- DATASETS -->
 @{
-    // JSON for search dropdown
     var allDataJson = System.Text.Json.JsonSerializer.Serialize(
         Model.Movies.Select(m => new
         {
@@ -138,7 +136,33 @@
     );
 }
 <script id="movies-json" type="application/json">@Html.Raw(allDataJson)</script>
+<script id="moviesData" type="application/json">
+    @Html.Raw(ViewBag.ClientMoviesJson ?? "[]")
+</script>
 
+@if (User.IsInRole(Roles.Admin))
+{
+    <!-- Glassy Manage menu -->
+    <div id="manageMenu" class="manage_menu" aria-labelledby="btnManage">
+        <a href="@Url.Action("MovieManagement", "Movies")">Movies</a>
+        <a href="@Url.Action("Index", "Theatres")">Theatres</a>
+        <a href="@Url.Action("Index", "Halls")">Halls</a>
+        <a href="@Url.Action("Index", "HallSlots")">Slots</a>
+        <a href="@Url.Action("Index", "SeatTypes")">Seat Types</a>
+        <a href="@Url.Action("Index", "Seats")">Seats</a>
+        <a href="@Url.Action("Index", "Shows")">Shows</a>
+
+        <!-- ✅ NEW: Schedule Builder on landing page -->
+        <a href="@Url.Action("Index", "AdminSchedule")">Schedule</a>
+        <a href="@Url.Action("Index", "Users")">Users</a>
+        <div class="manage_divider"></div>
+        <!-- Payment Management -->
+        <a href="@Url.Action("Management", "Payments")">Payment Management</a>
+    </div>
+}
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     // ===== arrows =====
     const left_btn  = document.getElementsByClassName('bi-chevron-left')[0];
@@ -187,7 +211,7 @@
       if (!searchInput.value) { searchBox.style.visibility = 'hidden'; searchBox.style.opacity = '0'; }
     });
 
-    // ===== hero video toggle + state flags =====
+    // ===== hero video toggle =====
     const video = document.getElementsByTagName('video')[0];
     const play  = document.getElementById('play');
 
@@ -215,7 +239,6 @@
 
     function ensureModal() {
       if (document.getElementById(overlayId)) return;
-
       const overlay = document.createElement('div');
       overlay.id = overlayId;
       overlay.className = 'location_modal';
@@ -232,7 +255,6 @@
           <div class="location-empty" style="color:#ddd;padding:18px;text-align:center;">Loading theatres...</div>
         </div>
       `;
-
       overlay.appendChild(dialog);
       document.body.appendChild(overlay);
 
@@ -284,6 +306,9 @@
           locationNameEl.textContent = x.name;
           try { localStorage.setItem('selected_theatre_id', String(x.id)); } catch {}
           hideModal();
+          if (window.applyFilterForTheatre) {
+              window.applyFilterForTheatre(x.id);
+          }
         });
         listEl.appendChild(div);
       });
@@ -295,14 +320,13 @@
       renderLocations(list);
     });
 
-    // ===== Manage dropdown (body-level, always on top) =====
+    // ===== Manage dropdown positioning =====
     const btnManage  = document.getElementById('btnManage');
     const manageMenu = document.getElementById('manageMenu');
 
     function positionManageMenu() {
       if (!btnManage || !manageMenu) return;
       const r = btnManage.getBoundingClientRect();
-      // place menu aligned to button’s right edge with small gap
       const gap = 8;
       const top = r.bottom + gap;
       const right = Math.max(8, window.innerWidth - r.right);
@@ -316,16 +340,16 @@
       manageMenu.classList.toggle('show');
     });
 
-    // close on outside click / ESC
     document.addEventListener('click', (e) => {
       if (!manageMenu) return;
       const withinButton = btnManage && btnManage.contains(e.target);
       const withinMenu   = manageMenu.contains(e.target);
       if (!withinButton && !withinMenu) manageMenu.classList.remove('show');
     });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') manageMenu?.classList.remove('show');
-    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') manageMenu?.classList.remove('show'); });
     window.addEventListener('resize', () => { if (manageMenu?.classList.contains('show')) positionManageMenu(); });
     window.addEventListener('scroll', () => { if (manageMenu?.classList.contains('show')) positionManageMenu(); });
 </script>
+
+<!-- Page-specific filtering JS -->
+<script src="~/js/movies-index.js" asp-append-version="true"></script>
