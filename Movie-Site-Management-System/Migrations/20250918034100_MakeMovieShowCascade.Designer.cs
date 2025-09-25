@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Movie_Site_Management_System.Data;
 
@@ -11,9 +12,11 @@ using Movie_Site_Management_System.Data;
 namespace Movie_Site_Management_System.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250918034100_MakeMovieShowCascade")]
+    partial class MakeMovieShowCascade
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -255,14 +258,9 @@ namespace Movie_Site_Management_System.Migrations
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("decimal(10,2)");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("BookingId");
 
                     b.HasIndex("ShowId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Bookings");
                 });
@@ -406,105 +404,6 @@ namespace Movie_Site_Management_System.Migrations
                     b.HasKey("MovieId");
 
                     b.ToTable("Movies");
-                });
-
-            modelBuilder.Entity("Movie_Site_Management_System.Models.Payment", b =>
-                {
-                    b.Property<long>("PaymentId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("PaymentId"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<long>("BookingId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("InvoiceNo")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("nvarchar(32)");
-
-                    b.Property<DateTime?>("PaidAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("PaymentMethodId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ProviderRef")
-                        .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
-
-                    b.Property<string>("ProviderTxnId")
-                        .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.HasKey("PaymentId");
-
-                    b.HasIndex("BookingId");
-
-                    b.HasIndex("InvoiceNo")
-                        .IsUnique();
-
-                    b.HasIndex("PaymentMethodId");
-
-                    b.ToTable("Payments");
-                });
-
-            modelBuilder.Entity("Movie_Site_Management_System.Models.PaymentMethod", b =>
-                {
-                    b.Property<int>("PaymentMethodId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PaymentMethodId"));
-
-                    b.Property<string>("CssClass")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("LogoUrl")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("PaymentMethodId");
-
-                    b.ToTable("PaymentMethods");
-
-                    b.HasData(
-                        new
-                        {
-                            PaymentMethodId = 1,
-                            CssClass = "btn-dark",
-                            Name = "PayPal"
-                        },
-                        new
-                        {
-                            PaymentMethodId = 2,
-                            CssClass = "btn-pink",
-                            Name = "bKash"
-                        },
-                        new
-                        {
-                            PaymentMethodId = 3,
-                            CssClass = "btn-warning",
-                            Name = "Nagad"
-                        });
                 });
 
             modelBuilder.Entity("Movie_Site_Management_System.Models.Seat", b =>
@@ -679,9 +578,6 @@ namespace Movie_Site_Management_System.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ShowSeatId"));
 
-                    b.Property<DateTime?>("HoldUntil")
-                        .HasColumnType("datetime2");
-
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(10,2)");
 
@@ -815,13 +711,7 @@ namespace Movie_Site_Management_System.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Movie_Site_Management_System.Models.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
                     b.Navigation("Show");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Movie_Site_Management_System.Models.BookingSeat", b =>
@@ -871,25 +761,6 @@ namespace Movie_Site_Management_System.Migrations
                         .IsRequired();
 
                     b.Navigation("Hall");
-                });
-
-            modelBuilder.Entity("Movie_Site_Management_System.Models.Payment", b =>
-                {
-                    b.HasOne("Movie_Site_Management_System.Models.Booking", "Booking")
-                        .WithMany("Payments")
-                        .HasForeignKey("BookingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Movie_Site_Management_System.Models.PaymentMethod", "PaymentMethod")
-                        .WithMany("Payments")
-                        .HasForeignKey("PaymentMethodId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Booking");
-
-                    b.Navigation("PaymentMethod");
                 });
 
             modelBuilder.Entity("Movie_Site_Management_System.Models.Seat", b =>
@@ -982,8 +853,6 @@ namespace Movie_Site_Management_System.Migrations
             modelBuilder.Entity("Movie_Site_Management_System.Models.Booking", b =>
                 {
                     b.Navigation("BookingSeats");
-
-                    b.Navigation("Payments");
                 });
 
             modelBuilder.Entity("Movie_Site_Management_System.Models.Hall", b =>
@@ -1001,11 +870,6 @@ namespace Movie_Site_Management_System.Migrations
             modelBuilder.Entity("Movie_Site_Management_System.Models.Movie", b =>
                 {
                     b.Navigation("Shows");
-                });
-
-            modelBuilder.Entity("Movie_Site_Management_System.Models.PaymentMethod", b =>
-                {
-                    b.Navigation("Payments");
                 });
 
             modelBuilder.Entity("Movie_Site_Management_System.Models.Seat", b =>
