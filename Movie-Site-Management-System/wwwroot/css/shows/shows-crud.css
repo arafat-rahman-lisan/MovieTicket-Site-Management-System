@@ -1,1 +1,351 @@
+﻿/* ===========================================================
+   CINEX — SHOWS CRUD (Ultra Glass + Film Rails)
+   Path: /wwwroot/css/shows/shows-crud.css
+   Glass Buttons + Neon Hover BEHIND Text (final)
+   =========================================================== */
 
+:root {
+    --cine-text: #ffffff; /* brighter for visibility */
+    --cine-muted: #a9b4c7;
+    --cine-accent: #2563eb;
+    --cine-highlight: #7c3aed;
+    --cine-success: #22c55e;
+    --cine-danger: #ef4444;
+    --btn-glass: rgba(17,24,39,.34);
+    --btn-border: rgba(148,163,184,.45);
+}
+
+/* ---------- Header / toolbar ---------- */
+.ultra-card__header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: .75rem;
+}
+
+.ultra-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    margin: 0;
+    background: linear-gradient(90deg,#7dd3fc,#a78bfa,#60a5fa);
+    --_clip: text;
+    -webkit-background-clip: var(--_clip);
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 10px 40px rgba(96,165,250,.35);
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.title-icon {
+    filter: drop-shadow(0 6px 18px rgba(96,165,250,.35));
+}
+
+.toolbar {
+    display: flex;
+    align-items: center;
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(4,max-content);
+    gap: .75rem 1rem;
+}
+
+    .filter-grid .form-label {
+        font-size: .8rem;
+        color: var(--cine-muted);
+        margin-bottom: .25rem;
+    }
+
+/* ===========================================================
+   BUTTONS — semi-transparent glass + text above glow layer
+   =========================================================== */
+.btn {
+    position: relative;
+    isolation: isolate; /* create stacking context */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    padding: .5rem 1.1rem;
+    border-radius: 12px;
+    border: 1px solid var(--btn-border);
+    background: var(--btn-glass);
+    color: var(--cine-text);
+    text-shadow: 0 1px 2px rgba(0,0,0,.7);
+    backdrop-filter: blur(6px) saturate(140%);
+    -webkit-backdrop-filter: blur(6px) saturate(140%);
+    overflow: hidden;
+    z-index: 0;
+}
+    /* TEXT ALWAYS ON TOP */
+    .btn, .btn * {
+        position: relative;
+        z-index: 2;
+        color: var(--cine-text) !important;
+    }
+        /* GLOW LAYER BEHIND TEXT */
+        .btn::before {
+            content: "";
+            position: absolute;
+            inset: -2px;
+            border-radius: inherit;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0;
+            box-shadow: 0 0 10px rgba(124,58,237,0), 0 0 20px rgba(37,99,235,0), 0 0 35px rgba(124,58,237,0);
+            transition: opacity .2s ease, box-shadow .2s ease;
+        }
+        /* Hover = neon ring only (behind text) */
+        .btn:hover::before,
+        .btn-apply:hover::before,
+        .btn-add:hover::before,
+        .btn-save:hover::before,
+        .btn-cancel:hover::before,
+        .btn-delete:hover::before {
+            opacity: 1;
+            box-shadow: 0 0 10px rgba(124,58,237,.70), 0 0 20px rgba(37,99,235,.60), 0 0 35px rgba(124,58,237,.50);
+        }
+
+/* Variants */
+.btn-apply {
+    background: linear-gradient(180deg,rgba(148,163,184,.18),rgba(148,163,184,.10)), var(--btn-glass);
+}
+
+.btn-add {
+    background: linear-gradient(180deg,rgba(37,99,235,.22),rgba(37,99,235,.10)), var(--btn-glass);
+    border: 1px solid rgba(37,99,235,.55);
+}
+
+.btn-save {
+    background: linear-gradient(180deg,rgba(37,99,235,.28),rgba(37,99,235,.14)), var(--btn-glass);
+    border: 1px solid rgba(37,99,235,.55);
+}
+
+.btn-cancel {
+    background: linear-gradient(180deg,rgba(148,163,184,.20),rgba(148,163,184,.10)), var(--btn-glass);
+}
+
+.btn-delete {
+    background: linear-gradient(180deg,rgba(239,68,68,.22),rgba(239,68,68,.12)), var(--btn-glass);
+    border: 1px solid rgba(239,68,68,.55);
+}
+
+/* Slight lift on hover (no color change) */
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+/* ===========================================================
+   ACTION CHIPS (Index) — same glow layering applied
+   =========================================================== */
+.btn-chip {
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    align-items: center;
+    padding: .35rem .7rem;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: .9rem;
+    border: 1px solid var(--btn-border);
+    background: linear-gradient(180deg,rgba(148,163,184,.18),rgba(148,163,184,.10)), var(--btn-glass);
+    color: var(--cine-text);
+    text-decoration: none;
+    margin-right: .35rem;
+    backdrop-filter: blur(6px) saturate(140%);
+    -webkit-backdrop-filter: blur(6px) saturate(140%);
+    overflow: hidden;
+    z-index: 0;
+}
+    /* text on top */
+    .btn-chip, .btn-chip * {
+        position: relative;
+        z-index: 2;
+        color: var(--cine-text) !important;
+    }
+        /* glow behind */
+        .btn-chip::before {
+            content: "";
+            position: absolute;
+            inset: -2px;
+            border-radius: inherit;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0;
+            box-shadow: 0 0 10px rgba(124,58,237,0), 0 0 20px rgba(37,99,235,0), 0 0 35px rgba(124,58,237,0);
+            transition: opacity .2s ease, box-shadow .2s ease;
+        }
+
+        .btn-chip:hover::before {
+            opacity: 1;
+            box-shadow: 0 0 10px rgba(124,58,237,.70), 0 0 20px rgba(37,99,235,.60), 0 0 35px rgba(124,58,237,.50);
+        }
+
+        .btn-chip:hover {
+            transform: translateY(-1px);
+        }
+
+.btn-chip--ok {
+    border-color: rgba(34,197,94,.50);
+    background: linear-gradient(180deg,rgba(34,197,94,.22),rgba(34,197,94,.10)), var(--btn-glass);
+}
+
+.btn-chip--danger {
+    border-color: rgba(239,68,68,.55);
+    background: linear-gradient(180deg,rgba(239,68,68,.22),rgba(239,68,68,.10)), var(--btn-glass);
+}
+
+/* ---------- Badges ---------- */
+.badge {
+    display: inline-block;
+    padding: .25rem .55rem;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: .75rem;
+    letter-spacing: .3px;
+}
+
+.badge-active {
+    background: rgba(34,197,94,.18);
+    color: #b6f3c8;
+    border: 1px solid rgba(34,197,94,.4);
+}
+
+.badge-cancelled {
+    background: rgba(239,68,68,.18);
+    color: #ffd0d0;
+    border: 1px solid rgba(239,68,68,.45);
+}
+
+.badge-muted {
+    background: rgba(148,163,184,.18);
+    color: #e2e8f0;
+    border: 1px solid rgba(148,163,184,.35);
+}
+
+/* ---------- Table ---------- */
+.ultra-table {
+    --row-br: 16px;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+    color: var(--cine-text);
+}
+
+    .ultra-table thead th {
+        font-weight: 700;
+        color: #d9e6ff;
+        border-bottom: 1px solid rgba(255,255,255,.1);
+        background: linear-gradient(180deg,rgba(17,24,39,.4),rgba(17,24,39,.2));
+    }
+
+    .ultra-table tbody tr {
+        background: linear-gradient(180deg,rgba(20,26,36,.55),rgba(20,26,36,.35));
+        border: 1px solid rgba(255,255,255,.12);
+        box-shadow: 0 12px 30px rgba(0,0,0,.35);
+    }
+
+    .ultra-table tbody td:first-child {
+        border-top-left-radius: var(--row-br);
+        border-bottom-left-radius: var(--row-br);
+    }
+
+    .ultra-table tbody td:last-child {
+        border-top-right-radius: var(--row-br);
+        border-bottom-right-radius: var(--row-br);
+    }
+
+/* ---------- Scroll ---------- */
+.ultra-scroll {
+    max-height: 70vh;
+    overflow: auto;
+}
+
+/* ---------- Forms ---------- */
+.ultra-form {
+    padding: 1rem 1.2rem;
+}
+
+    .ultra-form .form-label {
+        font-weight: 700;
+        color: #e6eeff;
+    }
+
+.form-control, .form-select {
+    background: rgba(17,24,39,.55) !important;
+    border: 1px solid rgba(148,163,184,.35) !important;
+    color: var(--cine-text) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+}
+
+    .form-control::placeholder {
+        color: var(--cine-muted);
+        opacity: .85;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: rgba(37,99,235,.65) !important;
+        outline: 0;
+        box-shadow: 0 0 0 2px rgba(37,99,235,.35), 0 0 0 6px rgba(124,58,237,.20);
+    }
+
+.form-check-input {
+    background: rgba(17,24,39,.55);
+    border: 1px solid rgba(148,163,184,.4);
+}
+
+    .form-check-input:checked {
+        background-color: rgba(37,99,235,.9);
+        border-color: rgba(37,99,235,.9);
+        box-shadow: 0 0 12px rgba(37,99,235,.55);
+    }
+
+.form-check-label {
+    color: #e9f2ff;
+    font-weight: 600;
+}
+
+/* ---------- Key-Value (Details/Delete) ---------- */
+.kv-dim {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: .35rem 1rem;
+    color: #e8efff;
+}
+
+    .kv-dim dt {
+        opacity: .8;
+        font-weight: 700;
+    }
+
+    .kv-dim dd {
+        margin: 0;
+    }
+
+/* ---------- Alerts ---------- */
+.ultra-alert {
+    padding: .75rem 1rem;
+    border-radius: 12px;
+    font-weight: 700;
+    border: 1px solid rgba(148,163,184,.35);
+    background: linear-gradient(180deg,rgba(148,163,184,.14),rgba(148,163,184,.08));
+    color: #f0f6ff;
+}
+
+.ultra-alert--warn {
+    border-color: rgba(245,158,11,.45);
+    background: linear-gradient(180deg,rgba(245,158,11,.22),rgba(245,158,11,.10));
+    color: #fff3d6;
+}
+
+.ultra-alert--danger {
+    border-color: rgba(239,68,68,.55);
+    background: linear-gradient(180deg,rgba(239,68,68,.25),rgba(239,68,68,.12));
+    color: #ffe7e7;
+}
+
+/* ---------- Utility ---------- */
+a.btn, a.btn-chip, a.btn-save, a.btn-cancel, a.btn-delete {
+    text-decoration: none;
+}
