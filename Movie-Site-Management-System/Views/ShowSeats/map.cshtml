@@ -1,213 +1,124 @@
 ﻿@model Movie_Site_Management_System.ViewModels.Shows.ShowMapVM
-
-
 @using Movie_Site_Management_System.Data.Enums
-
 @{
     ViewData["Title"] = "Select Seats";
-    var grouped = Model.Seats
-        .GroupBy(s => s.RowLabel)
-        .OrderBy(g => g.Key)
-        .ToList();
+    ViewBag.GlassHeader = true;
+    var grouped = Model.Seats.GroupBy(s => s.RowLabel).OrderBy(g => g.Key).ToList();
 }
 
 <div class="container py-3">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="mb-0">@Model.MovieTitle</h3>
-        <div class="text-end">
-            <div><strong>@Model.TheatreName</strong></div>
-            <div class="text-muted">@Model.HallName</div>
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+            <h3 class="mb-1">@Model.MovieTitle <span class="ms-1">🎬</span></h3>
+            <div class="text-muted small">
+                @Model.TheatreName — @Model.HallName
+            </div>
+        </div>
+        <div class="text-muted text-end small">
+            @Model.Date.ToString("dd MMM yyyy") • @Model.StartTime.ToString(@"hh\:mm")
         </div>
     </div>
 
-    <div class="alert alert-info py-2">
-        Click available seats to select. Selected seats appear in the cart below.
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <div class="alert alert-info glassy-alert mb-3">
+        <strong>🍿 Tip:</strong> Click available seats to select. Selected seats appear in the cart below.
     </div>
 
-    <style>
-        .screen-bar {
-            height: 6px;
-            background: linear-gradient(90deg, rgba(0,0,0,.2), rgba(0,0,0,.6), rgba(0,0,0,.2));
-            border-radius: 999px;
-            margin: 10px 0 24px 0;
-        }
+    <!-- GLASS STAGE -->
+    <div class="seat-stage glass-card position-relative">
 
-        .row-label {
-            width: 40px;
-            text-align: right;
-            margin-right: 8px;
-            font-weight: 600;
-        }
+        <!-- Emoji doodles (floating) -->
+        <div class="doodles" aria-hidden="true">
+            <span class="doodle" style="--x:10%;--y:8%;--d:6s">🍿</span>
+            <span class="doodle" style="--x:86%;--y:12%;--d:7s">🎞️</span>
+            <span class="doodle" style="--x:6%;--y:70%;--d:8s">⭐</span>
+            <span class="doodle" style="--x:92%;--y:65%;--d:9s">🎬</span>
+        </div>
 
-        .seat-grid {
-            display: grid;
-            grid-auto-flow: column;
-            gap: 8px;
-        }
+        <!-- LEGEND -->
+        <div class="legend mb-3 d-flex flex-wrap gap-2 justify-content-center">
+            <span class="chip"><span class="dot dot-avail"></span> Available</span>
+            <span class="chip"><span class="dot dot-sel"></span> Selected</span>
+            <span class="chip"><span class="dot dot-held"></span> Held</span>
+            <span class="chip"><span class="dot dot-book"></span> Booked</span>
+            <span class="chip"><span class="dot dot-blk"></span> Blocked</span>
+        </div>
 
-        .seat {
-            min-width: 36px;
-            padding: 8px 0;
-            text-align: center;
-            border-radius: 8px;
-            border: 1px solid rgba(0,0,0,.15);
-            cursor: pointer;
-            user-select: none;
-            font-weight: 600;
-        }
-
-            .seat.available {
-                background: #f8f9fa;
-            }
-
-            .seat.selected {
-                outline: 3px solid #0d6efd;
-            }
-
-            .seat.booked {
-                background: #e9ecef;
-                color: #6c757d;
-                text-decoration: line-through;
-                cursor: not-allowed;
-            }
-
-        .legend .box {
-            width: 16px;
-            height: 16px;
-            border-radius: 4px;
-            display: inline-block;
-            margin-right: 6px;
-            border: 1px solid rgba(0,0,0,.2);
-        }
-
-        .legend .available {
-            background: #f8f9fa;
-        }
-
-        .legend .selected {
-            outline: 2px solid #0d6efd;
-        }
-
-        .legend .booked {
-            background: #e9ecef;
-        }
-
-        .price-badge {
-            font-size: .85rem;
-            font-weight: 600;
-        }
-    </style>
-
-    <div class="screen-bar" aria-hidden="true"></div>
-
-    <form method="post" asp-controller="Bookings" asp-action="Confirm" id="bookingForm">
-        @Html.AntiForgeryToken()
-        <input type="hidden" name="showId" value="@Model.ShowId" />
-        <div id="selectedContainer"></div> @* hidden seatIds injected here *@
-
-        @foreach (var row in grouped)
-        {
-            var seats = row.OrderBy(s => s.SeatNumber).ToList();
-            <div class="d-flex align-items-center mb-2">
+        <!-- SEAT GRID -->
+        <div class="seat-grid">
+            @foreach (var row in grouped)
+            {
                 <div class="row-label">@row.Key</div>
-                <div class="seat-grid" style="grid-template-columns: repeat(@seats.Count, minmax(36px, auto));">
-                    @foreach (var s in seats)
+                <div class="row-seats">
+                    @foreach (var s in row.OrderBy(x => x.SeatNumber))
                     {
-                        var isBooked = s.Status != ShowSeatStatus.Available;
-                        var css = isBooked ? "seat booked"
-                        : "seat available";
-                        <div class="@css"
-                             data-seat-id="@s.SeatId"
-                             data-seat-price="@s.Price"
-                             data-seat-label="@row.Key-@s.SeatNumber"
-                             tabindex="0"
-                             aria-disabled="@(isBooked ? "true" : "false")">
-                            @s.SeatNumber
-                            <div class="price-badge text-muted">৳@s.Price</div>
-                        </div>
+                        bool isBlocked = s.IsDisabled
+                        || s.Status == ShowSeatStatus.Blocked
+                        || s.Status.ToString().Equals("BLOCKED", StringComparison.OrdinalIgnoreCase);
+
+                        bool isBooked = s.Status == ShowSeatStatus.Booked
+                        || s.Status.ToString().Equals("BOOKED", StringComparison.OrdinalIgnoreCase);
+
+                        bool isHeld = s.Status == ShowSeatStatus.Held
+                        || s.Status.ToString().Equals("HELD", StringComparison.OrdinalIgnoreCase);
+
+                        var css = "seat";
+                        bool disabled = isBlocked || isBooked || isHeld;
+
+                        if (isBlocked) css += " blocked";
+                        else if (isBooked) css += " booked";
+                        else if (isHeld) css += " held";
+                        else css += " available";
+
+                        <button type="button"
+                                class="@css"
+                                data-id="@s.SeatId"
+                                data-price="@s.Price"
+                                data-label="@($"{s.RowLabel}{s.SeatNumber}")"
+                                @(disabled ? "disabled" : null)>
+                            <div class="seat-no">@s.SeatNumber</div>
+                            <div class="seat-price">৳@s.Price.ToString("0.00")</div>
+                        </button>
                     }
                 </div>
-            </div>
-        }
-
-        <div class="legend d-flex gap-4 my-3">
-            <div><span class="box available"></span>Available</div>
-            <div><span class="box selected"></span>Selected</div>
-            <div><span class="box booked"></span>Booked</div>
+            }
         </div>
 
-        <div class="card">
-            <div class="card-body d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="fw-semibold">Selected seats: <span id="selList">None</span></div>
-                    <div class="text-muted">Total: <span id="selTotal">৳0</span></div>
-                </div>
-                <button type="submit" class="btn btn-primary" id="payBtn" disabled>Confirm Booking</button>
-            </div>
+        <!-- THEATRE SCREEN (glow upward) -->
+        <div class="screen-wrap">
+            <div class="screen-glow"></div>
+            <div class="screen-bar"></div>
         </div>
-    </form>
+    </div>
+
+    <!-- CART -->
+    <div id="cart" class="card glass-card mt-4">
+        <div class="card-header">Selected seats</div>
+        <div class="card-body">
+            <div id="selected-list" class="small text-muted">None</div>
+            <div class="mt-2">
+                <strong>Total: </strong><span id="total">৳0.00</span>
+            </div>
+
+            <form asp-controller="ShowSeats" asp-action="Proceed" method="post" class="mt-3">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="showId" value="@Model.ShowId" />
+                <input type="hidden" id="selectedSeatsInput" name="seatIds" />
+                <button type="submit" class="btn btn-primary px-4" id="proceedBtn" disabled>
+                    Get Ticket ✨
+                </button>
+            </form>
+        </div>
+    </div>
 </div>
 
+@section Styles {
+    <link rel="stylesheet" href="~/css/showseats/showseats-map.css" asp-append-version="true" />
+}
 @section Scripts {
-    <script>
-        (function() {
-            const seatEls = Array.from(document.querySelectorAll('.seat'));
-            const selectedIds = new Set();
-            const selectedMeta = new Map(); // id -> {label, price}
-            const selList = document.getElementById('selList');
-            const selTotal = document.getElementById('selTotal');
-            const payBtn   = document.getElementById('payBtn');
-            const hiddenContainer = document.getElementById('selectedContainer');
-
-            function refreshSummary() {
-                const labels = Array.from(selectedMeta.values()).map(v => v.label);
-                selList.textContent = labels.length ? labels.join(', ') : 'None';
-
-                const total = Array.from(selectedMeta.values())
-                    .reduce((sum, v) => sum + (parseFloat(v.price) || 0), 0);
-                selTotal.textContent = '৳' + total.toFixed(2);
-
-                payBtn.disabled = selectedIds.size === 0;
-
-                // rebuild hidden inputs
-                hiddenContainer.innerHTML = '';
-                selectedIds.forEach(id => {
-                    const inp = document.createElement('input');
-                    inp.type = 'hidden';
-                    inp.name = 'seatIds';
-                    inp.value = id;
-                    hiddenContainer.appendChild(inp);
-                });
-            }
-
-            seatEls.forEach(el => {
-                const isBooked = el.classList.contains('booked');
-                if (isBooked) return;
-
-                el.addEventListener('click', () => toggle(el));
-                el.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(el); }
-                });
-            });
-
-            function toggle(el) {
-                const id    = el.dataset.seatId;
-                const label = el.dataset.seatLabel;
-                const price = el.dataset.seatPrice;
-
-                if (selectedIds.has(id)) {
-                    selectedIds.delete(id);
-                    selectedMeta.delete(id);
-                    el.classList.remove('selected');
-                } else {
-                    selectedIds.add(id);
-                    selectedMeta.set(id, { label, price });
-                    el.classList.add('selected');
-                }
-                refreshSummary();
-            }
-
-            refreshSummary();
-        })();
-    </script>
+    <script src="~/js/showseats-map.js" asp-append-version="true"></script>
 }

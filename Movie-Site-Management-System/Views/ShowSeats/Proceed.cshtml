@@ -1,0 +1,114 @@
+﻿@model Movie_Site_Management_System.ViewModels.Shows.ShowProceedVM
+@{
+    ViewData["Title"] = "Confirm Seats";
+    ViewBag.GlassHeader = true;
+
+    var holdSeconds = (ViewBag.HoldSeconds as int?) ?? 120;
+
+    // Safe seats list
+    var seats = Model?.Seats ?? Enumerable.Empty<Movie_Site_Management_System.ViewModels.Shows.ShowSeatCellVM>();
+    decimal total = seats.Sum(s => s.Price);
+
+    string SeatLabel(Movie_Site_Management_System.ViewModels.Shows.ShowSeatCellVM s)
+        => $"{(s.RowLabel ?? string.Empty).Trim()}{s.SeatNumber}";
+
+    string seatIdsCsv = string.Join(",", seats.Select(s => s.SeatId));
+}
+
+<link rel="stylesheet" href="~/css/checkout/checkout-glass.css" asp-append-version="true" />
+
+<section class="checkout-shell" id="hold-root" data-hold-seconds="@holdSeconds">
+    <div class="checkout-bg"></div>
+    <div class="checkout-aura"></div>
+
+    <div class="container py-4 position-relative">
+        <div class="checkout-glass glass-shine p-4">
+
+            <div class="d-flex align-items-start justify-content-between mb-3">
+                <div>
+                    <div class="checkout-title">Confirm Your Seats</div>
+                    <dl class="kv mt-2">
+                        <dt>Movie</dt>
+                        <dd>@(Model?.MovieTitle ?? string.Empty)</dd>
+                        <dt>Venue</dt>
+                        <dd>@(Model?.TheatreName ?? string.Empty) — @(Model?.HallName ?? string.Empty)</dd>
+                        <dt>Show</dt>
+                        <dd>@(Model?.Date.ToString("dd MMM yyyy")) • @(Model?.StartTime.ToString(@"hh\:mm"))</dd>
+                    </dl>
+                </div>
+                <div class="countdown">⏳ <span id="hold-timer"></span></div>
+            </div>
+
+            <div class="ticket-card mb-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="fw-semibold">Selected Seats</div>
+                    <div class="small text-muted">Hold will auto-release on expiry</div>
+                </div>
+                <hr class="mt-2 mb-3" />
+                @if (!seats.Any())
+                {
+                    <div class="text-muted">None</div>
+                }
+                else
+                {
+                    <ul class="mb-2">
+                        @foreach (var seat in seats)
+                        {
+                            <li>@SeatLabel(seat) — ৳@seat.Price.ToString("0.00")</li>
+                        }
+                    </ul>
+                    <div class="d-flex justify-content-end gap-2 fw-semibold">
+                        <div>Total:</div>
+                        <div>৳@total.ToString("0.00")</div>
+                    </div>
+                }
+            </div>
+
+            <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-ghost"
+                   asp-controller="ShowSeats"
+                   asp-action="Map"
+                   asp-route-showId="@(Model?.ShowId ?? 0)">← Back to Seat Map</a>
+
+                <form asp-controller="Bookings" asp-action="Confirm" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="showId" value="@(Model?.ShowId ?? 0)" />
+                    <input type="hidden" name="seatIds" value="@seatIdsCsv" />
+                    <button type="submit" class="action-btn" @(seats.Any() ? "" : "disabled")>
+                        Confirm & Continue
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        (function () {
+            const root = document.getElementById('hold-root');
+            if (!root) return;
+            let left = parseInt(root.getAttribute('data-hold-seconds') || '120', 10);
+            const el = document.getElementById('hold-timer');
+
+            function pad(n) { return String(n).padStart(2, '0'); }
+            function render() {
+                const m = Math.floor(left / 60), s = left % 60;
+                el.textContent = m + ":" + pad(s);
+            }
+            function tick() {
+                if (left <= 0) {
+                    const url = '@Url.Action("Map", "ShowSeats", new { showId = Model?.ShowId ?? 0 })';
+                    window.location.replace(url);
+                    return;
+                }
+                left -= 1;
+                render();
+                setTimeout(tick, 1000);
+            }
+            render();
+            setTimeout(tick, 1000);
+        })();
+    </script>
+}
