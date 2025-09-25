@@ -1,6 +1,6 @@
-﻿@model Movie_Site_Management_System.ViewModels.Account.EditUserVM
+﻿@model Movie_Site_Management_System.ViewModels.Account.CreateUserVM
 @{
-    ViewData["Title"] = "Edit User";
+    ViewData["Title"] = "Create User";
     ViewBag.GlassHeader = true;
 }
 <link rel="stylesheet" href="~/css/admin-glass-ultra.css" asp-append-version="true" />
@@ -17,18 +17,17 @@
             <div class="ultra-card__shine"></div>
 
             <div class="ultra-card__header">
-                <h2 class="ultra-title">Edit User</h2>
+                <h2 class="ultra-title">Create User</h2>
                 <div class="ms-auto">
                     <a asp-action="Index" class="btn glass-btn alt">Back</a>
                 </div>
             </div>
 
-            <form asp-action="Edit" method="post" class="ultra-form">
-                <input type="hidden" asp-for="Id" />
-
+            <form asp-action="Create" method="post" class="ultra-form">
                 <div class="mb-3">
                     <label asp-for="Email" class="form-label"></label>
-                    <input asp-for="Email" class="form-control glass-input" readonly />
+                    <input asp-for="Email" class="form-control glass-input" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
@@ -38,23 +37,19 @@
                 </div>
 
                 <div class="mb-3">
+                    <label asp-for="Password" class="form-label"></label>
+                    <input asp-for="Password" type="password" class="form-control glass-input" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
                     <label asp-for="Role" class="form-label"></label>
                     <select asp-for="Role" asp-items="ViewBag.Roles" class="form-select glass-input"></select>
                     <span asp-validation-for="Role" class="text-danger"></span>
                 </div>
 
-                <div class="mb-3">
-                    <label asp-for="LockoutEnabled" class="form-label"></label>
-                    <input asp-for="LockoutEnabled" type="checkbox" />
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="LockoutEnd" class="form-label"></label>
-                    <input asp-for="LockoutEnd" type="datetime-local" class="form-control glass-input" />
-                </div>
-
                 <div class="mt-3 d-flex gap-2">
-                    <button type="submit" class="btn glass-btn">Save</button>
+                    <button type="submit" class="btn glass-btn">Create</button>
                     <a asp-action="Index" class="btn glass-btn alt">Cancel</a>
                 </div>
             </form>

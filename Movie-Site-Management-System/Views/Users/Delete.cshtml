@@ -1,0 +1,44 @@
+﻿@model Movie_Site_Management_System.ViewModels.Account.UserRowVM
+@{
+    ViewData["Title"] = "Delete User";
+    ViewBag.GlassHeader = true;
+}
+<link rel="stylesheet" href="~/css/admin-glass-ultra.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/users/users-crud.css" asp-append-version="true" />
+
+<section class="admin-ultra-shell">
+    <div class="film-rail film-rail--left"></div>
+    <div class="film-rail film-rail--right"></div>
+    <div class="ultra-aura"></div>
+    <div class="film-grain"></div>
+
+    <div class="container py-4 position-relative">
+        <div class="ultra-card">
+            <div class="ultra-card__shine"></div>
+
+            <div class="ultra-card__header">
+                <h2 class="ultra-title">Delete User</h2>
+                <div class="ms-auto">
+                    <a asp-action="Index" class="btn glass-btn alt">Back</a>
+                </div>
+            </div>
+
+            <div class="kv-dim mb-3">
+                <p><strong>Email:</strong> @Model.Email</p>
+                <p><strong>Full Name:</strong> @Model.FullName</p>
+                <p><strong>Role:</strong> @Model.Roles</p>
+                <p><strong>Locked:</strong> @(Model.Locked ? "Yes" : "No")</p>
+            </div>
+
+            <form asp-action="Delete" method="post">
+                <input type="hidden" asp-for="Id" />
+
+                <div class="mt-3 d-flex gap-2">
+                    <button type="submit" class="btn glass-btn danger">Delete</button>
+                    <a asp-action="Index" class="btn glass-btn alt">Cancel</a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</section>

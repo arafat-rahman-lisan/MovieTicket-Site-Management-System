@@ -1,0 +1,69 @@
+﻿@model Movie_Site_Management_System.ViewModels.Account.UsersIndexVM
+@{
+    ViewData["Title"] = "Users";
+    ViewBag.GlassHeader = true;
+}
+<link rel="stylesheet" href="~/css/admin-glass-ultra.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/users/users-crud.css" asp-append-version="true" />
+
+<section class="admin-ultra-shell">
+    <div class="film-rail film-rail--left"></div>
+    <div class="film-rail film-rail--right"></div>
+    <div class="ultra-aura"></div>
+    <div class="film-grain"></div>
+
+    <div class="container py-4 position-relative">
+        <div class="ultra-card">
+            <div class="ultra-card__shine"></div>
+
+            <div class="ultra-card__header">
+                <h2 class="ultra-title">Users</h2>
+                <div class="ms-auto">
+                    <a asp-action="Create" class="btn chip btn-sm">+ Create User</a>
+                </div>
+            </div>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="ultra-alert ultra-alert--success">@TempData["Success"]</div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="ultra-alert ultra-alert--danger">@TempData["Error"]</div>
+            }
+
+            <div class="ultra-scroll">
+                <table class="ultra-table">
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Full Name</th>
+                            <th>Role</th>
+                            <th>Locked</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var u in Model.Users)
+                        {
+                            <tr>
+                                <td>@u.Email</td>
+                                <td>@u.FullName</td>
+                                <td>@u.Roles</td>
+                                <td>@(u.Locked ? "Yes" : "No")</td>
+                                <td class="text-end">
+                                    <div class="btn-group">
+                                        <a asp-action="Edit" asp-route-id="@u.Id" class="btn glass-btn">Edit</a>
+                                        <a asp-action="ResetPassword" asp-route-id="@u.Id" class="btn glass-btn alt">Reset</a>
+                                        <a asp-action="Delete" asp-route-id="@u.Id" class="btn glass-btn danger">Delete</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</section>
