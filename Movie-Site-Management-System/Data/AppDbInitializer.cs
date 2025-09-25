@@ -56,21 +56,21 @@ namespace Movie_Site_Management_System.Data
 
             var movies = new List<Movie>
             {
-                new Movie { Title = "The Boys",             ImdbRating = 9.3m, ReleaseDate = Year(2022), Genre = MovieGenre.Action,    Status = MovieStatus.Upcoming,   RuntimeMinutes = 120 },
-                new Movie { Title = "Money Heist",          ImdbRating = 9.9m, ReleaseDate = Year(2020), Genre = MovieGenre.Thriller,  Status = MovieStatus.NowShowing, RuntimeMinutes = 120 },
-                new Movie { Title = "John Wick",            ImdbRating = 9.8m, ReleaseDate = Year(2022), Genre = MovieGenre.Action,    Status = MovieStatus.NowShowing, RuntimeMinutes = 120 },
-                new Movie { Title = "Ant Man",              ImdbRating = 8.9m, ReleaseDate = Year(2017), Genre = MovieGenre.SciFi,     Status = MovieStatus.NowShowing, RuntimeMinutes = 120 },
-                new Movie { Title = "Avengers",             ImdbRating = 9.9m, ReleaseDate = Year(2012), Genre = MovieGenre.Superhero, Status = MovieStatus.NowShowing, RuntimeMinutes = 120 },
-                new Movie { Title = "Moon Knight",          ImdbRating = 7.3m, ReleaseDate = Year(2022), Genre = MovieGenre.Superhero, Status = MovieStatus.Upcoming,   RuntimeMinutes = 120 },
-                new Movie { Title = "Kota Factory",         ImdbRating = 9.6m, ReleaseDate = Year(2020), Genre = MovieGenre.Drama,     Status = MovieStatus.Upcoming,   RuntimeMinutes = 120 },
-                new Movie { Title = "Collage Romance",      ImdbRating = 7.9m, ReleaseDate = Year(2021), Genre = MovieGenre.Romance,   Status = MovieStatus.Upcoming,   RuntimeMinutes = 120 },
-                new Movie { Title = "Thor Love Of Thunder", ImdbRating = 8.8m, ReleaseDate = Year(2022), Genre = MovieGenre.Superhero, Status = MovieStatus.NowShowing, RuntimeMinutes = 120 },
-                new Movie { Title = "Uncharted",            ImdbRating = 9.8m, ReleaseDate = Year(2022), Genre = MovieGenre.Adventure, Status = MovieStatus.NowShowing, RuntimeMinutes = 120 },
-                new Movie { Title = "Eesho",                ImdbRating = 8.2m, ReleaseDate = Year(2022), Genre = MovieGenre.Thriller,  Status = MovieStatus.NowShowing, RuntimeMinutes = 120 },
-                new Movie { Title = "Top Gun",              ImdbRating = 8.0m, ReleaseDate = Year(2022), Genre = MovieGenre.Action,    Status = MovieStatus.NowShowing, RuntimeMinutes = 120 },
-                new Movie { Title = "Jurassic World",       ImdbRating = 8.0m, ReleaseDate = Year(2022), Genre = MovieGenre.SciFi,     Status = MovieStatus.NowShowing, RuntimeMinutes = 120 },
-                new Movie { Title = "Eternals",             ImdbRating = 9.0m, ReleaseDate = Year(2022), Genre = MovieGenre.Superhero, Status = MovieStatus.Upcoming,   RuntimeMinutes = 120 },
-                new Movie { Title = "Spider Man",           ImdbRating = 9.9m, ReleaseDate = Year(2020), Genre = MovieGenre.Superhero, Status = MovieStatus.NowShowing, RuntimeMinutes = 120 },
+                new Movie { Title = "The Boys",             ImdbRating = 9.3m, ReleaseDate = Year(2022), Genre = MovieGenre.Action,    Status = MovieStatus.ComingSoon,  RuntimeMinutes = 120 },
+                new Movie { Title = "Money Heist",          ImdbRating = 9.9m, ReleaseDate = Year(2020), Genre = MovieGenre.Thriller,  Status = MovieStatus.NowShowing,  RuntimeMinutes = 120 },
+                new Movie { Title = "John Wick",            ImdbRating = 9.8m, ReleaseDate = Year(2022), Genre = MovieGenre.Action,    Status = MovieStatus.NowShowing,  RuntimeMinutes = 120 },
+                new Movie { Title = "Ant Man",              ImdbRating = 8.9m, ReleaseDate = Year(2017), Genre = MovieGenre.SciFi,     Status = MovieStatus.NowShowing,  RuntimeMinutes = 120 },
+                new Movie { Title = "Avengers",             ImdbRating = 9.9m, ReleaseDate = Year(2012), Genre = MovieGenre.Superhero, Status = MovieStatus.NowShowing,  RuntimeMinutes = 120 },
+                new Movie { Title = "Moon Knight",          ImdbRating = 7.3m, ReleaseDate = Year(2022), Genre = MovieGenre.Superhero, Status = MovieStatus.ComingSoon,  RuntimeMinutes = 120 },
+                new Movie { Title = "Kota Factory",         ImdbRating = 9.6m, ReleaseDate = Year(2020), Genre = MovieGenre.Drama,     Status = MovieStatus.ComingSoon,  RuntimeMinutes = 120 },
+                new Movie { Title = "Collage Romance",      ImdbRating = 7.9m, ReleaseDate = Year(2021), Genre = MovieGenre.Romance,   Status = MovieStatus.ComingSoon,  RuntimeMinutes = 120 },
+                new Movie { Title = "Thor Love Of Thunder", ImdbRating = 8.8m, ReleaseDate = Year(2022), Genre = MovieGenre.Superhero, Status = MovieStatus.NowShowing,  RuntimeMinutes = 120 },
+                new Movie { Title = "Uncharted",            ImdbRating = 9.8m, ReleaseDate = Year(2022), Genre = MovieGenre.Adventure, Status = MovieStatus.NowShowing,  RuntimeMinutes = 120 },
+                new Movie { Title = "Eesho",                ImdbRating = 8.2m, ReleaseDate = Year(2022), Genre = MovieGenre.Thriller,  Status = MovieStatus.NowShowing,  RuntimeMinutes = 120 },
+                new Movie { Title = "Top Gun",              ImdbRating = 8.0m, ReleaseDate = Year(2022), Genre = MovieGenre.Action,    Status = MovieStatus.NowShowing,  RuntimeMinutes = 120 },
+                new Movie { Title = "Jurassic World",       ImdbRating = 8.0m, ReleaseDate = Year(2022), Genre = MovieGenre.SciFi,     Status = MovieStatus.NowShowing,  RuntimeMinutes = 120 },
+                new Movie { Title = "Eternals",             ImdbRating = 9.0m, ReleaseDate = Year(2022), Genre = MovieGenre.Superhero, Status = MovieStatus.ComingSoon,  RuntimeMinutes = 120 },
+                new Movie { Title = "Spider Man",           ImdbRating = 9.9m, ReleaseDate = Year(2020), Genre = MovieGenre.Superhero, Status = MovieStatus.NowShowing,  RuntimeMinutes = 120 },
             };
 
             await context.Movies.AddRangeAsync(movies);
@@ -305,7 +305,6 @@ namespace Movie_Site_Management_System.Data
 
                 foreach (var seat in seats)
                 {
-                    // Look up snapshot price from SeatType.BasePrice
                     var price = seatTypePrice.TryGetValue(seat.SeatTypeId, out var p) ? p : 0m;
 
                     showSeats.Add(new ShowSeat
@@ -313,8 +312,8 @@ namespace Movie_Site_Management_System.Data
                         ShowId = show.ShowId,
                         SeatId = seat.SeatId,
                         SeatTypeId = seat.SeatTypeId, // snapshot the seat type
-                        Price = price,           // snapshot price
-                        Status = Data.Enums.ShowSeatStatus.Available
+                        Price = price,                 // snapshot price
+                        Status = ShowSeatStatus.Available
                     });
                 }
             }

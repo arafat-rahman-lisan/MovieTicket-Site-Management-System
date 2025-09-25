@@ -31,6 +31,10 @@ namespace Movie_Site_Management_System.Data
         public DbSet<SeatBlock> SeatBlocks => Set<SeatBlock>();
         public DbSet<ShowNote> ShowNotes => Set<ShowNote>();
 
+        // ✅ New
+        public DbSet<PaymentMethod> PaymentMethods => Set<PaymentMethod>();
+        public DbSet<Payment> Payments => Set<Payment>();
+
         protected override void OnModelCreating(ModelBuilder mb)
         {
             // ===== Theatre =====
@@ -206,6 +210,67 @@ namespace Movie_Site_Management_System.Data
               .WithMany(s => s.ShowNotes)
               .HasForeignKey(sn => sn.ShowId)
               .OnDelete(DeleteBehavior.Cascade);
+
+            // ===== PaymentMethod (lookup)
+            mb.Entity<PaymentMethod>()
+              .Property(pm => pm.Name)
+              .HasMaxLength(50);
+
+            mb.Entity<PaymentMethod>()
+              .Property(pm => pm.CssClass)
+              .HasMaxLength(20);
+
+            mb.Entity<PaymentMethod>()
+              .Property(pm => pm.LogoUrl)
+              .HasMaxLength(200);
+
+            // Seed methods (edit as you like)
+            mb.Entity<PaymentMethod>().HasData(
+                new PaymentMethod { PaymentMethodId = 1, Name = "PayPal", CssClass = "btn-dark" },
+                new PaymentMethod { PaymentMethodId = 2, Name = "bKash", CssClass = "btn-pink" },
+                new PaymentMethod { PaymentMethodId = 3, Name = "Nagad", CssClass = "btn-warning" }
+            );
+
+            // ===== Payment
+            mb.Entity<Payment>()
+              .HasIndex(p => p.InvoiceNo)
+              .IsUnique();
+
+            mb.Entity<Payment>()
+              .Property(p => p.InvoiceNo)
+              .HasMaxLength(32);
+
+            mb.Entity<Payment>()
+              .Property(p => p.ProviderTxnId)
+              .HasMaxLength(64);
+
+            mb.Entity<Payment>()
+              .Property(p => p.ProviderRef)
+              .HasMaxLength(64);
+
+            mb.Entity<Payment>()
+              .Property(p => p.Amount)
+              .HasColumnType("decimal(10,2)");
+
+            // Map PaymentStatus enum to string to match your style
+            mb.Entity<Payment>()
+              .Property(p => p.Status)
+              .HasConversion<string>()
+              .HasMaxLength(10);
+
+            // Payment -> Booking (CASCADE)
+            mb.Entity<Payment>()
+              .HasOne(p => p.Booking)
+              .WithMany(b => b.Payments) // if you added Booking.Payments
+              .HasForeignKey(p => p.BookingId)
+              .OnDelete(DeleteBehavior.Cascade);
+
+            // Payment -> PaymentMethod (RESTRICT)
+            mb.Entity<Payment>()
+              .HasOne(p => p.PaymentMethod)
+              .WithMany(pm => pm.Payments)
+              .HasForeignKey(p => p.PaymentMethodId)
+              .OnDelete(DeleteBehavior.Restrict);
 
             // IMPORTANT: call Identity base mapping LAST so Identity tables configure correctly.
             base.OnModelCreating(mb);
