@@ -1,89 +1,74 @@
-﻿@model Movie_Site_Management_System.Models.HallSlot
-@using System.Linq
+﻿@model Movie_Site_Management_System.Models.Show
+
 @{
-    ViewData["Title"] = "Slot Details";
-    var show = ViewBag.Show as Movie_Site_Management_System.Models.Show;
-    var date = ViewBag.Date is DateOnly d ? d : DateOnly.FromDateTime(DateTime.UtcNow.Date);
+    ViewData["Title"] = "Show Details";
+    ViewBag.GlassHeader = true;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="mb-0">
-        Slot @($"S{Model.SlotNumber}") —
-        @(Model.Hall?.Theatre?.Name ?? "Unknown Theatre") /
-        @(Model.Hall?.Name ?? "Unknown Hall")
-    </h2>
-    <div>
-        <a asp-action="Edit" asp-route-id="@Model.HallSlotId" class="btn btn-outline-primary btn-sm me-1">Edit</a>
-        <a asp-action="Index" class="btn btn-secondary btn-sm">Back</a>
-    </div>
-</div>
+<link rel="stylesheet" href="~/css/admin-glass-ultra.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/shows/shows-crud.css" asp-append-version="true" />
 
-<div class="card mb-3">
-    <div class="card-body">
-        <div><strong>Time:</strong> @Model.StartTime.ToString("HH\\:mm") - @Model.EndTime.ToString("HH\\:mm")</div>
-        <div><strong>Active:</strong> @(Model.IsActive ? "Yes" : "No")</div>
-    </div>
-</div>
+<section class="admin-ultra-shell">
+    <div class="film-rail film-rail--left"></div>
+    <div class="film-rail film-rail--right"></div>
+    <div class="ultra-aura"></div>
+    <div class="film-grain"></div>
 
-<form method="get" class="row g-2 mb-3" asp-action="Details" asp-route-id="@Model.HallSlotId">
-    <div class="col-auto">
-        <label class="form-label">Date</label>
-        <input type="date" class="form-control" name="date" value="@date.ToString("yyyy-MM-dd")" />
-    </div>
-    <div class="col-auto align-self-end">
-        <button class="btn btn-secondary">Load</button>
-    </div>
-</form>
+    <div class="container py-4 position-relative">
+        <div class="ultra-card">
+            <div class="ultra-card__shine"></div>
 
-@if (show == null)
-{
-    <div class="alert alert-warning">
-        No show scheduled for <strong>@date.ToString("yyyy-MM-dd")</strong> on this slot.
-        <div class="mt-2">
-            <a asp-controller="Shows" asp-action="Create"
-               asp-route-hallSlotId="@Model.HallSlotId"
-               asp-route-date="@date.ToString("yyyy-MM-dd")"
-               class="btn btn-sm btn-success">Create Show for this date</a>
-        </div>
-    </div>
-}
-else
-{
-    var prices = (show.ShowSeats ?? Enumerable.Empty<Movie_Site_Management_System.Models.ShowSeat>())
-        .Select(ss => (decimal?)ss.Price)
-        .Where(p => p.HasValue && p.Value > 0m)
-        .Select(p => p!.Value)
-        .DefaultIfEmpty()
-        .ToList();
+            <div class="ultra-card__header">
+                <h2 class="ultra-title">Show Details</h2>
+            </div>
 
-    // fallback if ShowSeat.Price wasn’t populated, use SeatType.BasePrice
-    if (prices.Count == 1 && prices[0] == 0m)
-    {
-        prices = (show.ShowSeats ?? Enumerable.Empty<Movie_Site_Management_System.Models.ShowSeat>())
-            .Where(ss => ss.Seat?.SeatType != null)
-            .Select(ss => ss.Seat!.SeatType!.BasePrice)
-            .DefaultIfEmpty()
-            .ToList();
-    }
+            <dl class="kv-dim mt-3">
+                <dt>Movie</dt>
+                <dd>@Model.Movie?.Title</dd>
 
-    prices = prices.Where(p => p > 0m).Distinct().OrderBy(p => p).ToList();
+                <dt>Theatre</dt>
+                <dd>@Model.HallSlot?.Hall?.Theatre?.Name</dd>
 
-    string priceDisplay = prices.Count switch
-    {
-        0 => "-",
-        1 => prices[0].ToString("0.##"),
-        _ => $"{prices.First():0.##} - {prices.Last():0.##}"
-    };
+                <dt>Hall</dt>
+                <dd>@Model.HallSlot?.Hall?.Name</dd>
 
-    <div class="card">
-        <div class="card-body">
-            <h5 class="card-title mb-2">@show.Movie?.Title</h5>
-            <div><strong>Date:</strong> @show.ShowDate.ToString("yyyy-MM-dd")</div>
-            <div><strong>Ticket Price:</strong> @priceDisplay</div>
-            <div class="mt-2">
-                <a asp-controller="Shows" asp-action="Details" asp-route-id="@show.ShowId" class="btn btn-sm btn-primary">View Show</a>
-                <a asp-controller="Shows" asp-action="Edit" asp-route-id="@show.ShowId" class="btn btn-sm btn-outline-primary">Edit Show</a>
+                <dt>Slot</dt>
+                <dd>S@(Model.HallSlot?.SlotNumber)</dd>
+
+                <dt>Time</dt>
+                <dd>
+                    @Model.HallSlot?.StartTime.ToString("hh:mm tt")
+                    -
+                    @Model.HallSlot?.EndTime.ToString("hh:mm tt")
+                </dd>
+
+                <dt>Date</dt>
+                <dd>@Model.ShowDate.ToString("yyyy-MM-dd")</dd>
+
+                <dt>Language</dt>
+                <dd>@Model.Language</dd>
+
+                <dt>Status</dt>
+                <dd>
+                    @if (Model.IsCancelled)
+                    {
+                        <span class="badge badge-cancelled">Cancelled</span>
+                    }
+                    else if (Model.IsActive)
+                    {
+                        <span class="badge badge-active">Active</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-muted">Inactive</span>
+                    }
+                </dd>
+            </dl>
+
+            <div class="mt-4">
+                <a asp-action="Edit" asp-route-id="@Model.ShowId" class="btn btn-save">Edit</a>
+                <a asp-action="Index" asp-route-date="@Model.ShowDate" class="btn btn-cancel">Back to List</a>
             </div>
         </div>
     </div>
-}
+</section>
