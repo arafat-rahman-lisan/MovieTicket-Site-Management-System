@@ -1,1 +1,345 @@
+﻿/* ===========================================================
+   STAR CINEPLEX — THEATRE CRUD GLASS STYLE
+   File: /wwwroot/css/theatre/theatre-crud.css
+   =========================================================== */
 
+/* ---------- Theme tokens ---------- */
+:root {
+    --cine-bg: #07090f;
+    --cine-card: rgba(20, 26, 36, 0.55);
+    --cine-card-br: rgba(115, 130, 165, 0.25);
+    --cine-highlight: #7c3aed; /* purple neon */
+    --cine-accent: #2563eb; /* blue neon  */
+    --cine-text: #eaf0f7;
+    --cine-muted: #a9b4c7;
+    --cine-success: #22c55e;
+    --cine-danger: #ef4444;
+}
+
+/* ---------- Page shell ---------- */
+.cine-shell {
+    position: relative;
+    min-height: calc(100vh - 120px);
+    padding-block: 16px 48px;
+    color: var(--cine-text);
+    background: radial-gradient(1200px 700px at -5% 0%, rgba(37,99,235,.15), transparent 55%), radial-gradient(900px 600px at 105% 10%, rgba(124,58,237,.15), transparent 50%);
+    isolation: isolate;
+    overflow: hidden;
+}
+
+/* ---------- Film-strip side rails ---------- */
+.cine-rails::before,
+.cine-rails::after {
+    content: "";
+    position: absolute;
+    top: -30px;
+    bottom: -30px;
+    width: 84px;
+    z-index: -1;
+    border-radius: 24px;
+    background: linear-gradient(180deg, rgba(124,58,237,.20), rgba(37,99,235,.10)) padding-box, linear-gradient(180deg, rgba(124,58,237,.55), rgba(37,99,235,.45)) border-box;
+    border: 1px solid transparent;
+    box-shadow: 0 0 18px rgba(124,58,237,.55), inset 0 0 28px rgba(37,99,235,.22);
+    /* perforations */
+    mask: radial-gradient(7px 7px at 20px 20px, #000 98%, transparent 100%) 0 0 / 24px 36px repeat-y, linear-gradient(#000 0 0) content-box;
+}
+
+.cine-rails::before {
+    left: -12px;
+}
+
+.cine-rails::after {
+    right: -12px;
+}
+
+/* ---------- Rounded glass card ---------- */
+.cine-card,
+.card.cine-card {
+    background: var(--cine-card) !important;
+    border: 1px solid var(--cine-card-br) !important;
+    border-radius: 28px !important;
+    box-shadow: 0 10px 40px rgba(5,9,16,.45), inset 0 0 0 1px rgba(255,255,255,.04) !important;
+    backdrop-filter: blur(14px) saturate(160%) !important;
+    -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
+    overflow: hidden;
+}
+/* Optional padding helper when not using .card-body */
+.cine-card--p {
+    padding: 1rem 1.25rem;
+}
+
+/* ---------- Card header ---------- */
+.cine-card-header {
+    padding: .9rem 1.25rem;
+    border-bottom: 1px solid var(--cine-card-br);
+    font-weight: 600;
+    letter-spacing: .2px;
+}
+
+/* ---------- Gradient headings ---------- */
+.cine-title {
+    font-size: clamp(1.35rem, 2.4vw, 1.8rem);
+    font-weight: 700;
+    background: linear-gradient(90deg, var(--cine-accent), var(--cine-highlight));
+    --_clip: text;
+    -webkit-background-clip: var(--_clip);
+    -webkit-text-fill-color: transparent;
+    color: #cfe3ff; /* fallback */
+}
+
+/* ---------- Tables ---------- */
+.table.cine-table {
+    color: var(--cine-text);
+}
+
+    .table.cine-table thead {
+        background: rgba(255,255,255,.05);
+    }
+
+    .table.cine-table > :not(caption) > * > * {
+        border-bottom-color: rgba(115,130,165,.22);
+    }
+
+/* ---------- Neon status dots ---------- */
+.cine-dot {
+    display: inline-block;
+    width: .6rem;
+    height: .6rem;
+    border-radius: 50%;
+    margin-right: .4rem;
+    box-shadow: 0 0 10px currentColor, 0 0 18px currentColor;
+}
+
+.cine-dot--on {
+    color: var(--cine-success);
+    background: currentColor;
+}
+
+.cine-dot--off {
+    color: #6b7280;
+    background: currentColor;
+}
+
+/* ---------- Forms on glass ---------- */
+.form-control,
+.form-select {
+    background-color: rgba(10,14,21,.55);
+    color: var(--cine-text);
+    border: 1px solid var(--cine-card-br);
+    border-radius: 14px;
+}
+
+    .form-control::placeholder {
+        color: var(--cine-muted);
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        background-color: rgba(10,14,21,.65);
+        border-color: rgba(37,99,235,.55);
+        box-shadow: 0 0 0 .2rem rgba(37,99,235,.25);
+        color: var(--cine-text);
+    }
+
+/* ---------- Buttons ---------- */
+.btn {
+    border-radius: 14px;
+}
+
+.btn-primary {
+    background: linear-gradient(90deg, var(--cine-accent), var(--cine-highlight));
+    border: none;
+}
+
+    .btn-primary:focus,
+    .btn-primary:active,
+    .btn-primary:active:focus {
+        background: linear-gradient(90deg, var(--cine-accent), var(--cine-highlight));
+        box-shadow: 0 0 0 .2rem rgba(124,58,237,.25);
+    }
+
+.btn-outline-secondary {
+    border-color: rgba(148,163,184,.45);
+    color: var(--cine-text);
+}
+
+    .btn-outline-secondary:hover {
+        background: rgba(148,163,184,.12);
+        border-color: rgba(148,163,184,.65);
+    }
+/* Theme tweak for danger */
+.btn-danger {
+    border: 1px solid rgba(244,63,94,.45);
+    background: linear-gradient(180deg, rgba(244,63,94,.55), rgba(190,18,60,.38));
+}
+
+    .btn-danger:focus,
+    .btn-danger:active,
+    .btn-danger:active:focus {
+        box-shadow: 0 0 0 .2rem rgba(244,63,94,.25);
+    }
+
+/* ---------- Glass Alerts (Bootstrap override) ---------- */
+.glass-alert {
+    background: rgba(30,38,52,.65) !important;
+    border: 1px solid rgba(115,130,165,.35) !important;
+    color: var(--cine-text) !important;
+    border-radius: 16px !important;
+    padding: 1rem 1.25rem !important;
+}
+
+    .glass-alert.alert-warning {
+        border-color: rgba(250,204,21,.55) !important;
+        color: #fff7d6 !important;
+    }
+
+    .glass-alert.alert-danger {
+        border-color: rgba(239,68,68,.55) !important;
+        color: #ffe5e5 !important;
+    }
+
+    .glass-alert.alert-success {
+        border-color: rgba(34,197,94,.55) !important;
+        color: #eafff1 !important;
+    }
+
+/* ---------- Utilities ---------- */
+.cine-inner {
+    position: relative;
+    z-index: 1;
+}
+
+.gap-y-3 > * + * {
+    margin-top: 1rem;
+}
+/* For pages that don’t use Bootstrap .card-body */
+.cine-block {
+    margin-bottom: 1rem;
+}
+
+/* ===========================================================
+   ULTRA ADD-ON (forms, alerts, chip fixes) — used by CRUD
+   =========================================================== */
+
+/* Ultra-form helpers (scoped so generic forms unaffected) */
+.ultra-form .form-label {
+    font-weight: 700;
+    opacity: .92;
+}
+
+.ultra-form .form-control,
+.ultra-form .form-select {
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.18);
+    color: #eaf2ff;
+    border-radius: 16px;
+}
+
+    .ultra-form .form-control::placeholder {
+        color: #cbd5e1;
+    }
+
+    .ultra-form .form-control:focus,
+    .ultra-form .form-select:focus {
+        box-shadow: 0 0 0 .2rem rgba(96,165,250,.25);
+        border-color: rgba(147,51,234,.38);
+    }
+
+/* Ultra alerts in the card (non-Bootstrap names) */
+.ultra-alert {
+    margin-top: .25rem;
+    border-radius: 16px;
+    padding: 1rem 1.1rem;
+}
+
+.ultra-alert--danger {
+    background: linear-gradient(180deg, rgba(244,63,94,.20), rgba(190,18,60,.12));
+    border: 1px solid rgba(244,63,94,.35);
+    color: #ffe8ed;
+}
+
+.ultra-alert--warning {
+    background: linear-gradient(180deg, rgba(251,191,36,.20), rgba(161,98,7,.12));
+    border: 1px solid rgba(251,191,36,.35);
+    color: #fff3d9;
+}
+
+/* Dimmed key/value block */
+.kv-dim {
+    background: rgba(255,255,255,.05);
+    border-radius: 18px;
+    padding: 1rem;
+}
+
+    .kv-dim dt, .kv-dim dd {
+        color: #cfe0ff;
+        opacity: .9;
+    }
+
+/* ---- Chip button width FIX ---- */
+.btn.chip {
+    width: auto !important; /* stop full-width outside grids */
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    padding: .55rem 1rem;
+    font-size: 1rem;
+    border-radius: 999px;
+}
+/* Keep full-width inside explicit action grids (if any) */
+.actions-grid .btn.chip {
+    width: 100% !important;
+}
+/* Small chip for headers/toolbars */
+.btn.chip.btn-sm {
+    padding: .4rem .8rem;
+    font-size: .9rem;
+    border-radius: 999px;
+}
+/* Ensure header layout doesn’t force stretch */
+.ultra-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    flex-wrap: wrap;
+}
+
+
+/* ===========================================================
+   Scrollable card body + themed scrollbar
+   =========================================================== */
+.ultra-scroll {
+    max-height: calc(100vh - 260px); /* fits under navbar/footer */
+    overflow: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding-right: .25rem; /* room for scrollbar */
+}
+
+    /* WebKit (Chrome/Edge/Safari) */
+    .ultra-scroll::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    .ultra-scroll::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .ultra-scroll::-webkit-scrollbar-thumb {
+        background-image: linear-gradient(180deg, rgba(96,165,250,.80), rgba(147,51,234,.80));
+        border-radius: 8px;
+        border: 2px solid rgba(0,0,0,.20);
+    }
+
+    .ultra-scroll:hover::-webkit-scrollbar-thumb {
+        background-image: linear-gradient(180deg, rgba(96,165,250,.95), rgba(147,51,234,.95));
+    }
+
+/* Firefox */
+.ultra-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(96,165,250,.8) transparent;
+}
