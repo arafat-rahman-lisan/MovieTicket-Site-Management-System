@@ -1,22 +1,199 @@
-html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+/* ====== Base ====== */
+:root {
+    --cine-bg: #07090f;
+    --cine-bg-2: #0a0e15;
+    --cine-border: rgba(255,255,255,0.12);
+    --cine-text: #eaf0f7;
+    --_clip: text; /* warning-safe gradient clip */
 }
 
 html {
-  position: relative;
-  min-height: 100%;
+    font-size: 14px;
+}
+
+@media (min-width:768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+html {
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
+    background: #fff;
+    color: #212529;
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus,
+.form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+/* ====== Dark Glass Shell (used when body.cine-shell) ====== */
+body.cine-shell {
+    background: var(--cine-bg);
+    color: var(--cine-text);
+}
+
+.cine-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -3;
+    background: linear-gradient(180deg,var(--cine-bg) 0%, var(--cine-bg-2) 100%);
+}
+
+.cine-aura {
+    position: fixed;
+    inset: -10%;
+    z-index: -2;
+    pointer-events: none;
+    background: radial-gradient(900px 600px at 10% -10%, rgba(59,130,246,.18), transparent 55%), radial-gradient(800px 540px at 110% 0%, rgba(139,92,246,.18), transparent 50%);
+    filter: saturate(120%) blur(.2px);
+}
+
+/* ====== Glass Header ====== */
+.site-header--glass {
+    background: linear-gradient(180deg, rgba(12,16,24,.72), rgba(12,16,24,.46)) !important;
+    backdrop-filter: blur(14px) saturate(160%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    border-bottom: 1px solid var(--cine-border);
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+}
+
+/* Brand text (CINEX) — gradient with safe fallback */
+.brand-text {
+    font-weight: 700;
+    letter-spacing: .2px;
+    background: linear-gradient(90deg, #fff 0%, #b9c7ff 60%, #d0baff 100%);
+    -webkit-background-clip: var(--_clip);
+    -webkit-text-fill-color: transparent;
+    color: #eaf0f7; /* fallback */
+}
+
+/* Remove Bootstrap light backgrounds when glass is on */
+.navbar-light.bg-white,
+.navbar.bg-light,
+.navbar.bg-white {
+    background-color: transparent !important;
+}
+
+/* Toggler on dark nav */
+.navbar-dark .navbar-toggler {
+    border-color: rgba(255,255,255,.25);
+}
+
+.navbar-dark .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255,255,255,.9)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* Current section label beside Home */
+.nav-current-label {
+    opacity: .8;
+}
+
+body.cine-shell .nav-current-label {
+    color: #c7d4ff !important;
+}
+
+/* Dropdown menus (glass style in dark) */
+.site-header--glass .dropdown-menu {
+    background: rgba(15,20,35,0.96);
+    color: #eaf0f7;
+    border: 1px solid rgba(255,255,255,0.10);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.dropdown-menu {
+    z-index: 2000 !important;
+}
+
+.site-header--glass .dropdown-item {
+    color: #eaf0f7;
+}
+
+    .site-header--glass .dropdown-item:hover {
+        background: rgba(255,255,255,0.10);
+        color: #fff;
+    }
+
+/* Auth buttons (dark glass) */
+.site-header--glass .btn-outline-success,
+.site-header--glass .btn-outline-primary,
+.site-header--glass .btn-outline-dark {
+    color: #eaf0f7 !important;
+    border-color: rgba(255,255,255,.22) !important;
+    background: rgba(255,255,255,0.08) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+    .site-header--glass .btn-outline-success:hover,
+    .site-header--glass .btn-outline-primary:hover,
+    .site-header--glass .btn-outline-dark:hover {
+        color: #fff !important;
+        background: rgba(255,255,255,0.16) !important;
+        border-color: rgba(255,255,255,.35) !important;
+        box-shadow: 0 0 12px rgba(79,70,229,.28);
+    }
+
+/* Footer */
+.footer--glass {
+    background: rgba(12,16,24,.55);
+    border-top: 1px solid var(--cine-border);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--cine-text);
+}
+
+/* Full-bleed helper */
+.page-fullbleed {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+
+/* ---------- Movies title CINEX logo beside text ---------- */
+.movies-cinex-logo {
+    height: 22px; /* compact, matches your header scale */
+    width: auto;
+    display: inline-block;
+    filter: drop-shadow(0 2px 10px rgba(0,0,0,.35));
+    opacity: .95;
+}
+
+/* ---------- Profile button (top-right avatar) ---------- */
+.profile-dropdown {
+    position: relative; /* stays within header flow; parent can be flex */
+}
+
+.profile-btn {
+    width: 38px;
+    height: 38px;
+    border: 1px solid rgba(148,163,184,.35);
+    background: rgba(17,24,39,.35);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 6px 22px rgba(2, 6, 23, .35), inset 0 0 0 1px rgba(255,255,255,.06);
+    overflow: hidden;
+}
+
+    .profile-btn:hover {
+        transform: translateY(-1px);
+        transition: transform .18s ease;
+    }
+
+.profile-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 999px;
+    display: block;
 }

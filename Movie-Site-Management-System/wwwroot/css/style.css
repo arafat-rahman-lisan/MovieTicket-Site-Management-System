@@ -100,6 +100,11 @@ header {
             opacity: .7
         }
 
+        /* active tab = blue text (same blue as Watch button) */
+        .nav-pills a.active {
+            color: #00bdff !important;
+        }
+
 header nav .logo_ul {
     display: flex;
     align-items: center;
@@ -264,8 +269,8 @@ header nav .search_user {
 /* fixed panel lives under <body>, not inside nav */
 .manage_menu {
     position: fixed; /* escape header/section stacking */
-    top: 72px; /* default; JS will reposition near button */
-    right: 80px;
+    top: 72px;
+    right: 80px; /* default; JS repositions */
     min-width: 260px;
     max-height: 70vh;
     overflow-y: auto;
@@ -276,7 +281,7 @@ header nav .search_user {
     -webkit-backdrop-filter: blur(18px) saturate(160%);
     border: 1px solid rgba(255,255,255,.20);
     box-shadow: 0 30px 80px -20px rgba(0,0,0,.90);
-    z-index: 300000; /* above everything */
+    z-index: 300000;
     opacity: 0;
     visibility: hidden;
     transform: translateY(8px);
@@ -495,9 +500,7 @@ header section {
                 border-radius: 12px;
                 object-fit: cover
             }
-
-            /* Hover-expand */
-            header section .cards .card:hover {
+            /* Hover-expand */ header section .cards .card:hover {
                 min-width: 300px
             }
 
@@ -509,7 +512,7 @@ header section {
                 opacity: 0;
                 transition: .9s;
                 pointer-events: none;
-                z-index: 1; /* base */
+                z-index: 1;
             }
 
             header section .cards .card:hover .rest_card {
@@ -637,9 +640,9 @@ header section {
         cursor: pointer;
         transition: .25s;
         z-index: 15;
-        opacity: 0;
         backdrop-filter: blur(6px);
-        border: 1px solid rgba(255,255,255,.28)
+        border: 1px solid rgba(255,255,255,.28);
+        opacity: 0;
     }
 
     header section .bi-chevron-right {
@@ -786,62 +789,70 @@ header section {
         border-color: rgba(255,255,255,.34)
     }
 
-/* ===== Genre dropdown scaffold (hidden for now) ===== */
+/* ===== Genre dropdown (GLASSMORPHISM, anchored under Genre pill) ===== */
+.genre-filter-wrap {
+    position: relative;
+    display: inline-block;
+}
+
 .genre_dropdown {
     position: absolute;
     right: 0;
-    top: 40px;
+    top: calc(100% + 8px);
     width: 240px;
     max-height: 300px;
     display: none;
     flex-direction: column;
-    z-index: 100000
+    z-index: 100000;
+    /* glass look */
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,.25);
+    background: rgba(20,20,20,0.35);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    box-shadow: 0 12px 40px rgba(0,0,0,.45);
 }
 
-    .genre_dropdown::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: rgba(255,255,255,.12);
-        backdrop-filter: blur(6px);
-        border-radius: 10px;
-        z-index: -1
-    }
-
-    .genre_dropdown .gd_header, .genre_dropdown .gd_footer {
+    .genre_dropdown .gd_header,
+    .genre_dropdown .gd_footer {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 8px 10px;
+        padding: 8px 12px;
         color: #fff;
-        font-size: 12px
+        font-size: 12px;
     }
 
-        .genre_dropdown .gd_header button, .genre_dropdown .gd_footer button {
-            background: transparent;
-            border: 1px solid rgba(255,255,255,.5);
+        .genre_dropdown .gd_header button,
+        .genre_dropdown .gd_footer button {
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.3);
             color: #fff;
-            border-radius: 6px;
-            padding: 4px 8px;
+            border-radius: 8px;
+            padding: 4px 10px;
             font-size: 11px;
-            cursor: pointer
+            cursor: pointer;
+            transition: background 0.2s;
         }
+
+            .genre_dropdown .gd_header button:hover,
+            .genre_dropdown .gd_footer button:hover {
+                background: rgba(255,255,255,0.25);
+            }
 
     .genre_dropdown .gd_list {
         overflow-y: auto;
         max-height: 210px;
-        padding: 4px 6px
+        padding: 6px 10px;
     }
 
         .genre_dropdown .gd_list::-webkit-scrollbar {
-            width: 5px;
-            background: rgba(255,255,255,.3);
-            border-radius: 5px
+            width: 6px;
         }
 
         .genre_dropdown .gd_list::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,.4);
-            border-radius: 5px
+            background: rgba(255,255,255,.35);
+            border-radius: 8px;
         }
 
 .gd_item {
@@ -849,20 +860,21 @@ header section {
     align-items: center;
     gap: 8px;
     color: #fff;
-    font-size: 12px;
+    font-size: 13px;
     padding: 6px 8px;
-    border-radius: 6px;
-    cursor: pointer
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background .2s;
 }
 
     .gd_item:hover {
-        background: rgba(255,255,255,.08)
+        background: rgba(255,255,255,.18);
     }
 
     .gd_item input {
         accent-color: #00bdff;
-        width: 14px;
-        height: 14px
+        width: 15px;
+        height: 15px;
     }
 
 /* ===== Responsive ===== */
