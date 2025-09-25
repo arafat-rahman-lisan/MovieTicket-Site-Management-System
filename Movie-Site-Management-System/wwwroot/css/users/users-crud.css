@@ -1,1 +1,146 @@
+﻿/* ===========================================================
+   CINEX — Users CRUD (Ultra Glass + Film Rails)
+   Path: /wwwroot/css/users/users-crud.css
+   =========================================================== */
 
+:root {
+    --cine-bg: #07090f;
+    --cine-card: rgba(20,26,36,.55);
+    --cine-card-br: rgba(115,130,165,.25);
+    --cine-text: #eaf0f7;
+    --cine-muted: #a9b4c7;
+    --cine-accent: #2563eb;
+    --cine-highlight: #7c3aed;
+    --cine-success: #22c55e;
+    --cine-danger: #ef4444;
+}
+
+.ultra-card {
+    position: relative;
+    background: var(--cine-card);
+    border: 1px solid var(--cine-card-br);
+    border-radius: 18px;
+    padding: 1rem 1rem .5rem;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0,0,0,.35);
+}
+
+.ultra-card__shine {
+    position: absolute;
+    inset: -40% -20% auto -20%;
+    height: 60%;
+    background: linear-gradient(120deg,rgba(124,58,237,.18),rgba(37,99,235,.12),transparent);
+    transform: translateY(-20%);
+    pointer-events: none;
+    filter: blur(18px);
+}
+
+.ultra-card__header {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin-bottom: .5rem
+}
+
+.ultra-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--cine-text)
+}
+
+.ultra-alert {
+    margin: .5rem 0;
+    padding: .5rem .75rem;
+    border-radius: 12px;
+    font-size: .95rem
+}
+
+.ultra-alert--success {
+    background: rgba(34,197,94,.12);
+    border: 1px solid rgba(34,197,94,.35);
+    color: #c8f5d8
+}
+
+.ultra-alert--danger {
+    background: rgba(239,68,68,.12);
+    border: 1px solid rgba(239,68,68,.35);
+    color: #ffd4d4
+}
+
+.ultra-scroll {
+    overflow: auto;
+    max-height: calc(100vh - 280px);
+    padding-bottom: .75rem
+}
+
+.ultra-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 .5rem;
+    color: var(--cine-text)
+}
+
+    .ultra-table thead th {
+        font-weight: 600;
+        color: var(--cine-muted);
+        padding: .5rem .75rem
+    }
+
+    .ultra-table tbody tr {
+        background: rgba(17,24,39,.35);
+        border: 1px solid rgba(148,163,184,.25)
+    }
+
+    .ultra-table tbody td {
+        padding: .65rem .75rem;
+        vertical-align: middle;
+        border-top: 1px solid rgba(148,163,184,.25)
+    }
+
+    .ultra-table tbody tr td:first-child {
+        border-left: 1px solid rgba(148,163,184,.25);
+        border-radius: 12px 0 0 12px
+    }
+
+    .ultra-table tbody tr td:last-child {
+        border-right: 1px solid rgba(148,163,184,.25);
+        border-radius: 0 12px 12px 0
+    }
+
+.btn.glass-btn, .btn.chip.btn-sm {
+    position: relative;
+    border: 1px solid rgba(148,163,184,.45);
+    background: rgba(17,24,39,.34);
+    padding: .38rem .7rem;
+    border-radius: 999px;
+    color: #fff;
+    text-decoration: none;
+    transition: transform .15s ease, box-shadow .15s ease;
+    z-index: 1;
+}
+
+    .btn.glass-btn:hover, .btn.chip.btn-sm:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 18px rgba(37,99,235,.25);
+    }
+
+    .btn.glass-btn.alt {
+        border-color: rgba(124,58,237,.5)
+    }
+
+    .btn.glass-btn.danger {
+        border-color: rgba(239,68,68,.55)
+    }
+
+.glass-input {
+    background: rgba(17,24,39,.34);
+    color: var(--cine-text);
+    border: 1px solid rgba(148,163,184,.35);
+    border-radius: 12px;
+}
+
+    .glass-input:focus {
+        outline: none;
+        border-color: rgba(37,99,235,.6);
+        box-shadow: 0 0 0 3px rgba(37,99,235,.18);
+    }
