@@ -1,16 +1,41 @@
 ﻿@model Movie_Site_Management_System.ViewModels.Halls.HallFormVM
 @{
     ViewData["Title"] = "Create Hall";
+    ViewBag.GlassHeader = true;
 }
-<h2 class="mb-3">Create Hall</h2>
 
-<form asp-action="Create" method="post" class="card card-body">
-    <partial name="_HallForm" model="Model" />
-    <div class="d-flex gap-2">
-        <button type="submit" class="btn btn-primary">Create</button>
-        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-glass-ultra.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/hall/hall-crud.css" asp-append-version="true" />
+}
+
+<section class="admin-ultra-shell">
+    <div class="film-rail film-rail--left" aria-hidden="true"></div>
+    <div class="film-rail film-rail--right" aria-hidden="true"></div>
+    <div class="ultra-aura"></div>
+    <div class="film-grain"></div>
+
+    <div class="container py-4 position-relative">
+        <div class="ultra-card">
+            <div class="ultra-card__shine"></div>
+
+            <div class="ultra-card__header">
+                <h2 class="ultra-title m-0"><span class="ultra-title__glow">Create Hall</span></h2>
+                <a asp-action="Index" class="btn chip btn-sm">Back</a>
+            </div>
+
+            <div class="ultra-card__body">
+                <form asp-action="Create" method="post">
+                    <partial name="_HallForm" model="Model" />
+                    <div class="mt-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary chip">Create</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary chip">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-</form>
+</section>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

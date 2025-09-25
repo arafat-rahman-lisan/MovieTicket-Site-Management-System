@@ -1,38 +1,58 @@
 ﻿@model Movie_Site_Management_System.Models.Hall
 @{
     ViewData["Title"] = "Delete Hall";
+    ViewBag.GlassHeader = true;
     var slotCount = (int?)ViewBag.SlotCount ?? 0;
     var seatCount = (int?)ViewBag.SeatCount ?? 0;
     var showCount = (int?)ViewBag.ShowCount ?? 0;
     var hasDeps = slotCount + seatCount + showCount > 0;
 }
 
-<h2 class="mb-3">Delete Hall</h2>
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-glass-ultra.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/hall/hall-crud.css" asp-append-version="true" />
+}
 
-<div class="alert @(hasDeps ? "alert-warning" : "alert-danger")">
-    <strong>Are you sure?</strong> You are about to delete <em>@Model.Name</em> in theatre <em>@Model.Theatre?.Name</em>.
-    @if (hasDeps)
-    {
-        <div class="mt-2">
-            <div>Related items:</div>
-            <ul class="mb-0">
-                <li>Slots: @slotCount</li>
-                <li>Seats: @seatCount</li>
-                <li>Shows: @showCount</li>
-            </ul>
-            <div class="mt-2">You must remove these before deletion.</div>
+<section class="admin-ultra-shell">
+    <div class="film-rail film-rail--left"></div>
+    <div class="film-rail film-rail--right"></div>
+    <div class="ultra-aura"></div>
+    <div class="film-grain"></div>
+
+    <div class="container py-4 position-relative">
+        <div class="ultra-card">
+            <div class="ultra-card__shine"></div>
+
+            <div class="ultra-card__header">
+                <h2 class="ultra-title m-0"><span class="ultra-title__glow">Delete Hall</span></h2>
+                <a asp-action="Index" class="btn chip btn-sm">All Halls</a>
+            </div>
+
+            <div class="ultra-card__body">
+                <div class="@(hasDeps ? "ultra-alert ultra-alert--warning" : "ultra-alert ultra-alert--danger")">
+                    <strong>Are you sure?</strong>
+                    You are about to delete <em>@Model.Name</em> in theatre <em>@Model.Theatre?.Name</em>.
+                    @if (hasDeps)
+                    {
+                        <div class="mt-2">
+                            <div>Related items:</div>
+                            <ul class="mb-0"><li>Slots: @slotCount</li><li>Seats: @seatCount</li><li>Shows: @showCount</li></ul>
+                            <div class="mt-2">You must remove these before deletion.</div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="ultra-card__footer d-flex gap-2">
+                <form asp-action="Delete" method="post" class="d-inline">
+                    <input type="hidden" asp-for="HallId" />
+                    @if (!hasDeps)
+                    {
+                        <button type="submit" class="btn btn-danger chip">Delete</button>
+                    }
+                </form>
+                <a asp-action="Details" asp-route-id="@Model.HallId" class="btn chip chip--muted">Back</a>
+            </div>
         </div>
-    }
-</div>
-
-<form asp-action="Delete" method="post">
-    <input type="hidden" asp-for="HallId" />
-    <div class="d-flex gap-2">
-        @if (!hasDeps)
-        {
-            <button type="submit" class="btn btn-danger">Delete</button>
-        }
-        <a asp-action="Details" asp-route-id="@Model.HallId" class="btn btn-secondary">Back</a>
-        <a asp-action="Index" class="btn btn-outline-secondary">All Halls</a>
     </div>
-</form>
+</section>

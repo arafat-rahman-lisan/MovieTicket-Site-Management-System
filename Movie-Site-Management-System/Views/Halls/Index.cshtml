@@ -1,65 +1,107 @@
 ﻿@model IEnumerable<Movie_Site_Management_System.Models.Hall>
 @{
     ViewData["Title"] = "Halls";
+    ViewBag.GlassHeader = true;
 }
 
-<div class="d-flex align-items-center justify-content-between mb-3">
-    <h2 class="mb-0">Halls</h2>
-    <a asp-action="Create" class="btn btn-primary">+ New Hall</a>
-</div>
-
-<form method="get" class="row g-2 mb-3">
-    <div class="col-auto">
-        <label class="form-label">Theatre</label>
-        <select class="form-select" name="theatreId" asp-items="ViewBag.Theatres" onchange="this.form.submit()">
-            <option value="">-- All --</option>
-        </select>
-    </div>
-</form>
-
-@if (!Model.Any())
-{
-    <div class="alert alert-info">No halls found.</div>
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-glass-ultra.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/hall/hall-crud.css" asp-append-version="true" />
 }
-else
-{
-    <table class="table table-striped align-middle">
-        <thead>
-            <tr>
-                <th>Theatre</th>
-                <th>Name</th>
-                <th class="text-end">Capacity</th>
-                <th class="text-center">Seatmap</th>
-                <th class="text-center">Active</th>
-                <th style="width:200px"></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var h in Model)
+
+<section class="admin-ultra-shell">
+    <div class="film-rail film-rail--left" aria-hidden="true"></div>
+    <div class="film-rail film-rail--right" aria-hidden="true"></div>
+    <div class="ultra-aura"></div>
+    <div class="film-grain"></div>
+
+    <div class="container py-4 position-relative">
+        <div class="ultra-card">
+            <div class="ultra-card__shine"></div>
+
+            <div class="ultra-card__header">
+                <h2 class="ultra-title mb-0">
+                    <svg class="title-icon" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="cinexGradHall" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#7dd3fc" />
+                                <stop offset="50%" stop-color="#a78bfa" />
+                                <stop offset="100%" stop-color="#60a5fa" />
+                            </linearGradient>
+                        </defs>
+                        <rect x="2" y="5" width="20" height="14" rx="3" ry="3" fill="url(#cinexGradHall)" />
+                        <rect x="5" y="7" width="2" height="2" rx="1" fill="#0b1020" opacity=".85" />
+                        <rect x="5" y="11" width="2" height="2" rx="1" fill="#0b1020" opacity=".85" />
+                        <rect x="5" y="15" width="2" height="2" rx="1" fill="#0b1020" opacity=".85" />
+                        <rect x="17" y="7" width="2" height="2" rx="1" fill="#0b1020" opacity=".85" />
+                        <rect x="17" y="11" width="2" height="2" rx="1" fill="#0b1020" opacity=".85" />
+                        <rect x="17" y="15" width="2" height="2" rx="1" fill="#0b1020" opacity=".85" />
+                    </svg>
+                    <span>Halls</span>
+                </h2>
+                <a asp-action="Create" class="btn ultra-btn">+ New Hall</a>
+            </div>
+
+            <div class="px-3 pb-2">
+                <form method="get" class="row g-2 sticky-controls ultra-form">
+                    <div class="col-auto">
+                        <label class="form-label mb-1">Theatre</label>
+                        <select class="form-select glass-input" name="theatreId" asp-items="ViewBag.Theatres" onchange="this.form.submit()">
+                            <option value="">-- All --</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+
+            @if (Model == null || !Model.Any())
             {
-                <tr>
-                    <td>@h.Theatre?.Name</td>
-                    <td>@h.Name</td>
-                    <td class="text-end">@h.Capacity</td>
-                    <td class="text-center">@h.SeatmapVersion</td>
-                    <td class="text-center">
-                        @if (h.IsActive)
-                        {
-                            <span class="badge bg-success">Yes</span>
-                        }
-                        else
-                        {
-
-                            <span class="badge bg-secondary">No</span>
-                        }
-                    </td>
-                    <td class="text-end">
-                        <a asp-action="Details" asp-route-id="@h.HallId" class="btn btn-sm btn-outline-secondary">Details</a>
-                        <a asp-action="Edit" asp-route-id="@h.HallId" class="btn btn-sm btn-outline-primary">Edit</a>
-                        <a asp-action="Delete" asp-route-id="@h.HallId" class="btn btn-sm btn-outline-danger">Delete</a>
-                    </td>
-                </tr>
+                <div class="ultra-alert ultra-alert--info m-3">No halls found.</div>
             }
-        </tbody>
-    </table>
-}
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table ultra-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th class="text-end">Capacity</th>
+                                <th class="text-center">Seatmap</th>
+                                <th class="text-center">Active</th>
+                                <th class="text-center" style="width:320px">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var h in Model.OrderBy(x => x.Theatre!.Name).ThenBy(x => x.Name))
+                            {
+                                var inactive = !h.IsActive ? "ultra-row--inactive" : "";
+                                <tr class="ultra-row @inactive">
+                                    <td>
+                                        <div class="cell-title">
+                                            <span class="movie-dot" aria-hidden="true"></span>
+                                            @h.Name
+                                        </div>
+                                        <div class="cell-sub">@h.Theatre?.Name • ID: @h.HallId</div>
+                                    </td>
+                                    <td class="text-end">@h.Capacity</td>
+                                    <td class="text-center">@h.SeatmapVersion</td>
+                                    <td class="text-center">
+                                        <span class="pill @(h.IsActive ? "pill--yes" : "pill--no")">
+                                            @(h.IsActive ? "Yes" : "No")
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="actions-grid">
+                                            <a asp-action="Edit" asp-route-id="@h.HallId" class="btn chip">Edit</a>
+                                            <a asp-action="Details" asp-route-id="@h.HallId" class="btn chip chip--muted">Details</a>
+                                            <a asp-action="Delete" asp-route-id="@h.HallId" class="btn chip chip--danger">Delete</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</section>

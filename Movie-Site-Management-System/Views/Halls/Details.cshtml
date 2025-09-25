@@ -1,60 +1,64 @@
 ﻿@model Movie_Site_Management_System.Models.Hall
 @{
     ViewData["Title"] = "Hall Details";
+    ViewBag.GlassHeader = true;
     var seatCount = (int?)ViewBag.SeatCount ?? 0;
     var slotCount = (int?)ViewBag.SlotCount ?? 0;
     var showCount = (int?)ViewBag.ShowCount ?? 0;
 }
 
-<h2 class="mb-3">Hall: @Model.Name</h2>
-
-@if (TempData["Error"] is string err && !string.IsNullOrWhiteSpace(err))
-{
-    <div class="alert alert-danger">@err</div>
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-glass-ultra.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/hall/hall-crud.css" asp-append-version="true" />
 }
 
-<dl class="row">
-    <dt class="col-sm-3">Theatre</dt>
-    <dd class="col-sm-9">@Model.Theatre?.Name</dd>
+<section class="admin-ultra-shell">
+    <div class="film-rail film-rail--left"></div>
+    <div class="film-rail film-rail--right"></div>
+    <div class="ultra-aura"></div>
+    <div class="film-grain"></div>
 
-    <dt class="col-sm-3">Capacity</dt>
-    <dd class="col-sm-9">@Model.Capacity</dd>
+    <div class="container py-4 position-relative">
+        <div class="ultra-card">
+            <div class="ultra-card__shine"></div>
 
-    <dt class="col-sm-3">Seatmap Version</dt>
-    <dd class="col-sm-9">@Model.SeatmapVersion</dd>
+            <div class="ultra-card__header">
+                <h2 class="ultra-title m-0"><span class="ultra-title__glow">Hall: @Model.Name</span></h2>
+                <div class="d-flex gap-2">
+                    <a asp-action="Edit" asp-route-id="@Model.HallId" class="btn chip">Edit</a>
+                    <a asp-action="Index" class="btn chip chip--muted">Back</a>
+                </div>
+            </div>
 
-    <dt class="col-sm-3">Active</dt>
-    <dd class="col-sm-9">@((Model.IsActive) ? "Yes" : "No")</dd>
-</dl>
+            <div class="ultra-card__body">
+                <dl class="row ultra-dl">
+                    <dt class="col-sm-3">Theatre</dt>
+                    <dd class="col-sm-9">@Model.Theatre?.Name</dd>
+                    <dt class="col-sm-3">Capacity</dt>
+                    <dd class="col-sm-9">@Model.Capacity</dd>
+                    <dt class="col-sm-3">Seatmap Version</dt>
+                    <dd class="col-sm-9">@Model.SeatmapVersion</dd>
+                    <dt class="col-sm-3">Active</dt>
+                    <dd class="col-sm-9">@((Model.IsActive) ? "Yes" : "No")</dd>
+                </dl>
 
-<div class="row g-3">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <div class="fw-semibold">Seats</div>
-                <div class="display-6">@seatCount</div>
+                <div class="row g-3 mt-1">
+                    <div class="col-md-4">
+                        <div class="ultra-metric"><div class="ultra-metric__label">Seats</div><div class="ultra-metric__value">@seatCount</div></div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="ultra-metric"><div class="ultra-metric__label">Slots</div><div class="ultra-metric__value">@slotCount</div></div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="ultra-metric"><div class="ultra-metric__label">Shows</div><div class="ultra-metric__value">@showCount</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ultra-card__footer d-flex gap-2">
+                <a asp-action="Edit" asp-route-id="@Model.HallId" class="btn chip">Edit</a>
+                <a asp-action="Index" class="btn chip chip--muted">Back</a>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <div class="fw-semibold">Slots</div>
-                <div class="display-6">@slotCount</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <div class="fw-semibold">Shows</div>
-                <div class="display-6">@showCount</div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="mt-3 d-flex gap-2">
-    <a asp-action="Edit" asp-route-id="@Model.HallId" class="btn btn-primary">Edit</a>
-    <a asp-action="Index" class="btn btn-secondary">Back</a>
-</div>
+</section>
