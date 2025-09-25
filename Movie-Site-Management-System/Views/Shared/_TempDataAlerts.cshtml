@@ -1,0 +1,27 @@
+﻿@* Simple Bootstrap alerts for TempData messages *@
+@{
+    var hasAny = false;
+}
+
+@if (TempData["Success"] is string s && !string.IsNullOrWhiteSpace(s))
+{
+    hasAny = true;
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @s
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Error"] is string e && !string.IsNullOrWhiteSpace(e))
+{
+    hasAny = true;
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @e
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (!hasAny)
+{
+    @* no alerts *@
+}

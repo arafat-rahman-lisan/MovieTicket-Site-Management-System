@@ -1,0 +1,52 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Movie_Site_Management_System.Data.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    var isSignedIn = SignInManager.IsSignedIn(User);
+}
+
+<div class="dropdown ms-2 profile-dropdown">
+    <a class="d-inline-flex align-items-center justify-content-center rounded-circle profile-btn"
+       href="#"
+       role="button"
+       data-bs-toggle="dropdown"
+       aria-expanded="false"
+       title="Account">
+        <img src="~/img/profile.jpg" alt="Profile"
+             class="profile-avatar" loading="lazy" />
+    </a>
+
+    <ul class="dropdown-menu dropdown-menu-end glassy-menu shadow-lg">
+        @if (isSignedIn)
+        {
+            <li>
+                <a class="dropdown-item" asp-controller="Account" asp-action="Profile">
+                    My profile
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item" asp-controller="Bookings" asp-action="My">
+                    Orders
+                </a>
+            </li>
+            <li><hr class="dropdown-divider" /></li>
+            <li>
+                <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="dropdown-item text-danger">Log out</button>
+                </form>
+            </li>
+        }
+        else
+        {
+            <li>
+                <a class="dropdown-item" asp-controller="Account" asp-action="Login">Sign in</a>
+            </li>
+            <li>
+                <a class="dropdown-item" asp-controller="Account" asp-action="Register">Sign up</a>
+            </li>
+        }
+    </ul>
+</div>

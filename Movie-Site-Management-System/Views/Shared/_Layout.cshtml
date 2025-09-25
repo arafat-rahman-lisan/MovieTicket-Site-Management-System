@@ -1,84 +1,123 @@
-﻿@using Movie_Site_Management_System.Models
+﻿@using Movie_Site_Management_System.Data.Identity
+@using Microsoft.AspNetCore.Identity
+@using Movie_Site_Management_System.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    // Optional per-page flags you already use:
+    var glassHeader = ViewBag.GlassHeader as bool? ?? false;
+    var fullBleed = ViewBag.FullBleed as bool? ?? false;
+
+    // Route info
+    string currentController = (ViewContext.RouteData.Values["controller"]?.ToString() ?? "");
+    string currentAction = (ViewContext.RouteData.Values["action"]?.ToString() ?? "");
+
+    // A friendly label for the current section (beside "Home")
+    string routeLabel = currentController switch
+    {
+        "Movies" => currentAction == "AdminIndex" ? "Movies" : "",
+        "Shows" => "Shows",
+        "AdminSchedule" => "Schedule",
+        "Users" => "Users",
+        "Theatres" => "Theatres",
+        "Halls" => "Halls",
+        "HallSlots" => "Hall Slots",
+        "SeatTypes" => "Seat Types",
+        "Seats" => "Seats",
+        "Payments" => currentAction == "Management" ? "Payment Management" : "Payments",
+        _ => ""
+    };
+    // Allow page to override with ViewBag.PageLabel if desired
+    var pageLabel = (ViewBag.PageLabel as string) ?? routeLabel;
+
+    string navbarClass = glassHeader
+        ? "navbar navbar-expand-lg navbar-dark site-header--glass mb-0"
+        : "navbar navbar-expand-lg navbar-light bg-white border-bottom box-shadow mb-3";
+
+    // >>> NEW: allow per-page body/html classes (e.g., 'finance-root')
+    var bodyClass = (ViewBag.BodyClass as string) ?? "";
+}
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="@bodyClass">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Movie_Site_Management_System</title>
+    <title>@ViewData["Title"] - CINEX</title>
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Movie_Site_Management_System.styles.css" asp-append-version="true" />
+
+    @RenderSection("Styles", required: false)
 </head>
-<body>
+<body class="@(glassHeader ? "cine-shell " : "")@bodyClass">
+    @if (glassHeader)
+    {
+        <div class="cine-bg"></div>
+        <div class="cine-aura"></div>
+    }
+
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <!-- Brand now goes to Movies (public landing) -->
-                <a class="navbar-brand" asp-area="" asp-controller="Movies" asp-action="Index">
-                    Movie_Site_Management_System
+        <nav class="@navbarClass">
+            <div class="container-xxl">
+                <!-- Brand: CINEX text only -->
+                <a class="navbar-brand d-flex align-items-center gap-2" asp-area="" asp-controller="Movies" asp-action="Index">
+                    <span class="brand-text">CINEX</span>
                 </a>
 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
-                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                        aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <!-- Public navigation -->
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Movies" asp-action="Index">Movies</a>
+                <div id="mainNav" class="collapse navbar-collapse">
+                    <ul class="navbar-nav me-auto align-items-lg-center">
+                        <!-- Home + current section label (simple breadcrumb-style) -->
+                        <li class="nav-item d-flex align-items-center">
+                            <a class="nav-link px-2 @(glassHeader ? "" : "text-dark")"
+                               asp-area="" asp-controller="Movies" asp-action="Index">Home</a>
+                            @if (!string.IsNullOrWhiteSpace(pageLabel))
+                            {
+                                <span class="nav-current-label text-muted small ms-1">• @pageLabel</span>
+                            }
                         </li>
 
-                        <!-- Admin / Management dropdown -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-dark" href="#" id="manageDropdown" role="button"
-                               data-bs-toggle="dropdown" aria-expanded="false">
-                                Manage
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="manageDropdown">
-                                <li>
-                                    <a class="dropdown-item" asp-area="" asp-controller="Movies" asp-action="AdminIndex">
-                                        Movies
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" asp-area="" asp-controller="Shows" asp-action="Index">
-                                        Shows
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider" /></li>
-                                <li>
-                                    <a class="dropdown-item" asp-area="" asp-controller="Theatres" asp-action="Index">
-                                        Theatres
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" asp-area="" asp-controller="Halls" asp-action="Index">
-                                        Halls
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" asp-area="" asp-controller="HallSlots" asp-action="Index">
-                                        Hall Slots
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" asp-area="" asp-controller="SeatTypes" asp-action="Index">
-                                        Seat Types
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" asp-area="" asp-controller="Seats" asp-action="Index">
-                                        Seats
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
+                        <!-- Single Manage dropdown (Admins only) -->
+                        @if (User.IsInRole(Roles.Admin))
+                        {
+                            <li class="nav-item dropdown ms-lg-3">
+                                <a class="nav-link dropdown-toggle px-2 @(glassHeader ? "" : "text-dark")"
+                                   href="#" id="manageDropdown" role="button" data-bs-toggle="dropdown"
+                                   aria-expanded="false">Manage</a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="manageDropdown">
+                                    <li><a class="dropdown-item" asp-controller="Movies" asp-action="MovieManagement">Movies</a></li>
+
+                                    <li><a class="dropdown-item" asp-controller="Shows" asp-action="Index">Shows</a></li>
+
+                                    <li><a class="dropdown-item" asp-controller="AdminSchedule" asp-action="Index">Schedule</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Users" asp-action="Index">Users</a></li>
+
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li><a class="dropdown-item" asp-controller="Theatres" asp-action="Index">Theatres</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Halls" asp-action="Index">Halls</a></li>
+                                    <li><a class="dropdown-item" asp-controller="HallSlots" asp-action="Index">Hall Slots</a></li>
+                                    <li><a class="dropdown-item" asp-controller="SeatTypes" asp-action="Index">Seat Types</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Seats" asp-action="Index">Seats</a></li>
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="SeatMap" asp-action="Select">Seat Map</a>
+                                    </li>
+
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li><a class="dropdown-item" asp-controller="Payments" asp-action="Management">Payment Management</a></li>
+                                </ul>
+                            </li>
+                        }
                     </ul>
 
-                    <!-- Identity menu (Login / Register / Profile / Logout) -->
-                    <div class="d-flex">
+                    <!-- Auth / Profile -->
+                    <div class="d-flex align-items-center gap-2">
                         <partial name="~/Views/Shared/_Identity.cshtml" />
                     </div>
                 </div>
@@ -86,21 +125,30 @@
         </nav>
     </header>
 
-    <div class="container-fluid">
-        <main role="main" class="pb-3">
+    @if (fullBleed)
+    {
+        <main role="main" class="pb-4 page-fullbleed">
             @RenderBody()
         </main>
-    </div>
+    }
+    else
+    {
+        <div class="container-xxl">
+            <main role="main" class="pb-4">
+                @RenderBody()
+            </main>
+        </div>
+    }
 
-    <footer class="border-top footer text-muted">
-        <div class="container-fluid">
-            &copy; 2025 - Movie_Site_Management_System
+    <footer class="footer @(glassHeader ? "footer--glass" : "border-top text-muted")">
+        <div class="container-xxl py-3 d-flex justify-content-between small">
+            <span>&copy; @DateTime.Now.Year - Movie_Site_Management_System</span>
+            <span class="opacity-75">Built with ASP.NET Core</span>
         </div>
     </footer>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+    @RenderSection("Scripts", required: false)
 </body>
 </html>
