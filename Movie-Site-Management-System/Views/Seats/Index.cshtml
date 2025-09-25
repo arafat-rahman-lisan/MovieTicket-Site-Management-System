@@ -2,173 +2,192 @@
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @{
     ViewData["Title"] = "Seats";
+    ViewBag.GlassHeader = true;
     var qHallId = Context.Request.Query["hallId"].ToString(); // "" if not present
 }
 
-<style>
-    /* Minimal polish so the page feels lighter */
-    .toolbar .btn, .toolbar select {
-        height: 38px;
-    }
-
-        .toolbar .btn + .btn {
-            margin-left: .5rem;
-        }
-
-    .badge {
-        font-weight: 500;
-    }
-
-    .card-help {
-        font-size: .925rem;
-        color: #6c757d;
-    }
-
-    .table td, .table th {
-        vertical-align: middle;
-    }
-</style>
-
-<div class="d-flex align-items-center justify-content-between mb-3">
-    <h2 class="mb-0">Seats</h2>
-    <div class="toolbar d-flex align-items-center">
-        <form method="get" class="d-flex align-items-center me-2">
-            <select class="form-select me-2" name="hallId" asp-items="ViewBag.Halls" style="min-width: 320px">
-                <option value="">-- Select Hall --</option>
-            </select>
-            <button class="btn btn-secondary">Load</button>
-        </form>
-
-        <a class="btn btn-success me-2"
-           asp-controller="Seats" asp-action="Create" asp-route-hallId="@qHallId">+ Add Seat</a>
-
-        <button class="btn btn-outline-primary"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#bulkTools"
-                aria-expanded="false" aria-controls="bulkTools"
-                @(string.IsNullOrEmpty(qHallId) ? "disabled" : "")>
-            Bulk Tools
-        </button>
-    </div>
-</div>
-
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
-}
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-glass-ultra.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/seat/seat-crud.css" asp-append-version="true" />
 }
 
-@if (!string.IsNullOrEmpty(qHallId))
-{
-    <div class="collapse show" id="bulkTools">
-        <div class="card card-body mb-3">
-            <div class="d-flex justify-content-between align-items-start">
-                <div>
-                    <h6 class="mb-1">Bulk Generate Seats</h6>
-                    <div class="card-help">
-                        Quickly create seats for selected hall. Existing seats are skipped automatically.
-                        Example: Rows <code>A,B,C,D</code> and <code>10</code> seats each creates A1…A10, B1…B10, etc.
-                    </div>
+<section class="admin-ultra-shell">
+    <div class="film-rail film-rail--left" aria-hidden="true"></div>
+    <div class="film-rail film-rail--right" aria-hidden="true"></div>
+    <div class="ultra-aura"></div>
+    <div class="film-grain"></div>
+
+    <div class="container py-4 position-relative">
+        <div class="ultra-card">
+            <div class="ultra-card__shine"></div>
+
+            <div class="ultra-card__header d-flex align-items-center justify-content-between">
+                <h2 class="ultra-title mb-0 d-flex align-items-center">
+                    <svg class="me-2" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="cinexGradSeat" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#38bdf8" />
+                                <stop offset="50%" stop-color="#3b82f6" />
+                                <stop offset="100%" stop-color="#8b5cf6" />
+                            </linearGradient>
+                        </defs>
+                        <rect x="6" y="3" width="12" height="8" rx="2" fill="url(#cinexGradSeat)" />
+                        <rect x="7" y="12" width="10" height="4" rx="1.5" fill="url(#cinexGradSeat)" />
+                        <rect x="6" y="17" width="2" height="4" fill="url(#cinexGradSeat)" />
+                        <rect x="16" y="17" width="2" height="4" fill="url(#cinexGradSeat)" />
+                    </svg>
+                    Seats
+                </h2>
+
+                <div class="header-actions">
+                    <a class="btn btn-primary"
+                       asp-controller="Seats" asp-action="Create" asp-route-hallId="@qHallId">+ Add Seat</a>
+
+                    <button class="btn btn-outline-light"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#bulkTools"
+                            aria-expanded="@(string.IsNullOrEmpty(qHallId) ? "false" : "true")"
+                            aria-controls="bulkTools"
+                            @(string.IsNullOrEmpty(qHallId) ? "disabled" : "")>
+                        Bulk Tools
+                    </button>
                 </div>
-                <button class="btn btn-sm btn-outline-secondary" type="button"
-                        data-bs-toggle="collapse" data-bs-target="#bulkTools">
-                    Hide
-                </button>
             </div>
 
-            <form asp-action="BulkGenerate" method="post" class="row g-2 mt-2">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="hallId" value="@qHallId" />
-
-                <div class="col-md-4">
-                    <label class="form-label">Rows (CSV)</label>
-                    <input class="form-control" name="rowsCsv" placeholder="A,B,C,D" />
+            <div class="p-3 p-md-4">
+                <div class="toolbar mb-3">
+                    <form method="get" class="d-flex align-items-center flex-wrap gap-2">
+                        <select class="form-select" name="hallId" asp-items="ViewBag.Halls" style="min-width: 320px">
+                            <option value="">-- Select Hall --</option>
+                        </select>
+                        <button class="btn btn-secondary">Load</button>
+                    </form>
                 </div>
 
-                <div class="col-md-2">
-                    <label class="form-label">Seats/Row</label>
-                    <input class="form-control" type="number" name="seatsPerRow" value="10" min="1" />
-                </div>
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success glass-alert">@TempData["Success"]</div>
+                }
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger glass-alert">@TempData["Error"]</div>
+                }
 
-                <div class="col-md-3">
-                    <label class="form-label">Seat Type</label>
-                    <select class="form-select" name="seatTypeId" asp-items="ViewBag.SeatTypes"></select>
-                </div>
+                @if (!string.IsNullOrEmpty(qHallId))
+                {
+                    <div class="collapse show" id="bulkTools">
+                        <div class="card card-body mb-3">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">Bulk Generate Seats</h6>
+                                    <div class="card-help">
+                                        Quickly create seats for selected hall. Existing seats are skipped automatically.
+                                        Example: Rows <code>A,B,C,D</code> and <code>10</code> seats each creates
+                                        <code>A1…A10, B1…B10</code>, etc.
+                                    </div>
+                                </div>
+                                <button class="btn btn-sm btn-outline-secondary" type="button"
+                                        data-bs-toggle="collapse" data-bs-target="#bulkTools">
+                                    Hide
+                                </button>
+                            </div>
 
-                <div class="col-md-3 d-flex align-items-end">
-                    <button class="btn btn-outline-success w-100">Bulk Add</button>
-                </div>
-            </form>
+                            <form asp-action="BulkGenerate" method="post" class="row g-2 mt-2">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="hallId" value="@qHallId" />
+
+                                <div class="col-md-4">
+                                    <label class="form-label">Rows (CSV)</label>
+                                    <input class="form-control" name="rowsCsv" placeholder="A,B,C,D" />
+                                </div>
+
+                                <div class="col-md-2">
+                                    <label class="form-label">Seats/Row</label>
+                                    <input class="form-control" type="number" name="seatsPerRow" value="10" min="1" />
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="form-label">Seat Type</label>
+                                    <select class="form-select" name="seatTypeId" asp-items="ViewBag.SeatTypes"></select>
+                                </div>
+
+                                <div class="col-md-3 d-flex align-items-end">
+                                    <button class="btn btn-primary w-100">Bulk Add</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                }
+
+                @if (Model == null || !Model.Any())
+                {
+                    <div class="card-help">
+                        Pick a hall and click <strong>Load</strong> to view or manage seats.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-wrap">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped table-hover table-bordered align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width:90px">Row</th>
+                                        <th style="width:90px">No.</th>
+                                        <th>Type</th>
+                                        <th style="width:80px">X</th>
+                                        <th style="width:80px">Y</th>
+                                        <th style="width:120px">Disabled</th>
+                                        <th style="width:320px">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var s in Model)
+                                    {
+                                        <tr>
+                                            <td class="fw-semibold">@s.RowLabel</td>
+                                            <td>@s.SeatNumber</td>
+                                            <td>@s.SeatType?.Name</td>
+                                            <td>@s.PosX</td>
+                                            <td>@s.PosY</td>
+                                            <td>
+                                                <span class="badge @(s.IsDisabled ? "bg-danger" : "bg-success")">
+                                                    @(s.IsDisabled ? "Disabled" : "Active")
+                                                </span>
+                                            </td>
+                                            <td class="text-end">
+                                                <form asp-controller="Seats" asp-action="Toggle" asp-route-id="@s.SeatId"
+                                                      method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <button class="btn btn-sm @(s.IsDisabled ? "btn-outline-success" : "btn-outline-warning") me-1"
+                                                            title="Enable/Disable this seat">
+                                                        @(s.IsDisabled ? "Enable" : "Disable")
+                                                    </button>
+                                                </form>
+
+                                                <a asp-controller="Seats" asp-action="Details" asp-route-id="@s.SeatId"
+                                                   class="btn btn-sm btn-outline-light me-1">Details</a>
+
+                                                <a asp-controller="Seats" asp-action="Edit" asp-route-id="@s.SeatId"
+                                                   class="btn btn-sm btn-outline-light me-1">Edit</a>
+
+                                                <a asp-controller="Seats" asp-action="Delete" asp-route-id="@s.SeatId"
+                                                   class="btn btn-sm btn-danger">Delete</a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="kv-dim mt-2">
+                        JSON for front-end testing:
+                        <a href="/seats/grid/@Model.First().HallId">/seats/grid/@Model.First().HallId</a>
+                    </div>
+                }
+            </div>
         </div>
     </div>
-}
-
-@if (Model == null || !Model.Any())
-{
-    <div class="alert alert-info">
-        Pick a hall and click <strong>Load</strong> to view or manage seats.
-    </div>
-}
-else
-{
-    <div class="table-responsive">
-        <table class="table table-sm table-striped table-bordered align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th style="width:90px">Row</th>
-                    <th style="width:90px">No.</th>
-                    <th>Type</th>
-                    <th style="width:80px">X</th>
-                    <th style="width:80px">Y</th>
-                    <th style="width:120px">Disabled</th>
-                    <th style="width:320px">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var s in Model)
-                {
-                    <tr>
-                        <td>@s.RowLabel</td>
-                        <td>@s.SeatNumber</td>
-                        <td>@s.SeatType?.Name</td>
-                        <td>@s.PosX</td>
-                        <td>@s.PosY</td>
-                        <td>
-                            <span class="badge @(s.IsDisabled ? "bg-secondary" : "bg-success")">
-                                @(s.IsDisabled ? "Yes" : "No")
-                            </span>
-                        </td>
-                        <td>
-                            <form asp-controller="Seats" asp-action="Toggle" asp-route-id="@s.SeatId"
-                                  method="post" class="d-inline">
-                                @Html.AntiForgeryToken()
-                                <button class="btn btn-sm @(s.IsDisabled ? "btn-outline-success" : "btn-outline-warning") me-1"
-                                        title="Enable/Disable this seat">
-                                    @(s.IsDisabled ? "Enable" : "Disable")
-                                </button>
-                            </form>
-
-                            <a asp-controller="Seats" asp-action="Details" asp-route-id="@s.SeatId"
-                               class="btn btn-sm btn-secondary me-1">Details</a>
-
-                            <a asp-controller="Seats" asp-action="Edit" asp-route-id="@s.SeatId"
-                               class="btn btn-sm btn-outline-primary me-1">Edit</a>
-
-                            <a asp-controller="Seats" asp-action="Delete" asp-route-id="@s.SeatId"
-                               class="btn btn-sm btn-danger">Delete</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-
-    <div class="text-muted mt-2">
-        JSON for front-end testing:
-        <a href="/seats/grid/@Model.First().HallId">/seats/grid/@Model.First().HallId</a>
-    </div>
-}
+</section>

@@ -1,7 +1,7 @@
 ﻿@model Movie_Site_Management_System.Models.Seat
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
-<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
 
 <div class="row g-3">
     <div class="col-md-6">
@@ -12,7 +12,7 @@
 
     <div class="col-md-3">
         <label asp-for="RowLabel" class="form-label">Row</label>
-        <input asp-for="RowLabel" class="form-control" />
+        <input asp-for="RowLabel" class="form-control" placeholder="A" />
         <span asp-validation-for="RowLabel" class="text-danger"></span>
     </div>
 

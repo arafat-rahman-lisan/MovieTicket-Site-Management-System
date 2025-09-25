@@ -1,16 +1,62 @@
 ﻿@model Movie_Site_Management_System.Models.Seat
 @{
     ViewData["Title"] = "Add Seat";
+    ViewBag.GlassHeader = true;
 }
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="mb-0">Add Seat</h2>
-    <a asp-action="Index" asp-route-hallId="@Model.HallId" class="btn btn-outline-secondary btn-sm">Back</a>
-</div>
 
-<form asp-action="Create" method="post" class="card card-body">
-    @Html.AntiForgeryToken()
-    <partial name="_SeatForm" model="Model" />
-    <div class="mt-3">
-        <button class="btn btn-success">Save</button>
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-glass-ultra.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/seat/seat-crud.css" asp-append-version="true" />
+}
+
+<section class="admin-ultra-shell">
+    <div class="film-rail film-rail--left" aria-hidden="true"></div>
+    <div class="film-rail film-rail--right" aria-hidden="true"></div>
+    <div class="ultra-aura"></div>
+    <div class="film-grain"></div>
+
+    <div class="container py-4 position-relative">
+        <div class="ultra-card">
+            <div class="ultra-card__shine"></div>
+
+            <div class="ultra-card__header d-flex align-items-center justify-content-between">
+                <h2 class="ultra-title mb-0 d-flex align-items-center">
+                    <svg class="me-2" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="cinexGradSeat" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#38bdf8" />
+                                <stop offset="50%" stop-color="#3b82f6" />
+                                <stop offset="100%" stop-color="#8b5cf6" />
+                            </linearGradient>
+                        </defs>
+                        <rect x="6" y="3" width="12" height="8" rx="2" fill="url(#cinexGradSeat)" />
+                        <rect x="7" y="12" width="10" height="4" rx="1.5" fill="url(#cinexGradSeat)" />
+                        <rect x="6" y="17" width="2" height="4" fill="url(#cinexGradSeat)" />
+                        <rect x="16" y="17" width="2" height="4" fill="url(#cinexGradSeat)" />
+                    </svg>
+                    Add Seat
+                </h2>
+
+                <a asp-action="Index" asp-route-hallId="@Model.HallId" class="btn btn-outline-light btn-sm">Back</a>
+            </div>
+
+            <div class="p-3 p-md-4">
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger glass-alert">@TempData["Error"]</div>
+                }
+
+                <form asp-action="Create" method="post" class="row g-3">
+                    @Html.AntiForgeryToken()
+                    <div class="col-12">
+                        <partial name="_SeatForm" model="Model" />
+                    </div>
+                    <div class="col-12 mt-2">
+                        <button class="btn btn-primary">Save</button>
+                        <a asp-action="Index" asp-route-hallId="@Model.HallId" class="btn btn-secondary ms-2">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-</form>
+</section>
