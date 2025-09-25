@@ -4,7 +4,7 @@ using Microsoft.Extensions.Hosting;
 namespace Movie_Site_Management_System
 {
     /// <summary>
-    /// .NET 8 Program using Startup.
+    /// .NET 8 host using the classic Startup pattern.
     /// </summary>
     public class Program
     {
@@ -15,6 +15,7 @@ namespace Movie_Site_Management_System
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    // Keeps Kestrel, IIS Integration, appsettings.* loading, etc.
                     webBuilder.UseStartup<Startup>();
                 });
     }

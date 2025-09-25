@@ -6,32 +6,31 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
+// NEW:
+using Microsoft.AspNetCore.Authentication.OAuth;
+using System.Threading.Tasks;
+
 using Movie_Site_Management_System.Data;
 using Movie_Site_Management_System.Data.Identity;
 using Movie_Site_Management_System.Models;
 using Movie_Site_Management_System.Services.Interfaces;
 using Movie_Site_Management_System.Services.Service;
+using Movie_Site_Management_System.Services.Invoices;
+using QuestPDF.Infrastructure;
 
 namespace Movie_Site_Management_System
 {
-    /// <summary>
-    /// .NET 8 Startup including:
-    /// - EF Core (SQL Server)
-    /// - ASP.NET Core Identity (ApplicationUser + Roles)
-    /// - Cookie paths (Login/AccessDenied)
-    /// - Authorization policies
-    /// - Your existing service registrations (EntityBaseRepository pattern)
-    /// - Domain + Identity seeding on app start
-    /// </summary>
     public class Startup
     {
         public IConfiguration Configuration { get; }
 
         public Startup(IConfiguration configuration) => Configuration = configuration;
 
-        // Register services here
         public void ConfigureServices(IServiceCollection services)
         {
+            // QuestPDF license (must be set once)
+            QuestPDF.Settings.License = LicenseType.Community;
+
             // 1) DbContext configuration (SQL Server)
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnectionString")));
@@ -40,20 +39,20 @@ namespace Movie_Site_Management_System
             services
                 .AddIdentity<ApplicationUser, IdentityRole>(opts =>
                 {
-                    // Tweak as desired
                     opts.Password.RequireDigit = true;
                     opts.Password.RequireLowercase = true;
                     opts.Password.RequireUppercase = false;
                     opts.Password.RequireNonAlphanumeric = false;
                     opts.Password.RequiredLength = 6;
 
+                    // You disabled email confirmation earlier
                     opts.SignIn.RequireConfirmedEmail = false;
                     opts.SignIn.RequireConfirmedAccount = false;
                 })
                 .AddEntityFrameworkStores<AppDbContext>()
                 .AddDefaultTokenProviders();
 
-            // 3) Auth cookie paths
+            // 3) Cookies
             services.ConfigureApplicationCookie(options =>
             {
                 options.LoginPath = "/Account/Login";
@@ -61,7 +60,7 @@ namespace Movie_Site_Management_System
                 options.SlidingExpiration = true;
             });
 
-            // 4) Authorization policies (optional helpers)
+            // 4) Authorization policies
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("AdminOnly", policy => policy.RequireRole(Roles.Admin));
@@ -71,10 +70,10 @@ namespace Movie_Site_Management_System
             // 5) MVC
             services.AddControllersWithViews();
 
-            // 6) Options for default Admin seeding (from appsettings.json: "AdminUser")
+            // 6) Admin seeding options
             services.Configure<AdminUserOptions>(Configuration.GetSection("AdminUser"));
 
-            // ===== 7) Application Services (EntityBaseRepository pattern) =====
+            // 7) Application services
             services.AddScoped<ITheatresService, TheatresService>();
             services.AddScoped<IHallsService, HallsService>();
             services.AddScoped<IHallSlotsService, HallSlotsService>();
@@ -87,10 +86,41 @@ namespace Movie_Site_Management_System
             services.AddScoped<ISeatBlocksService, SeatBlocksService>();
             services.AddScoped<IBookingsService, BookingsService>();
             services.AddScoped<IBookingSeatsService, BookingSeatsService>();
-            // =================================================================
+
+            // 8) PDF Invoice Service
+            services.AddScoped<IInvoicePdfService, InvoicePdfService>();
+
+            // 9) Email (SMTP) — options + service
+            services.Configure<SmtpOptions>(Configuration.GetSection("Smtp"));
+            services.AddScoped<IEmailService, SmtpEmailService>();
+
+            // 10) Google Authentication with global account chooser
+            // Identity already adds cookie auth; we just add Google as an external handler.
+            services
+                .AddAuthentication()
+                .AddGoogle(options =>
+                {
+                    options.ClientId = Configuration["Authentication:Google:ClientId"]!;
+                    options.ClientSecret = Configuration["Authentication:Google:ClientSecret"]!;
+                    options.SaveTokens = true;
+
+                    // Always show Google account picker
+                    options.Events = new OAuthEvents
+                    {
+                        OnRedirectToAuthorizationEndpoint = ctx =>
+                        {
+                            ctx.Response.Redirect(ctx.RedirectUri + "&prompt=select_account");
+                            return Task.CompletedTask;
+                        }
+                    };
+
+                    // Optional: respect overridden callback path if you set it in appsettings
+                    var cb = Configuration["Authentication:Google:CallbackPath"];
+                    if (!string.IsNullOrWhiteSpace(cb))
+                        options.CallbackPath = cb!;
+                });
         }
 
-        // Configure HTTP pipeline here
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -114,31 +144,20 @@ namespace Movie_Site_Management_System
 
             app.UseEndpoints(endpoints =>
             {
-                // ✅ Make Movies/Index the root "/"
+                // Make Movies/Index the root "/"
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Movies}/{action=Index}/{id?}");
             });
 
             // ---- Seed database (domain + identity) ----
-            // Domain seed (your existing initializer)
             AppDbInitializer.SeedAsync(app).GetAwaiter().GetResult();
 
-            // Identity roles + default admin (from appsettings: AdminUser)
             using var scope = app.ApplicationServices.CreateScope();
             IdentitySeed.SeedAsync(scope.ServiceProvider).GetAwaiter().GetResult();
         }
     }
 
-    /// <summary>
-    /// Options for seeding a default Admin user; values pulled from appsettings.json:
-    /// 
-    /// "AdminUser": {
-    ///   "Email": "admin@starcineplex.local",
-    ///   "Password": "Admin#12345",
-    ///   "FullName": "Site Administrator"
-    /// }
-    /// </summary>
     public class AdminUserOptions
     {
         public string Email { get; set; } = "admin@starcineplex.local";
