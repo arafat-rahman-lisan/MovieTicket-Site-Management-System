@@ -1,17 +1,19 @@
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using Movie_Site_Management_System.Data.Identity;
 using Movie_Site_Management_System.Models;
 using Movie_Site_Management_System.ViewModels.Account;
+
+using System.Security.Claims;
 
 namespace Movie_Site_Management_System.Controllers
 {
     /// <summary>
     /// Authentication & profile + (Admin) users list.
+    /// Includes Google external login flow.
     /// </summary>
     public class AccountController : Controller
     {
@@ -136,10 +138,55 @@ namespace Movie_Site_Management_System.Controllers
             if (user == null) return RedirectToAction(nameof(Login));
 
             user.FullName = vm.FullName;
-            await _userManager.UpdateAsync(user);
+            var res = await _userManager.UpdateAsync(user);
 
-            TempData["Success"] = "Profile updated.";
-            return RedirectToAction(nameof(Profile));
+            if (res.Succeeded)
+            {
+                TempData["Success"] = "Profile updated.";
+                return RedirectToAction(nameof(Profile));
+            }
+
+            foreach (var e in res.Errors)
+                ModelState.AddModelError(string.Empty, e.Description);
+
+            // keep email displayed even on error
+            vm.EmailAddress = user.Email ?? string.Empty;
+            return View(vm);
+        }
+
+        // ===============
+        // Change Password
+        // ===============
+
+        [Authorize]
+        [HttpGet]
+        public IActionResult ChangePassword()
+        {
+            return View(new ChangePasswordVM());
+        }
+
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(ChangePasswordVM vm)
+        {
+            if (!ModelState.IsValid) return View(vm);
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction(nameof(Login));
+
+            var result = await _userManager.ChangePasswordAsync(user, vm.CurrentPassword, vm.NewPassword);
+            if (result.Succeeded)
+            {
+                await _signInManager.RefreshSignInAsync(user); // refresh auth cookie
+                TempData["Success"] = "Password changed successfully.";
+                return RedirectToAction(nameof(Profile));
+            }
+
+            foreach (var e in result.Errors)
+                ModelState.AddModelError(string.Empty, e.Description);
+
+            return View(vm);
         }
 
         // =====================
@@ -149,29 +196,109 @@ namespace Movie_Site_Management_System.Controllers
         [Authorize(Roles = Roles.Admin)]
         public async Task<IActionResult> Users()
         {
-            // Build a lightweight projection first (no roles yet).
             var users = await _userManager.Users
-                .OrderBy(u => u.Email) // Email may be null in theory; OrderBy handles nulls.
-                .Select(u => new UserRow
-                {
-                    Email = u.Email ?? string.Empty,
-                    FullName = u.FullName ?? string.Empty,
-                    Roles = string.Empty
-                })
+                .OrderBy(u => u.Email)
                 .ToListAsync();
 
-            // Fill Roles for each user (needs UserManager).
-            foreach (var u in users)
-            {
-                var user = await _userManager.FindByEmailAsync(u.Email);
-                if (user == null) continue;
+            var rows = new List<UserRowVM>();
 
+            foreach (var user in users)
+            {
                 var roles = await _userManager.GetRolesAsync(user);
-                u.Roles = string.Join(", ", roles);
+
+                rows.Add(new UserRowVM
+                {
+                    Id = user.Id,
+                    Email = user.Email ?? string.Empty,
+                    FullName = user.FullName ?? string.Empty,
+                    Roles = string.Join(", ", roles),
+                    Locked = user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow
+                });
             }
 
-            var model = new UsersVM { Users = users };
+            var model = new UsersIndexVM { Users = rows };
             return View(model);
+        }
+
+        // =========================
+        // Google External Login FLOW
+        // =========================
+
+        /// <summary>
+        /// Starts the external login challenge (Google button posts here).
+        /// </summary>
+        [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
+        public IActionResult ExternalLogin(string provider, string? returnUrl = null)
+        {
+            var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Account", new { returnUrl });
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl!);
+            return Challenge(properties, provider);
+        }
+
+        /// <summary>
+        /// Handles the Google callback, signs in existing users,
+        /// or auto-creates a local ApplicationUser for first-time users.
+        /// </summary>
+        [AllowAnonymous]
+        public async Task<IActionResult> ExternalLoginCallback(string? returnUrl = null, string? remoteError = null)
+        {
+            returnUrl ??= Url.Action("Index", "Movies");
+
+            if (remoteError != null)
+            {
+                TempData["Error"] = $"External provider error: {remoteError}";
+                return RedirectToAction(nameof(Login), new { returnUrl });
+            }
+
+            var info = await _signInManager.GetExternalLoginInfoAsync();
+            if (info == null)
+            {
+                TempData["Error"] = "Failed to load external login information.";
+                return RedirectToAction(nameof(Login), new { returnUrl });
+            }
+
+            var signInResult = await _signInManager.ExternalLoginSignInAsync(
+                info.LoginProvider, info.ProviderKey, isPersistent: false);
+
+            if (signInResult.Succeeded)
+            {
+                return LocalRedirect(returnUrl!);
+            }
+
+            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+            var name = info.Principal.FindFirstValue(ClaimTypes.Name);
+
+            if (email == null)
+            {
+                TempData["Error"] = "Google did not return an email address.";
+                return RedirectToAction(nameof(Login), new { returnUrl });
+            }
+
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                user = new ApplicationUser
+                {
+                    UserName = email,
+                    Email = email,
+                    FullName = name ?? email
+                };
+
+                var createRes = await _userManager.CreateAsync(user);
+                if (!createRes.Succeeded)
+                {
+                    foreach (var e in createRes.Errors)
+                        ModelState.AddModelError(string.Empty, e.Description);
+
+                    TempData["Error"] = "Could not create user from Google account.";
+                    return RedirectToAction(nameof(Login), new { returnUrl });
+                }
+            }
+
+            // Link external login (idempotent) and sign in
+            var _ = await _userManager.AddLoginAsync(user, info);
+            await _signInManager.SignInAsync(user, isPersistent: false);
+            return LocalRedirect(returnUrl!);
         }
     }
 }

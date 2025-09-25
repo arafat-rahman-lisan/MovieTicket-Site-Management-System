@@ -23,7 +23,7 @@ namespace Movie_Site_Management_System.Controllers
     ///   GET   /seats/delete/{id}
     ///   POST  /seats/delete/{id}
     ///   GET   /seats/grid/{hallId}     -> JSON
-    ///   POST  /seats/toggle/{id}       -> quick toggle IsDisabled (AJAX friendly)
+    ///   POST  /seats/toggle/{id}       -> quick toggle IsDisabled (redirect with alert)
     ///   POST  /seats/bulkgenerate      -> bulk create rows × seats
     /// </summary>
     [Authorize(Roles = Roles.Admin)]
@@ -73,7 +73,7 @@ namespace Movie_Site_Management_System.Controllers
         // ---------- Index ----------
         public async Task<IActionResult> Index(long? hallId)
         {
-            // IMPORTANT: ensure both Halls and SeatTypes are in ViewBags for the bulk form.
+            // Ensure both Halls and SeatTypes are in ViewBags for the bulk form.
             await PopulateDropdownsAsync(hallId);
 
             if (!hallId.HasValue)
@@ -235,17 +235,26 @@ namespace Movie_Site_Management_System.Controllers
             return RedirectToAction(nameof(Index), new { hallId });
         }
 
-        // ---------- Quick toggle (AJAX-friendly) ----------
+        // ---------- Quick toggle (redirect back with alert) ----------
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Toggle(long id)
         {
             var seat = await _db.Seats.FirstOrDefaultAsync(s => s.SeatId == id);
-            if (seat == null) return NotFound();
+            if (seat == null)
+            {
+                TempData["Error"] = "Seat not found.";
+                return RedirectToAction(nameof(Index));
+            }
 
             seat.IsDisabled = !seat.IsDisabled;
             await _db.SaveChangesAsync();
-            return Ok(new { seat.SeatId, seat.IsDisabled });
+
+            TempData["Success"] = seat.IsDisabled
+                ? $"Seat {seat.RowLabel}{seat.SeatNumber} disabled."
+                : $"Seat {seat.RowLabel}{seat.SeatNumber} enabled.";
+
+            return RedirectToAction(nameof(Index), new { hallId = seat.HallId });
         }
 
         // ---------- Bulk generator (rows × seats) ----------

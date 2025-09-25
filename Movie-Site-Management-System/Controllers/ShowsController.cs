@@ -25,7 +25,7 @@ namespace Movie_Site_Management_System.Controllers
 
             var q = _db.Shows
                 .AsNoTracking()
-#pragma warning disable CS8602 // EF Include navigation chains
+#pragma warning disable CS8602
                 .Include(s => s.Movie)
                 .Include(s => s.HallSlot).ThenInclude(hs => hs.Hall).ThenInclude(h => h.Theatre)
 #pragma warning restore CS8602
@@ -54,7 +54,7 @@ namespace Movie_Site_Management_System.Controllers
             return View(list);
         }
 
-        // GET /shows/create  (optional preselects from HallSlots/Details)
+        // GET /shows/create
         public async Task<IActionResult> Create(long? hallSlotId, DateOnly? date)
         {
             await BuildDropDowns(selectedMovieId: null, selectedHallSlotId: hallSlotId);
@@ -87,35 +87,32 @@ namespace Movie_Site_Management_System.Controllers
             show.CreatedAt = DateTime.UtcNow;
             show.IsCancelled = false;
 
-            using var tx = await _db.Database.BeginTransactionAsync();
+            await using var tx = await _db.Database.BeginTransactionAsync();
             try
             {
                 _db.Shows.Add(show);
-                await _db.SaveChangesAsync(); // show.ShowId ready
+                await _db.SaveChangesAsync(); // show.ShowId available
 
-                // Find the hall for this slot
+                // hallId for this slot
                 var hallId = await _db.HallSlots
                     .Where(hs => hs.HallSlotId == show.HallSlotId)
                     .Select(hs => hs.HallId)
                     .FirstAsync();
 
-                // Pull seat ids and type ids for enabled seats in that hall
+                // enabled seats in hall + their types
                 var seatPairs = await _db.Seats
                     .AsNoTracking()
                     .Where(seat => seat.HallId == hallId && seat.IsDisabled == false)
                     .Select(seat => new { seat.SeatId, seat.SeatTypeId })
                     .ToListAsync();
 
-                // Distinct seat type ids
                 var seatTypeIds = seatPairs.Select(p => p.SeatTypeId).Distinct().ToList();
 
-                // Load prices per seat type
                 var typePrices = await _db.SeatTypes
                     .AsNoTracking()
                     .Where(st => seatTypeIds.Contains(st.SeatTypeId))
                     .ToDictionaryAsync(st => st.SeatTypeId, st => st.BasePrice);
 
-                // Create show seats using the price snapshot
                 var showSeats = seatPairs.Select(p => new ShowSeat
                 {
                     ShowId = show.ShowId,
@@ -147,7 +144,7 @@ namespace Movie_Site_Management_System.Controllers
         // GET /shows/details/5
         public async Task<IActionResult> Details(long id)
         {
-#pragma warning disable CS8602 // EF Include navigation chains
+#pragma warning disable CS8602
             var show = await _db.Shows
                 .Include(s => s.Movie)
                 .Include(s => s.HallSlot).ThenInclude(hs => hs.Hall).ThenInclude(h => h.Theatre)
@@ -182,7 +179,6 @@ namespace Movie_Site_Management_System.Controllers
         {
             if (id != show.ShowId) return NotFound();
 
-            // UNIQUE on update
             var exists = await _db.Shows.AnyAsync(s =>
                 s.ShowId != show.ShowId &&
                 s.HallSlotId == show.HallSlotId &&
@@ -229,33 +225,70 @@ namespace Movie_Site_Management_System.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
+            // Load show and dependent aggregates
             var show = await _db.Shows
                 .Include(s => s.Bookings)
+                    .ThenInclude(b => b.Payments)
+                .Include(s => s.Bookings)
+                    .ThenInclude(b => b.BookingSeats)
                 .FirstOrDefaultAsync(s => s.ShowId == id);
 
             if (show == null) return NotFound();
 
-            if (show.Bookings != null && show.Bookings.Any())
+            // Block only if there are paid/success bookings
+            var hasPaid = show.Bookings != null && show.Bookings.Any(b =>
+                b.Payments.Any(p => p.Status == PaymentStatus.Success || p.Status == PaymentStatus.Paid));
+
+            if (hasPaid)
             {
-                TempData["Error"] = "Cannot delete: bookings exist for this show.";
+                TempData["Error"] = "Cannot delete this show because there are paid bookings.";
                 return RedirectToAction(nameof(Details), new { id });
             }
 
-            var showSeats = _db.ShowSeats.Where(ss => ss.ShowId == id);
-            _db.ShowSeats.RemoveRange(showSeats);
+            await using var tx = await _db.Database.BeginTransactionAsync();
 
-            _db.Shows.Remove(show);
-            await _db.SaveChangesAsync();
+            try
+            {
+                // Remove unpaid/abandoned/cancelled bookings + children
+                if (show.Bookings != null && show.Bookings.Any())
+                {
+                    var bookingIds = show.Bookings.Select(b => b.BookingId).ToList();
 
-            TempData["Success"] = "Show deleted.";
-            return RedirectToAction(nameof(Index), new { date = show.ShowDate });
+                    var bookingSeats = _db.BookingSeats.Where(bs => bookingIds.Contains(bs.BookingId));
+                    var payments = _db.Payments.Where(p => bookingIds.Contains(p.BookingId));
+
+                    _db.BookingSeats.RemoveRange(bookingSeats);
+                    _db.Payments.RemoveRange(payments);
+                    _db.Bookings.RemoveRange(show.Bookings);
+                }
+
+                // Remove ShowSeats snapshot
+                var showSeats = _db.ShowSeats.Where(ss => ss.ShowId == id);
+                _db.ShowSeats.RemoveRange(showSeats);
+
+                // Remove the Show
+                _db.Shows.Remove(show);
+
+                await _db.SaveChangesAsync();
+                await tx.CommitAsync();
+
+                TempData["Success"] = "Show deleted.";
+                return RedirectToAction(nameof(Index), new { date = show.ShowDate });
+            }
+            catch
+            {
+                await tx.RollbackAsync();
+                TempData["Error"] = "Delete failed. Please try again.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
         }
 
         private async Task BuildDropDowns(long? selectedMovieId = null, long? selectedHallSlotId = null)
         {
+            // ComingSoon + NowShowing
             ViewBag.Movies = new SelectList(
                 await _db.Movies.AsNoTracking()
-                    .Where(m => m.Status == MovieStatus.NowShowing || m.Status == MovieStatus.Upcoming)
+                    .Where(m => m.Status == MovieStatus.NowShowing || m.Status == MovieStatus.ComingSoon)
                     .OrderByDescending(m => m.ImdbRating)
                     .Select(m => new { m.MovieId, m.Title })
                     .ToListAsync(),
