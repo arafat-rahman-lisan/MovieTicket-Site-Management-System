@@ -1,0 +1,452 @@
+﻿/* ============================
+   1) SCHEDULE BUILDER (original)
+   ============================ */
+
+/* Schedule Builder styles */
+.sticky-controls {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--bs-body-bg);
+    padding: .75rem 0;
+}
+
+.slot-pill {
+    display: inline-block;
+    padding: .3rem .7rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 999px;
+    margin: .2rem .3rem;
+    font-size: .92rem;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+
+    .slot-pill:hover {
+        border-color: #0d6efd;
+    }
+
+    .slot-pill.disabled {
+        opacity: .45;
+        text-decoration: line-through;
+        cursor: not-allowed;
+    }
+
+    /* Selected state */
+    .slot-pill.active,
+    input[type="checkbox"]:checked + label.slot-pill {
+        background-color: #0d6efd !important;
+        border-color: #0d6efd !important;
+        color: #fff !important;
+    }
+
+.movie-section {
+    border: 1px dashed var(--bs-border-color);
+    border-radius: .75rem;
+    padding: .75rem;
+    margin-bottom: 1rem;
+}
+
+/* ============================
+   2) MOVIE → SCHEDULE (new light futuristic glass)
+   ============================ */
+
+/* Subtle global background (lighter than ShowTickets) */
+html, body {
+    background: linear-gradient(180deg, #0a0f1c 0%, #0e1524 100%);
+    color: #eaf0f7;
+}
+
+/* ---- Shell & layers ---- */
+.schedule-shell {
+    position: relative;
+    min-height: 100vh;
+    isolation: isolate;
+}
+
+.schedule-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(1200px 760px at 15% -10%, rgba(99,102,241,0.16), transparent 60%), radial-gradient(1100px 720px at 110% 10%, rgba(56,189,248,0.16), transparent 55%), linear-gradient(180deg, #0b1222 0%, #0e1628 100%);
+    z-index: -2;
+}
+
+.schedule-aura {
+    position: absolute;
+    inset: -12%;
+    background: conic-gradient(from .2turn, transparent 0%, rgba(59,130,246,.12) 25%, transparent 40%, rgba(56,189,248,.12) 65%, transparent 80%, rgba(99,102,241,.12) 100%);
+    filter: blur(40px) saturate(120%);
+    animation: sched-rot 26s linear infinite;
+    z-index: -3;
+    opacity: .85;
+}
+
+@keyframes sched-rot {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ---- Landing card ---- */
+.schedule-card {
+    border-radius: 28px;
+    padding: 22px 22px 28px 22px;
+    background: rgba(22, 28, 46, 0.60); /* lighter than ShowTickets */
+    border: 1px solid rgba(255,255,255,0.10);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    box-shadow: 0 24px 64px rgba(0,0,0,.44);
+}
+
+/* Shine */
+.glass-shine {
+    position: relative;
+    overflow: hidden;
+    z-index: 0;
+}
+
+    .glass-shine::after {
+        content: "";
+        position: absolute;
+        inset: -120% -60%;
+        background: linear-gradient(115deg, transparent 45%, rgba(255,255,255,.16) 50%, transparent 55%);
+        transform: translate3d(-20%,0,0) rotate(2deg);
+        transition: transform .9s cubic-bezier(.22,.61,.36,1);
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .glass-shine:hover::after {
+        transform: translate3d(20%,0,0) rotate(2deg);
+    }
+
+    .glass-shine > * {
+        position: relative;
+        z-index: 1;
+    }
+
+/* ---- Toolbar ---- */
+.schedule-toolbar {
+    border-radius: 18px;
+    padding: 14px 18px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06));
+    border: 1px solid rgba(255,255,255,0.16);
+    backdrop-filter: blur(14px) saturate(110%);
+    -webkit-backdrop-filter: blur(14px) saturate(110%);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 18px 48px rgba(0,0,0,.35);
+}
+
+.sched-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: radial-gradient(circle at 40% 40%, #60a5fa, #a78bfa);
+    box-shadow: 0 0 14px rgba(99,102,241,.9), 0 0 28px rgba(56,189,248,.55);
+}
+
+.sched-title {
+    font-weight: 800;
+    letter-spacing: .3px;
+    color: #eaf0f7;
+}
+
+/* ---- Controls (glassy select + button) ---- */
+.sched-select {
+    appearance: none;
+    padding: 10px 42px 10px 14px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.20);
+    color: #ecf3fb;
+    outline: none;
+    font-size: .95rem;
+    transition: box-shadow .2s ease, background .2s ease, transform .2s ease, border-color .2s ease;
+    position: relative;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+}
+
+    .sched-select:hover {
+        background: rgba(255,255,255,0.12);
+    }
+
+    .sched-select:focus {
+        box-shadow: 0 0 0 4px rgba(99,102,241,.24), 0 10px 24px rgba(0,0,0,.28);
+        transform: translateY(-1px);
+        border-color: rgba(56,189,248,.45);
+    }
+
+    .sched-select option, .sched-select optgroup {
+        background: rgba(15,20,35,0.96);
+        color: #eaf0f7;
+    }
+
+.sched-btn {
+    padding: 10px 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.16);
+    background: rgba(255,255,255,0.08);
+    color: #f0f6ff;
+    font-weight: 700;
+    letter-spacing: .2px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: transform .18s ease, box-shadow .18s ease, background .18s ease, opacity .18s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+    .sched-btn:hover {
+        transform: translateY(-1px);
+        background: rgba(255,255,255,0.12);
+        box-shadow: 0 12px 28px rgba(0,0,0,.3);
+    }
+
+    .sched-btn.small {
+        padding: 8px 12px;
+        font-size: .9rem;
+    }
+
+    .sched-btn.outline {
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.22);
+    }
+
+        .sched-btn.outline:hover {
+            background: rgba(255,255,255,0.07);
+        }
+
+    .sched-btn.primary {
+        border: none;
+        background: linear-gradient(135deg, #38bdf8, #7c3aed);
+        box-shadow: 0 14px 28px rgba(56,189,248,.35);
+    }
+
+        .sched-btn.primary[disabled] {
+            opacity: .55;
+            filter: grayscale(12%);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+/* ---- Glass card primitives ---- */
+.glass-card {
+    position: relative;
+    border-radius: 22px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06));
+    border: 1px solid rgba(255,255,255,0.16);
+    backdrop-filter: blur(16px) saturate(120%);
+    -webkit-backdrop-filter: blur(16px) saturate(120%);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06), 0 22px 56px rgba(0,0,0,.38);
+    overflow: hidden;
+}
+
+.glass-body {
+    padding: 18px;
+}
+
+.poster-wrap {
+    position: relative;
+    overflow: hidden;
+}
+
+.poster-img {
+    width: 100%;
+    display: block;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    border-top-left-radius: 22px;
+    border-top-right-radius: 22px;
+}
+
+.poster-glow {
+    position: absolute;
+    inset: 0;
+    box-shadow: inset 0 -50px 90px rgba(0,0,0,.55), 0 0 80px rgba(56,189,248,.22);
+    pointer-events: none;
+}
+
+.movie-title {
+    font-weight: 900;
+    font-size: 1.38rem;
+    letter-spacing: .25px;
+    margin-bottom: 6px;
+    color: #eaf0f7;
+}
+
+.meta-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.chip {
+    font-size: .85rem;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+    .chip.alt {
+        background: rgba(56,189,248,.18);
+        border-color: rgba(56,189,248,.38);
+    }
+
+.meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 12px;
+    margin-bottom: 14px;
+}
+
+.label {
+    display: block;
+    font-size: .75rem;
+    opacity: .75;
+}
+
+.value {
+    display: block;
+    font-weight: 700;
+}
+
+/* ---- Grid of days (kept your class names) ---- */
+.schedule-grid {
+    display: grid;
+    gap: 18px;
+    grid-template-columns: repeat(1, minmax(0,1fr));
+}
+
+@media (min-width:576px) {
+    .schedule-grid {
+        grid-template-columns: repeat(2, minmax(0,1fr));
+    }
+}
+
+@media (min-width:992px) {
+    .schedule-grid {
+        grid-template-columns: repeat(3, minmax(0,1fr));
+    }
+}
+
+.schedule-col-header {
+    padding: 18px 18px 10px 18px;
+    border-bottom: 1px dashed rgba(255,255,255,0.16);
+}
+
+    .schedule-col-header .dow {
+        font-weight: 800;
+        letter-spacing: .3px;
+        color: #f3f6ff;
+    }
+
+    .schedule-col-header .date {
+        font-size: .92rem;
+        opacity: .86;
+        color: #e8eefb;
+    }
+
+.schedule-col-body {
+    padding: 14px 14px 8px 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    min-height: 76px;
+}
+
+/* ---- Time buttons ---- */
+.time-btn {
+    --glow: rgba(56,189,248,.16);
+    border: 1px solid rgba(255,255,255,0.20);
+    background: rgba(255,255,255,0.08);
+    color: #f2f7ff;
+    padding: 9px 13px;
+    border-radius: 12px;
+    font-weight: 700;
+    letter-spacing: .2px;
+    transition: transform .15s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease;
+    position: relative;
+    outline: none;
+}
+
+    .time-btn:hover {
+        background: rgba(255,255,255,0.12);
+        transform: translateY(-1px);
+        box-shadow: 0 10px 24px rgba(0,0,0,.30);
+    }
+
+    .time-btn.active {
+        background: linear-gradient(135deg, rgba(56,189,248,.28), rgba(124,58,237,.28));
+        border-color: rgba(56,189,248,.65);
+        box-shadow: 0 10px 28px rgba(56,189,248,.30), 0 0 0 4px var(--glow);
+        animation: sched-pop .25s ease;
+    }
+
+@keyframes sched-pop {
+    0% {
+        transform: scale(.98);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Ripple highlight */
+.time-btn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(120px 120px at var(--x,50%) var(--y,50%), rgba(255,255,255,.14), transparent 60%);
+    opacity: 0;
+    transition: opacity .25s ease;
+}
+
+.time-btn:hover::after {
+    opacity: 1;
+}
+
+/* Footer + empty state */
+.schedule-col-footer {
+    padding: 12px 16px 16px 16px;
+    border-top: 1px dashed rgba(255,255,255,0.16);
+}
+
+.muted {
+    opacity: .78;
+}
+
+.schedule-empty {
+    padding: 18px;
+    border-radius: 16px;
+    border: 1px dashed rgba(255,255,255,0.18);
+    color: #e8eefb;
+    background: rgba(255,255,255,0.05);
+    text-align: center;
+}
+
+/* Float animation */
+.floatable {
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+
+    .floatable:hover {
+        transform: translateY(-4px);
+    }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .schedule-aura {
+        animation: none;
+    }
+
+    .glass-shine::after, .floatable, .sched-btn, .time-btn, .schedule-col {
+        transition: none !important;
+    }
+}

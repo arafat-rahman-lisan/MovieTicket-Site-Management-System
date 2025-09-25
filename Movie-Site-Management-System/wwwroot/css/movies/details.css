@@ -1,1 +1,493 @@
+﻿/* ============================================================
+   CINEX — Movie Details (Ultra Glass + Cinematic Hero Card + Grid + Animated Text/Buttons)
+   Path: /wwwroot/css/movies/details.css
+   ============================================================ */
 
+/* ---------- Theme tokens ---------- */
+:root {
+    --cine-bg: #07090f;
+    --cine-card: rgba(20,26,36,.55);
+    --cine-card-br: rgba(115,130,165,.25);
+    --cine-text: #eaf0f7;
+    --cine-muted: #a9b4c7;
+    --cine-accent: #2563eb;
+    --cine-highlight: #7c3aed;
+    --cine-success: #22c55e;
+    --cine-danger: #ef4444;
+    --cine-shadow-1: 0 10px 24px rgba(0,0,0,.45);
+    --cine-shadow-2: 0 14px 36px rgba(0,0,0,.55);
+    --cine-glow-blue: 0 0 18px rgba(37,99,235,.45);
+    --cine-glow-purple: 0 0 18px rgba(124,58,237,.45);
+}
+
+/* ============================================================
+   PAGE SHELL (with load animation)
+   ============================================================ */
+.movie-details-shell {
+    position: relative;
+    min-height: 100vh;
+    color: var(--cine-text);
+    background: var(--cine-bg);
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(25px);
+    animation: pageFadeIn 1s ease forwards;
+}
+
+@keyframes pageFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(25px) scale(0.98);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ============================================================
+   HERO STAGE
+   ============================================================ */
+.hero-stage {
+    position: relative;
+    border-radius: 1.5rem;
+    overflow: hidden;
+    border: 1px solid var(--cine-card-br);
+    background: linear-gradient(180deg, rgba(20,26,36,.6), rgba(14,17,26,.55));
+    backdrop-filter: saturate(1.15) blur(6px);
+    padding: 1.25rem;
+    box-shadow: var(--cine-shadow-1);
+    z-index: 1;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
+
+/* ---------- Generic glass card ---------- */
+.glass-card {
+    background: linear-gradient(180deg, rgba(20,26,36,.58), rgba(20,26,36,.46));
+    border: 1px solid var(--cine-card-br);
+    border-radius: 1.25rem;
+    padding: 1.25rem;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: saturate(1.15) blur(8px);
+    box-shadow: var(--cine-shadow-1);
+    animation: cardFadeUp .9s ease both;
+}
+
+@keyframes cardFadeUp {
+    0% {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.glass-card::before {
+    content: "";
+    position: absolute;
+    top: -80%;
+    left: -40%;
+    width: 160%;
+    height: 160%;
+    transform: rotate(25deg);
+    background: radial-gradient(circle, rgba(255,255,255,.08), transparent 60%);
+    pointer-events: none;
+}
+
+/* ============================================================
+   RIGHT-SIDE BG AREA
+   ============================================================ */
+.hero-right {
+    position: relative;
+    border-radius: 1.25rem;
+    padding: 0;
+    overflow: hidden;
+    isolation: isolate;
+    animation: fadeZoomIn 1.2s ease both;
+}
+
+    .hero-right::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: var(--hero);
+        background-position: center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        filter: saturate(1.05) contrast(1.05) brightness(.9);
+        z-index: 0;
+    }
+
+.hero-right__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(7,9,15,.8), rgba(7,9,15,.95));
+    z-index: 1;
+}
+
+.hero-right > .glass-card,
+.hero-right > .mt-3.glass-card {
+    position: relative;
+    z-index: 2;
+    margin: 1rem;
+}
+
+@keyframes fadeZoomIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.96);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* ---------- Poster stack (parallax vibe) ---------- */
+.poster-stack {
+    position: relative;
+    perspective: 900px;
+}
+
+.poster-main {
+    width: 100%;
+    display: block;
+    border-radius: 1rem;
+    box-shadow: var(--cine-shadow-2);
+    transition: transform .5s, filter .5s;
+}
+
+.poster-stack:hover .poster-main {
+    transform: rotate3d(1,-1,0,6deg) scale(1.02);
+    filter: saturate(1.06);
+}
+
+/* HIDE the small IMDb-style pill completely */
+.poster-tag {
+    display: none;
+}
+
+.poster-glow {
+    position: absolute;
+    inset: 0;
+    border-radius: 1rem;
+    box-shadow: 0 0 42px rgba(37,99,235,.45);
+    pointer-events: none;
+    transition: opacity .5s ease;
+}
+
+.poster-stack:hover .poster-glow {
+    opacity: 1;
+}
+
+/* ============================================================
+   TEXT ANIMATIONS
+   ============================================================ */
+.movie-title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin: .85rem 0 .5rem;
+    background: linear-gradient(90deg,#cfe0ff,#7c3aed,#2563eb,#cfe0ff);
+    background-size: 300%;
+    color: #e9eeff; /* fallback */
+    --_clip: text;
+    -webkit-background-clip: var(--_clip);
+    -webkit-text-fill-color: transparent;
+    animation: gradientFlow 6s linear infinite;
+}
+
+@keyframes gradientFlow {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    100% {
+        background-position: 100% 50%;
+    }
+}
+
+.section-title {
+    font-weight: 800;
+    letter-spacing: .2px;
+    margin-bottom: .75rem;
+    color: #f1f5ff;
+    animation: pulse 3s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%,100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: .85;
+        transform: scale(1.03);
+    }
+}
+
+/* ============================================================
+   META + BUTTONS
+   ============================================================ */
+.meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-bottom: .7rem;
+}
+
+.chip {
+    background: rgba(37,99,235,.2);
+    border: 1px solid var(--cine-accent);
+    color: var(--cine-text);
+    border-radius: 999px;
+    padding: .32rem .8rem;
+    font-size: .86rem;
+    box-shadow: var(--cine-glow-blue);
+}
+
+    .chip.alt {
+        background: rgba(124,58,237,.2);
+        border-color: var(--cine-highlight);
+        box-shadow: var(--cine-glow-purple);
+    }
+
+.meta-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: .4rem .9rem;
+    font-size: .95rem;
+    margin-bottom: .25rem; /* small gap above buttons */
+}
+
+    .meta-grid .label {
+        color: var(--cine-muted);
+    }
+
+    .meta-grid .value {
+        color: #fff;
+    }
+
+/* Buttons row — pushed lower for breathing room */
+.actions {
+    margin-top: 1.35rem; /* <- extra space from Runtime */
+    display: flex;
+    gap: .6rem;
+    flex-wrap: wrap;
+}
+
+.btn-glass {
+    display: inline-block;
+    border-radius: 999px;
+    padding: .56rem 1.15rem;
+    font-size: .92rem;
+    border: 1px solid var(--cine-accent);
+    color: #e4edff;
+    background: rgba(37,99,235,.18);
+    text-decoration: none; /* <- no underline */
+    transition: all .2s;
+}
+
+    .btn-glass:hover,
+    .btn-glass:focus {
+        background: rgba(37,99,235,.28);
+        box-shadow: 0 0 18px rgba(37,99,235,.6);
+        text-decoration: none; /* keep underline off */
+        outline: none;
+    }
+
+.btn-ghost {
+    border-color: var(--cine-highlight);
+    color: #efe9ff;
+    background: rgba(124,58,237,.18);
+    text-decoration: none; /* <- no underline */
+}
+
+    .btn-ghost:hover,
+    .btn-ghost:focus {
+        background: rgba(124,58,237,.28);
+        box-shadow: 0 0 18px rgba(124,58,237,.6);
+        text-decoration: none; /* keep underline off */
+        outline: none;
+    }
+
+.btn-sm {
+    padding: .38rem .85rem;
+    font-size: .82rem;
+}
+
+/* Glass inputs */
+.form-glass {
+    border-radius: .6rem !important;
+    border: 1px solid var(--cine-card-br) !important;
+    color: #e8eeff !important;
+    background: rgba(16,20,30,.45) !important;
+}
+
+    .form-glass:focus {
+        border-color: var(--cine-accent) !important;
+        box-shadow: 0 0 0 .15rem rgba(37,99,235,.25) !important;
+        color: #fff !important;
+        background: rgba(16,20,30,.6) !important;
+    }
+
+/* ============================================================
+   SHOWTIME BOARD — GRID “CELLS”
+   ============================================================ */
+.day-wrapper {
+    background: rgba(15,18,30,.55);
+    border: 1px solid var(--cine-card-br);
+    border-radius: 1rem;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1.1rem;
+    box-shadow: var(--cine-shadow-1);
+}
+
+.day-header {
+    display: flex;
+    gap: .8rem;
+    align-items: baseline;
+    margin-bottom: .6rem;
+}
+
+.day {
+    font-weight: 800;
+    color: var(--cine-highlight);
+}
+
+.date {
+    font-size: .9rem;
+    color: var(--cine-muted);
+}
+
+.date-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 14px;
+}
+
+.theatre-cell {
+    background: rgba(20,26,36,.55);
+    border: 1px solid var(--cine-card-br);
+    border-radius: .9rem;
+    padding: .9rem 1rem;
+    box-shadow: var(--cine-shadow-1);
+}
+
+.theatre-name {
+    font-weight: 800;
+    color: #8ab4ff;
+    margin: 0 0 .45rem 0;
+    border-left: 3px solid var(--cine-accent);
+    padding-left: .6rem;
+}
+
+.hall-row {
+    margin: .45rem 0 .25rem;
+}
+
+.hall-name {
+    font-weight: 600;
+    color: var(--cine-text);
+}
+
+/* ---------- Time chips (readable hover + gentle breathing) ---------- */
+.times-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-top: .25rem;
+}
+
+.time-btn {
+    flex: 0 0 auto;
+    min-width: 96px;
+    text-align: center;
+    background: linear-gradient(135deg, var(--cine-accent), var(--cine-highlight));
+    border-radius: .7rem;
+    padding: .48rem .65rem;
+    color: #fff;
+    text-decoration: none;
+    font-size: .85rem;
+    box-shadow: 0 0 12px rgba(37,99,235,.45);
+    animation: breathe 4s ease-in-out infinite;
+    transition: transform .18s ease, box-shadow .18s ease, color .18s ease, text-shadow .18s ease;
+}
+
+    .time-btn:hover,
+    .time-btn:focus {
+        transform: translateY(-2px);
+        box-shadow: 0 0 22px rgba(255,255,255,.95);
+        background: rgba(255,255,255,.08);
+        color: #ffffff; /* force crisp white */
+        text-shadow: 0 0 6px rgba(0,0,0,.9); /* strong outline for readability */
+        outline: none;
+    }
+
+@keyframes breathe {
+    0%,100% {
+        box-shadow: 0 0 12px rgba(37,99,235,.45);
+    }
+
+    50% {
+        box-shadow: 0 0 22px rgba(124,58,237,.65);
+    }
+}
+
+/* ---------- Utilities ---------- */
+.hr-soft {
+    border: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.14), transparent);
+    margin: .85rem 0;
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+    .movie-details-shell,
+    .glass-card,
+    .hero-right,
+    .movie-title,
+    .section-title,
+    .time-btn,
+    .poster-main,
+    .poster-glow {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* ---------- Responsive tweaks ---------- */
+@media (max-width: 991.98px) {
+    .movie-title {
+        font-size: 1.7rem;
+    }
+
+    .hero-right > .glass-card,
+    .hero-right > .mt-3.glass-card {
+        margin: .85rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .time-btn {
+        min-width: 88px;
+        font-size: .8rem;
+    }
+
+    .hero-right > .glass-card,
+    .hero-right > .mt-3.glass-card {
+        margin: .75rem;
+    }
+}
