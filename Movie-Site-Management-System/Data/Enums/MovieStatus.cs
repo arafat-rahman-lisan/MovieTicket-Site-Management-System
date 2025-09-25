@@ -1,11 +1,12 @@
-﻿namespace Movie_Site_Management_System.Data.Enums
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Movie_Site_Management_System.Data.Enums
 {
     public enum MovieStatus
     {
-        NOW_SHOWING,
-        COMING_SOON,
-        ARCHIVED,
-        Upcoming,
-        NowShowing
+        [Display(Name = "— Select —")] Unknown = 0,
+        [Display(Name = "Coming Soon")] ComingSoon = 1,
+        [Display(Name = "Now Showing")] NowShowing = 2,
+        [Display(Name = "Archived")] Archived = 3
     }
 }

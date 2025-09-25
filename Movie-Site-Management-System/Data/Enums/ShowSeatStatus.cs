@@ -2,11 +2,9 @@
 {
     public enum ShowSeatStatus
     {
-        AVAILABLE,
-        HELD,
-        BOOKED,
-        BLOCKED,
-        Available,
-        Booked
+        Available = 0,
+        Held = 1,
+        Booked = 2,
+        Blocked = 3
     }
 }
