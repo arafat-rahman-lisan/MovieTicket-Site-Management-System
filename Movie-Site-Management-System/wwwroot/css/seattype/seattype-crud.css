@@ -1,1 +1,592 @@
+﻿
+/* ============================================================
+   CINEX — SeatType CRUD (Ultra Glass + Retro Film Rails)
+   Path: /wwwroot/css/seattype/seattype-crud.css
+   Spec: match Theatre design (square perforations, straight rails)
+         deep-rounded rows, aura+grain, never-black buttons
+   ============================================================ */
+/* ---------- Tokens (inherit baseline) ---------- */
+:root {
+    --cine-bg: #07090f;
+    --cine-card: rgba(20,26,36,.55);
+    --cine-card-br: rgba(115,130,165,.25);
+    --cine-text: #eaf0f7;
+    --cine-muted: #a9b4c7;
+    --cine-accent: #2563eb; /* neon blue */
+    --cine-highlight: #7c3aed; /* neon purple */
+    --cine-success: #22c55e;
+    --cine-danger: #ef4444;
+    /* rails */
+    --rail-w: 72px;
+}
+
+/* ---------- Page shell (exact framing like Theatre) ---------- */
+.admin-ultra-shell {
+    position: relative;
+    min-height: calc(100vh - 120px);
+    padding-block: 16px 48px;
+    color: var(--cine-text);
+    background: radial-gradient(1200px 700px at -5% 0%, rgba(37,99,235,.15), transparent 55%), radial-gradient(900px 600px at 105% 10%, rgba(124,58,237,.15), transparent 50%), radial-gradient(1200px 600px at 50% -10%, #0f172a 0%, #0b1020 55%, #070a14 100%);
+    isolation: isolate;
+    overflow: hidden;
+    /* keep content away from rails */
+    padding-left: calc(var(--rail-w) - 10px);
+    padding-right: calc(var(--rail-w) - 10px);
+}
+
+/* ---------- Film-strip side rails (square perforations, straight edges) ---------- */
+.film-rail {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: var(--rail-w);
+    z-index: -1;
+}
+
+.film-rail--left {
+    left: 0;
+}
+
+.film-rail--right {
+    right: 0;
+}
+
+/* Body + perforations via SVG tiles (no masks => no IDE warnings) */
+.film-rail::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(12,18,34,.96), rgba(9,14,28,.98));
+    background-image: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='72' height='64' viewBox='0 0 72 64'>\
+  <rect width='72' height='64' fill='none'/>\
+  <rect x='8'  y='10' width='18' height='18' rx='2' ry='2' fill='transparent'/>\
+  <rect x='46' y='10' width='18' height='18' rx='2' ry='2' fill='transparent'/>\
+</svg>");
+    background-repeat: repeat-y;
+    background-size: 72px 64px;
+    border-left: 1px solid rgba(255,255,255,.08);
+    border-right: 1px solid rgba(255,255,255,.08);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.05), inset 0 8px 24px rgba(0,0,0,.35), 0 0 48px rgba(0,0,0,.5);
+}
+
+/* Neon halo hugging perforations */
+.film-rail::after {
+    content: "";
+    position: absolute;
+    inset: 4px 8px;
+    box-shadow: inset 0 0 0 1px rgba(96,165,250,.10), 0 0 16px rgba(96,165,250,.45), 0 0 30px rgba(147,51,234,.32);
+    pointer-events: none;
+}
+
+/* ---------- Ambient layers ---------- */
+.ultra-aura {
+    position: absolute;
+    inset: -15%;
+    z-index: -3;
+    pointer-events: none;
+    background: conic-gradient(from 0deg at 20% 0%, rgba(59,130,246,.22), transparent 32% 60%, rgba(147,51,234,.22) 0), radial-gradient(900px 500px at 100% 10%, rgba(147,51,234,.18), transparent 60%), radial-gradient(900px 500px at 0% 10%, rgba(59,130,246,.18), transparent 60%);
+    animation: aura-rotate 28s linear infinite;
+    filter: saturate(150%);
+}
+
+@keyframes aura-rotate {
+    from {
+        transform: rotate(0)
+    }
+
+    to {
+        transform: rotate(360deg)
+    }
+}
+
+.film-grain {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    background-image: radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px), radial-gradient(rgba(255,255,255,.03) 1px, transparent 1px);
+    background-size: 3px 3px, 5px 5px;
+    background-position: 0 0, 25px 25px;
+    opacity: .22;
+    animation: grain-move 9s steps(10) infinite;
+}
+
+@keyframes grain-move {
+    from {
+        transform: translate(0,0)
+    }
+
+    to {
+        transform: translate(-25px,-20px)
+    }
+}
+
+/* ---------- Card ---------- */
+.ultra-card {
+    position: relative;
+    border-radius: 26px;
+    padding: 1.25rem;
+    overflow: hidden;
+    background: linear-gradient(180deg, rgba(17,24,39,.78), rgba(8,12,20,.62)), radial-gradient(1200px 600px at 10% -10%, rgba(59,130,246,.12), transparent 60%);
+    border: 1px solid rgba(255,255,255,.14);
+    box-shadow: 0 14px 55px rgba(0,0,0,.65), inset 0 1px 0 rgba(255,255,255,.06);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+/* ---------- Card Shine (kept behind content) ---------- */
+.ultra-card__shine {
+    content: "";
+    position: absolute;
+    inset: -40%;
+    pointer-events: none;
+    background: conic-gradient(from 0deg, transparent 0 86%, rgba(255,255,255,.25) 92%, transparent 100%);
+    animation: shine-sweep 9s linear infinite;
+    filter: blur(22px);
+    opacity: .25;
+    z-index: 0; /* ensure it's always behind header + badge */
+}
+
+@keyframes shine-sweep {
+    from {
+        transform: rotate(0)
+    }
+
+    to {
+        transform: rotate(360deg)
+    }
+}
+
+/* ---------- Card header ---------- */
+.ultra-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    flex-wrap: wrap;
+    padding-bottom: 1rem;
+    margin-bottom: .5rem;
+    border-bottom: 1px dashed rgba(255,255,255,.12);
+    min-height: 64px; /* ensure middle alignment */
+}
+
+/* Gradient heading text */
+.ultra-title {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+    font-weight: 800;
+    margin: 0;
+    color: #cfe4ff;
+    background: linear-gradient(90deg,#7dd3fc,#a78bfa,#60a5fa);
+    --_clip: text; /* VS warning-safe pattern */
+    -webkit-background-clip: var(--_clip);
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 10px 40px rgba(96,165,250,.4);
+}
+
+.title-icon {
+    filter: drop-shadow(0 6px 18px rgba(96,165,250,.35));
+}
+
+/* ---------- FIX: Badge inside gradient heading must render above/opaque ---------- */
+.ultra-title .ultra-badge {
+    -webkit-background-clip: border-box !important; /* cancel parent's text-clip effect */
+    background-clip: border-box !important;
+    -webkit-text-fill-color: #fff !important; /* ensure visible text even in WebKit */
+    color: #fff !important;
+    mix-blend-mode: normal; /* avoid blending with heading */
+}
+
+/* ---------- Title count badge (glowing, always visible) ---------- */
+.ultra-badge {
+    position: relative;
+    z-index: 5; /* force above shine/aura layers */
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 .55rem;
+    margin-left: .45rem;
+    font-size: .85rem;
+    font-weight: 700;
+    border-radius: 999px;
+    color: #fff !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,.6);
+    background: linear-gradient(135deg, rgba(59,130,246,.9), rgba(147,51,234,.9));
+    border: 1px solid rgba(255,255,255,.25);
+}
+
+    .ultra-badge::after {
+        content: "";
+        position: absolute;
+        inset: -3px;
+        border-radius: inherit;
+        background: radial-gradient(circle at center, rgba(96,165,250,.55), rgba(147,51,234,.45));
+        filter: blur(8px);
+        z-index: -1; /* glow stays behind text */
+    }
+
+/* ---------- Search group ---------- */
+.search-group {
+    display: flex;
+    align-items: center;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: 12px;
+    padding: 2px 6px;
+}
+
+    .search-group input {
+        background: transparent;
+        border: none;
+        color: #fff;
+        padding: .3rem .5rem;
+    }
+
+        .search-group input::placeholder {
+            color: #cbd5e1;
+        }
+
+        .search-group input:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+/* ---------- Add Button (matches + Add Theatre) ---------- */
+.btn-add {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .35rem;
+    font-weight: 700;
+    font-size: 1rem;
+    padding: .55rem 1.2rem;
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(37,99,235,.25), rgba(37,99,235,.15));
+    border: 1px solid rgba(37,99,235,.45);
+    color: #eaf2ff !important;
+    transition: all .25s ease;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 8px 20px rgba(37,99,235,.25);
+}
+
+    .btn-add:hover {
+        background: linear-gradient(180deg, rgba(59,130,246,.35), rgba(37,99,235,.2));
+        border-color: rgba(96,165,250,.6);
+        box-shadow: 0 12px 28px rgba(59,130,246,.35);
+        transform: translateY(-1px);
+    }
+
+    .btn-add:focus,
+    .btn-add:active {
+        background: linear-gradient(180deg, rgba(59,130,246,.4), rgba(37,99,235,.25));
+        border-color: rgba(147,51,234,.55);
+        box-shadow: 0 0 0 .2rem rgba(96,165,250,.35);
+        outline: none;
+    }
+
+/* ---------- Buttons (never black on click/focus) ---------- */
+.btn {
+    border-radius: 14px;
+}
+
+.btn-primary {
+    border: 1px solid rgba(255,255,255,.22);
+    background: linear-gradient(180deg, rgba(59,130,246,.35), rgba(59,130,246,.18));
+    color: #f0f6ff;
+    font-weight: 800;
+}
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        border-color: rgba(134,179,255,.5);
+        box-shadow: 0 18px 40px rgba(96,165,250,.4);
+    }
+
+    .btn-primary:focus,
+    .btn-primary:active,
+    .btn-primary:focus-visible {
+        background: linear-gradient(180deg, rgba(59,130,246,.42), rgba(59,130,246,.24)) !important;
+        color: #ffffff !important;
+        border-color: rgba(134,179,255,.6) !important;
+        box-shadow: 0 0 0 0.2rem rgba(96,165,250,.25), 0 16px 36px rgba(96,165,250,.42) !important;
+        outline: none !important;
+    }
+
+.btn-outline-secondary {
+    border-color: rgba(148,163,184,.45);
+    color: var(--cine-text);
+    background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.06));
+}
+
+    .btn-outline-secondary:hover {
+        background: rgba(148,163,184,.12);
+        border-color: rgba(148,163,184,.65);
+    }
+
+/* Danger variant keeping the glow theme */
+.btn-danger {
+    border: 1px solid rgba(244,63,94,.45);
+    background: linear-gradient(180deg, rgba(244,63,94,.55), rgba(190,18,60,.38));
+    color: #fff;
+}
+
+    .btn-danger:focus,
+    .btn-danger:active,
+    .btn-danger:focus-visible {
+        box-shadow: 0 0 0 .2rem rgba(244,63,94,.25) !important;
+        outline: none !important;
+    }
+
+/* ---------- Glass alert ---------- */
+.glass-alert {
+    background: rgba(30,38,52,.65) !important;
+    border: 1px solid rgba(115,130,165,.35) !important;
+    color: var(--cine-text) !important;
+    border-radius: 16px !important;
+    padding: 1rem 1.25rem !important;
+}
+
+/* ---------- Table ---------- */
+.table {
+    --bs-table-bg: transparent !important;
+    --bs-table-striped-bg: transparent !important;
+    --bs-table-hover-bg: transparent !important;
+    --bs-table-border-color: transparent !important;
+    background-color: transparent !important;
+    color: inherit !important;
+}
+
+.ultra-table {
+    color: #f0f6ff !important;
+    margin-top: .85rem;
+    border-collapse: separate;
+    border-spacing: 0 14px; /* floating rows */
+}
+
+    .ultra-table thead th {
+        color: #e9efff !important;
+        font-weight: 800;
+        font-size: .95rem;
+        border: none !important;
+        padding: .7rem .95rem;
+    }
+
+    .ultra-table tbody td {
+        color: #f0f6ff !important;
+        border-top: none !important;
+        padding: .95rem .95rem;
+        vertical-align: middle;
+    }
+
+/* ---------- Rows (deep rounding + perfect clipping) ---------- */
+.ultra-row {
+    position: relative;
+    background: rgba(255,255,255,.12) !important;
+    border: 1px solid rgba(255,255,255,.18) !important;
+    box-shadow: 0 12px 30px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.07);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease, background .25s ease;
+    border-radius: 18px;
+    overflow: hidden;
+}
+
+    .ultra-row:hover {
+        transform: translateY(-2px);
+        background: rgba(59,130,246,.14) !important;
+        box-shadow: 0 18px 44px rgba(59,130,246,.28);
+        border-color: rgba(147,51,234,.28) !important;
+    }
+
+/* ---------- Cells ---------- */
+.cell-title {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    font-weight: 900;
+}
+
+.cell-sub {
+    font-size: .82rem;
+    opacity: .85;
+    color: #cfe0ff;
+}
+
+/* Neon status/beauty dot */
+.movie-dot {
+    width: .78rem;
+    height: .78rem;
+    border-radius: 999px;
+    background: radial-gradient(circle, #bfe0ff 0%, #60a5fa 60%, #1d4ed8 100%);
+    box-shadow: 0 0 12px rgba(96,165,250,1), 0 0 26px rgba(147,51,234,.5);
+    animation: dot-pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes dot-pulse {
+    0%,100% {
+        transform: scale(1);
+        opacity: .95
+    }
+
+    50% {
+        transform: scale(1.25);
+        opacity: 1
+    }
+}
+
+/* ---------- Pills ---------- */
+.pill {
+    display: inline-block;
+    min-width: 66px;
+    text-align: center;
+    padding: .3rem .75rem;
+    border-radius: 999px;
+    font-weight: 900;
+    font-size: .84rem;
+    border: 1px solid rgba(255,255,255,.22);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 8px 20px rgba(0,0,0,.3);
+}
+
+.pill--yes {
+    color: #eafff5;
+    background: linear-gradient(180deg, rgba(16,185,129,.45), rgba(5,150,105,.24));
+    border-color: rgba(16,185,129,.42);
+}
+
+.pill--no {
+    color: #f6f7ff;
+    background: linear-gradient(180deg, rgba(148,163,184,.45), rgba(71,85,105,.26));
+    border-color: rgba(148,163,184,.42);
+}
+
+/* ---------- Action chips ---------- */
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: .6rem;
+    max-width: 320px;
+    margin: 0 auto;
+}
+
+.btn.chip {
+    width: 100%;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,.22) !important;
+    border-radius: 999px;
+    padding: .55rem .85rem;
+    font-weight: 900;
+    color: #eff4ff !important;
+    background: linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,.06)) !important;
+    transition: transform .16s ease, box-shadow .24s ease, border-color .24s ease, background .24s ease;
+}
+
+    .btn.chip:hover {
+        transform: translateY(-2px);
+        border-color: rgba(128,187,255,.5) !important;
+        box-shadow: 0 12px 30px rgba(96,165,250,.3);
+        color: #ffffff !important;
+    }
+
+    .btn.chip:focus,
+    .btn.chip:active,
+    .btn.chip:focus-visible {
+        background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.08)) !important;
+        color: #ffffff !important;
+        border-color: rgba(134,179,255,.6) !important;
+        box-shadow: 0 0 0 0.2rem rgba(96,165,250,.25) !important;
+        outline: none !important;
+    }
+
+    .btn.chip.chip--danger {
+        background: linear-gradient(180deg, rgba(244,63,94,.4), rgba(190,18,60,.28)) !important;
+        border-color: rgba(244,63,94,.48) !important;
+    }
+
+/* ---------- Form styling on glass ---------- */
+.ultra-form .form-label {
+    font-weight: 700;
+    opacity: .92;
+}
+
+.ultra-form .form-control,
+.ultra-form .form-select,
+.ultra-form input[type="number"] {
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.18);
+    color: #eaf2ff;
+    border-radius: 16px;
+}
+
+    .ultra-form .form-control::placeholder {
+        color: #cbd5e1;
+    }
+
+    .ultra-form .form-control:focus,
+    .ultra-form .form-select:focus,
+    .ultra-form input[type="number"]:focus {
+        box-shadow: 0 0 0 .2rem rgba(96,165,250,.25);
+        border-color: rgba(147,51,234,.38);
+        color: #fff;
+    }
+
+/* Dimmed key/value block */
+.kv-dim {
+    background: rgba(255,255,255,.05);
+    border-radius: 18px;
+    padding: 1rem;
+}
+
+    .kv-dim dt, .kv-dim dd {
+        color: #cfe0ff;
+        opacity: .9;
+    }
+
+/* ---------- Optional scroll area (use only if needed) ---------- */
+.ultra-scroll {
+    max-height: calc(100vh - 260px);
+    overflow: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding-right: .25rem;
+}
+    /* WebKit */
+    .ultra-scroll::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    .ultra-scroll::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .ultra-scroll::-webkit-scrollbar-thumb {
+        background-image: linear-gradient(180deg, rgba(96,165,250,.80), rgba(147,51,234,.80));
+        border-radius: 8px;
+        border: 2px solid rgba(0,0,0,.20);
+    }
+
+    .ultra-scroll:hover::-webkit-scrollbar-thumb {
+        background-image: linear-gradient(180deg, rgba(96,165,250,.95), rgba(147,51,234,.95));
+    }
+/* Firefox */
+.ultra-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(96,165,250,.8) transparent;
+}
+
+/* ---------- Motion accessibility ---------- */
+@media (prefers-reduced-motion: reduce) {
+    .ultra-aura, .ultra-card__shine, .film-grain {
+        animation: none !important;
+    }
+
+    .ultra-row, .btn.chip, .btn {
+        transition: none !important;
+    }
+}
 
