@@ -1,34 +1,79 @@
 @model Movie_Site_Management_System.ViewModels.Account.ProfileVM
 @{
     ViewData["Title"] = "My profile";
+    ViewBag.GlassHeader = true;                // enables the glass header you use site-wide
+    ViewBag.PageLabel = "Profile";             // shows beside Home in your locked navbar
 }
 
-<div class="row">
-    <div class="col-md-6 offset-md-3">
-        <h3 class="mb-3">My profile</h3>
+@section Styles {
+    <link rel="stylesheet" href="~/css/account/profile-glass.css" asp-append-version="true" />
+}
 
-        @if(TempData["Success"] != null)
+<div class="admin-ultra-shell">
+
+    <!-- Left / Right film rails -->
+    <div class="film-rail film-rail--left" aria-hidden="true"></div>
+    <div class="film-rail film-rail--right" aria-hidden="true"></div>
+
+    <!-- Soft auras -->
+    <div class="aura aura--blue" aria-hidden="true"></div>
+    <div class="aura aura--violet" aria-hidden="true"></div>
+
+    <div class="ultra-card ultra-card--profile">
+        <div class="ultra-card__header">
+            <h1 class="ultra-title">
+                <span class="title-glass">My profile</span>
+            </h1>
+            <span class="ultra-sub">Manage your basic account info</span>
+        </div>
+
+        @* Alerts (use your neon glass alerts you already have) *@
+        @if (TempData["Success"] != null)
         {
-            <div class="alert alert-success">@TempData["Success"]</div>
+            <div class="alert alert-success glass-alert mb-3">@TempData["Success"]</div>
         }
-        @if(TempData["Error"] != null)
+        @if (!ViewData.ModelState.IsValid)
         {
-            <div class="alert alert-danger">@TempData["Error"]</div>
+            <div class="alert alert-danger glass-alert mb-3">Please fix the errors below.</div>
         }
 
-        <form asp-action="Profile" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="mb-3">
-                <label asp-for="FullName" class="form-label"></label>
-                <input asp-for="FullName" class="form-control" />
-                <span asp-validation-for="FullName" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="EmailAddress" class="form-label"></label>
-                <input asp-for="EmailAddress" class="form-control" readonly />
-                <div class="form-text">Email change is disabled here for simplicity.</div>
-            </div>
-            <button type="submit" class="btn btn-primary">Save changes</button>
-        </form>
+        <div class="ultra-card__body ultra-scroll">
+            <form asp-action="Profile" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="ultra-form grid-2">
+                    <div class="form-group">
+                        <label class="form-label" for="FullName">Full name</label>
+                        <input asp-for="FullName" class="form-control glass-input" placeholder="Your full name" />
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" asp-for="EmailAddress"></label>
+                        <input asp-for="EmailAddress" class="form-control glass-input" readonly />
+                        <span asp-validation-for="EmailAddress" class="text-danger"></span>
+                        <div class="muted mt-1">Email change is disabled here for simplicity.</div>
+                    </div>
+
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="btn btn-primary chip">
+                        <span class="btn-shine"></span>
+                        Save changes
+                    </button>
+
+                    @* Optional: a subtle secondary button for Change Password route if you have it *@
+                    <a asp-controller="Account" asp-action="ChangePassword" class="btn btn-outline-light chip">
+                        <span class="btn-shine"></span>
+                        Change password
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,24 +1,40 @@
-@model IEnumerable<Movie_Site_Management_System.ViewModels.Account.UserRow>
+@using Movie_Site_Management_System.ViewModels.Account
+
+@model UsersIndexVM
+
 @{
     ViewData["Title"] = "Users";
 }
 
-<h3 class="mb-3">Registered Users</h3>
+<h2>Users</h2>
+<hr />
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
 <table class="table table-striped align-middle">
-    <thead class="table-light">
+    <thead>
         <tr>
             <th>Email</th>
-            <th>Full name</th>
+            <th>Full Name</th>
             <th>Roles</th>
+            <th>Locked</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var u in Model)
+        @foreach (var u in Model.Users)
         {
             <tr>
                 <td>@u.Email</td>
                 <td>@u.FullName</td>
                 <td>@u.Roles</td>
+                <td>@(u.Locked ? "Yes" : "No")</td>
             </tr>
         }
     </tbody>
