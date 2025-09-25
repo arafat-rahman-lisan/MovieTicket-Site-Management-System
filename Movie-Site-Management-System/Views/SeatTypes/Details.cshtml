@@ -1,19 +1,52 @@
 ﻿@model Movie_Site_Management_System.Models.SeatType
 @{
     ViewData["Title"] = "Seat Type Details";
+    ViewBag.GlassHeader = true;
 }
-<h2>Seat Type Details</h2>
-<hr />
-<dl class="row">
-    <dt class="col-sm-3">Name</dt>
-    <dd class="col-sm-9">@Model.Name</dd>
+<link rel="stylesheet" href="~/css/admin-glass-ultra.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/seattype/seattype-crud.css" asp-append-version="true" />
 
-    <dt class="col-sm-3">Description</dt>
-    <dd class="col-sm-9">@Model.Description</dd>
+<section class="admin-ultra-shell">
+    <div class="film-rail film-rail--left" aria-hidden="true"></div>
+    <div class="film-rail film-rail--right" aria-hidden="true"></div>
+    <div class="ultra-aura"></div>
+    <div class="film-grain"></div>
 
-    <dt class="col-sm-3">Base Price</dt>
-    <dd class="col-sm-9">@String.Format("{0:0.00}", Model.BasePrice)</dd>
-</dl>
+    <div class="container py-4 position-relative">
+        <div class="ultra-card">
+            <div class="ultra-card__shine"></div>
 
-<a asp-action="Edit" asp-route-id="@Model.SeatTypeId" class="btn btn-outline-primary">Edit</a>
-<a asp-action="Index" class="btn btn-secondary ms-2">Back</a>
+            <div class="ultra-card__header">
+                <h2 class="ultra-title">
+                    <svg class="title-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm2 3v10h12V8H6Z" /></svg>
+                    Seat Type Details
+                </h2>
+                <div class="d-flex align-items-center gap-2 ms-auto">
+                    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Back</a>
+                    <a asp-action="Edit" asp-route-id="@Model.SeatTypeId" class="btn btn-primary btn-sm">Edit</a>
+                </div>
+            </div>
+
+            <dl class="row kv-dim">
+                <dt class="col-sm-3">Name</dt>
+                <dd class="col-sm-9">@Model.Name</dd>
+
+                <dt class="col-sm-3">Base Price</dt>
+                <dd class="col-sm-9">@Model.BasePrice.ToString("0.00")</dd>
+
+                <dt class="col-sm-3">Description</dt>
+                <dd class="col-sm-9">
+                    @if (!string.IsNullOrWhiteSpace(Model.Description))
+                    {
+                        @Model.Description
+                    }
+                    else
+                    {
+
+                        <span class="text-muted">—</span>
+                    }
+                </dd>
+            </dl>
+        </div>
+    </div>
+</section>

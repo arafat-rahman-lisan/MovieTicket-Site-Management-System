@@ -1,74 +1,108 @@
 ﻿@model IEnumerable<Movie_Site_Management_System.Models.SeatType>
 @using Movie_Site_Management_System.Models
-
 @{
     ViewData["Title"] = "Seat Types";
+    ViewBag.GlassHeader = true;
+
     var items = Model ?? Enumerable.Empty<SeatType>();
     var count = items.Count();
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="mb-0">
-        Seat Types
-        <span class="badge bg-secondary align-middle ms-2">@count</span>
-    </h2>
-    <a asp-action="Create" class="btn btn-success btn-sm">+ Add Seat Type</a>
-</div>
+<link rel="stylesheet" href="~/css/admin-glass-ultra.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/seattype/seattype-crud.css" asp-append-version="true" />
 
-@if (TempData["Success"] is string sMsg)
-{
-    <div class="alert alert-success">@sMsg</div>
-}
-@if (TempData["Error"] is string eMsg)
-{
-    <div class="alert alert-danger">@eMsg</div>
-}
+<section class="admin-ultra-shell">
+    <!-- Film rails -->
+    <div class="film-rail film-rail--left" aria-hidden="true"></div>
+    <div class="film-rail film-rail--right" aria-hidden="true"></div>
+    <!-- Aura + grain -->
+    <div class="ultra-aura"></div>
+    <div class="film-grain"></div>
 
-@if (!items.Any())
-{
-    <div class="alert alert-warning">No seat types found.</div>
-}
-else
-{
-    <div class="mb-3">
-        <input type="text" id="searchBox" class="form-control"
-               placeholder="🔍 Search seat types..." />
+    <div class="container py-4 position-relative">
+        <div class="ultra-card">
+            <div class="ultra-card__shine"></div>
+
+            <div class="ultra-card__header">
+                <h2 class="ultra-title">
+                    <svg class="title-icon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M4 5h16a1 1 0 0 1 1 1v6.5a4.5 4.5 0 1 1-2-3.708V7H5v10h6a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" />
+                        <circle cx="17.5" cy="16.5" r="2.5" />
+                    </svg>
+                    Seat Types <span class="ultra-badge">@count</span>
+                </h2>
+
+                <div class="d-flex align-items-center gap-2 ms-auto">
+                    <div class="search-group">
+                        <input id="searchBox" name="q" class="form-control form-control-sm" placeholder="Search seat type…" />
+                    </div>
+                    <!-- Create button styled like “+ Add Theatre” -->
+                    <a asp-action="Create" class="btn btn-add">+ Create</a>
+                </div>
+            </div>
+
+            @if (TempData["SeatTypeAlert"] is string msg && !string.IsNullOrWhiteSpace(msg))
+            {
+                <div class="glass-alert mt-2">@msg</div>
+            }
+
+            <div class="table-responsive">
+                <table id="seatTypesTable" class="table ultra-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th class="text-end">Base Price</th>
+                            <th class="text-center" style="width:320px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var st in items)
+                        {
+                            <tr class="ultra-row">
+                                <td>
+                                    <div class="cell-title">
+                                        <span class="movie-dot" aria-hidden="true"></span>
+                                        <div>
+                                            <div>@st.Name</div>
+                                            <div class="cell-sub">ID: @st.SeatTypeId</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(st.Description))
+                                    {
+                                        @st.Description
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    @st.BasePrice.ToString("0.00")
+                                </td>
+                                <td>
+                                    <div class="actions-grid">
+                                        <a asp-action="Details" asp-route-id="@st.SeatTypeId" class="btn chip btn-outline-secondary">Details</a>
+                                        <a asp-action="Edit" asp-route-id="@st.SeatTypeId" class="btn chip btn-primary">Edit</a>
+                                        <a asp-action="Delete" asp-route-id="@st.SeatTypeId" class="btn chip chip--danger btn-danger">Delete</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
     </div>
-
-    <div class="table-responsive">
-        <table class="table table-striped table-bordered align-middle" id="seatTypesTable">
-            <thead class="table-light">
-                <tr>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th class="text-end">Base Price</th>
-                    <th style="width:220px">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var st in items)
-                {
-                    <tr>
-                        <td>@st.Name</td>
-                        <td>@st.Description</td>
-                        <td class="text-end">@string.Format("{0:0.00}", st.BasePrice)</td>
-                        <td class="text-start">
-                            <a asp-action="Details" asp-route-id="@st.SeatTypeId" class="btn btn-sm btn-secondary me-1">Details</a>
-                            <a asp-action="Edit" asp-route-id="@st.SeatTypeId" class="btn btn-sm btn-outline-primary me-1">Edit</a>
-                            <a asp-action="Delete" asp-route-id="@st.SeatTypeId" class="btn btn-sm btn-danger">Delete</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-}
+</section>
 
 @section Scripts {
     <script>
         const searchBox = document.getElementById("searchBox");
         const rows = document.querySelectorAll("#seatTypesTable tbody tr");
-
         searchBox?.addEventListener("keyup", function () {
             const term = this.value.toLowerCase();
             rows.forEach(row => {
