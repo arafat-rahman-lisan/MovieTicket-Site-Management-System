@@ -1,1 +1,350 @@
+﻿/* ============================================================
+   CINEX — Seat Map (User)
+   Palette: Sky Blue + Cinema Red • Soft Glass • Neon Hover
+   Text inside seats = white
+   (Seat size preserved with --seat-size)
+   ============================================================ */
 
+/* ---------- Theme ---------- */
+:root {
+    --bg-top: #172031; /* cool navy */
+    --bg-bottom: #0b0f1d;
+    --glass-bg: rgba(255,255,255,.08);
+    --glass-br: rgba(255,255,255,.16);
+    --glass-blur: saturate(1.35) blur(12px);
+    /* palette */
+    --sky: #38bdf8; /* sky blue (available) */
+    --select: #3b82f6; /* neon-ish blue (selected) */
+    --held: #f59e0b; /* amber (held) */
+    --booked: #ef4444; /* cinema red (booked) */
+    --blocked: #94a3b8; /* slate grey (blocked) */
+
+    --seat-size: 60px; /* DO NOT CHANGE (requested) */
+    --seat-gap: 10px;
+}
+
+/* ---------- Page ---------- */
+body {
+    background: linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+    color: #ffffff;
+    overflow-x: hidden;
+    text-shadow: 0 0 6px rgba(255,255,255,.14); /* very soft global glow */
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+/* ---------- Stage (soft glass) ---------- */
+.seat-stage {
+    position: relative;
+    padding: 28px 22px 150px; /* bottom room for screen */
+    margin: 0 auto;
+    max-width: 980px;
+    border-radius: 18px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-br);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    box-shadow: 0 18px 48px rgba(0,0,0,.38), inset 0 10px 26px rgba(255,255,255,.05);
+    overflow: hidden;
+}
+
+/* ---------- Legend (clear meaning of colors) ---------- */
+.legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+
+    .legend .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        color: #fff;
+        background: rgba(255,255,255,.08);
+        border: 1px solid rgba(200,220,255,.35);
+        backdrop-filter: blur(8px);
+    }
+
+    .legend .dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 3px;
+    }
+
+.dot-avail {
+    background: var(--sky);
+}
+
+.dot-sel {
+    background: var(--select);
+}
+
+.dot-held {
+    background: var(--held);
+}
+
+.dot-book {
+    background: var(--booked);
+}
+
+.dot-blk {
+    background: var(--blocked);
+}
+
+/* ---------- Grid ---------- */
+.seat-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    row-gap: 14px;
+    column-gap: 16px;
+    width: max-content;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+}
+
+.row-label {
+    width: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    letter-spacing: .4px;
+    user-select: none;
+    color: #fff;
+    text-shadow: 0 0 8px rgba(255,255,255,.18);
+}
+
+.row-seats {
+    display: grid;
+    grid-template-columns: repeat(10, var(--seat-size));
+    gap: var(--seat-gap);
+    justify-content: center;
+}
+
+/* ---------- Seats (white text, soft glow, neon hover) ---------- */
+.seat {
+    position: relative;
+    width: var(--seat-size);
+    min-height: var(--seat-size);
+    border-radius: 12px;
+    border: 1px solid rgba(208,220,245,.35);
+    background: rgba(30,41,59,.6); /* neutral for consistent text contrast */
+    color: #fff; /* requested white text */
+    font-weight: 800;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 4px 10px rgba(0,0,0,.25);
+    transition: transform .15s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+    cursor: pointer;
+}
+
+    .seat .seat-no {
+        font-size: 14px;
+        line-height: 1;
+    }
+
+    .seat .seat-price {
+        font-size: 11px;
+        opacity: .95;
+    }
+
+    /* Neon hover (sky glow) */
+    .seat.available:hover {
+        border-color: var(--sky);
+        box-shadow: 0 0 10px var(--sky), 0 0 22px rgba(56,189,248,.45);
+        transform: translateY(-2px);
+    }
+
+    /* Click/Selected feedback (cool blue) */
+    .seat.selected {
+        background: rgba(59,130,246,.22);
+        border-color: var(--select);
+        box-shadow: 0 0 10px var(--select), 0 0 26px rgba(59,130,246,.45);
+    }
+
+    /* States (soft, readable) */
+    .seat.available {
+        background: rgba(56,189,248,.18);
+        border-color: rgba(56,189,248,.45);
+    }
+
+    .seat.held {
+        background: rgba(245,158,11,.22);
+        border-color: rgba(245,158,11,.55);
+        cursor: not-allowed;
+    }
+
+    .seat.booked {
+        background: rgba(239,68,68,.28);
+        border-color: rgba(239,68,68,.6);
+        cursor: not-allowed;
+    }
+
+    .seat.blocked {
+        background: rgba(148,163,184,.35);
+        border-color: rgba(148,163,184,.75);
+        cursor: not-allowed;
+    }
+
+/* ---------- Screen (cool sky glow) ---------- */
+.screen-wrap {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 20px;
+    height: 130px;
+    pointer-events: none;
+}
+
+.screen-glow {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 30px;
+    width: 80%;
+    max-width: 940px;
+    height: 110px;
+    background: radial-gradient(ellipse at center, rgba(56,189,248,.75), transparent 70%);
+    filter: blur(16px);
+    opacity: .9;
+    animation: screenPulse 1.85s ease-in-out infinite;
+}
+
+@keyframes screenPulse {
+    0%,100% {
+        opacity: .9;
+        transform: translateX(-50%) translateY(0)
+    }
+
+    50% {
+        opacity: .55;
+        transform: translateX(-50%) translateY(-6px)
+    }
+}
+
+.screen-bar {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 0;
+    width: 74%;
+    max-width: 940px;
+    height: 16px;
+    border-radius: 12px;
+    background: linear-gradient(180deg,#ffffff,#e7eefc);
+    box-shadow: 0 8px 26px rgba(255,255,255,.7);
+}
+
+    .screen-bar::before {
+        content: "SCREEN";
+        position: absolute;
+        bottom: 22px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 3px;
+        color: #fff;
+        text-shadow: 0 0 10px rgba(56,189,248,.7);
+    }
+
+/* ===== Cart panel (Selected seats) — glassy + sky accent ===== */
+#cart.card {
+    border: 1px solid rgba(200,220,255,.28);
+    background: rgba(255,255,255,.06);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 18px 48px rgba(0,0,0,.35), inset 0 8px 20px rgba(255,255,255,.04);
+    color: #fff;
+}
+
+#cart .card-header {
+    background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+    border-bottom: 1px solid rgba(200,220,255,.25);
+    color: #ffffff;
+    font-weight: 800;
+    letter-spacing: .2px;
+    text-shadow: 0 0 8px rgba(255,255,255,.25);
+}
+
+#cart .card-body {
+    background: transparent;
+}
+
+#cart #selected-list {
+    color: rgba(234,242,255,.9);
+    text-shadow: 0 0 6px rgba(164,196,255,.22);
+}
+/* Total line */
+#cart strong {
+    color: #dbeafe;
+    text-shadow: 0 0 10px rgba(164,196,255,.25);
+    font-weight: 800;
+}
+
+#cart #total {
+    color: var(--sky);
+    font-weight: 900;
+    text-shadow: 0 0 10px rgba(56,189,248,.55);
+}
+/* Active aura when there are seats */
+#cart.has-items {
+    box-shadow: 0 18px 48px rgba(0,0,0,.35), inset 0 10px 26px rgba(255,255,255,.05), 0 0 0 1px rgba(56,189,248,.25), 0 0 28px rgba(56,189,248,.18);
+}
+/* Button vibe inside cart */
+#cart .btn-primary {
+    background: linear-gradient(180deg, #3b82f6, #2563eb);
+    border: 0;
+    font-weight: 800;
+    box-shadow: 0 8px 22px rgba(59,130,246,.35), 0 0 0 1px rgba(255,255,255,.08) inset;
+    transition: transform .12s ease, box-shadow .18s ease, filter .18s ease;
+}
+
+    #cart .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 28px rgba(59,130,246,.45), 0 0 12px rgba(56,189,248,.55);
+        filter: saturate(1.05);
+    }
+
+    #cart .btn-primary:active {
+        transform: translateY(0);
+        box-shadow: 0 6px 16px rgba(59,130,246,.35);
+    }
+
+    #cart .btn-primary:disabled {
+        background: linear-gradient(180deg, #94a3b8, #64748b);
+        box-shadow: none;
+    }
+
+/* ---------- Mobile ---------- */
+@media (max-width:576px) {
+    :root {
+        --seat-size: 50px;
+        --seat-gap: 8px;
+    }
+
+    .seat-stage {
+        padding: 18px 12px 130px;
+    }
+
+    .screen-bar {
+        width: 88%;
+    }
+
+    .screen-glow {
+        width: 88%;
+        height: 100px;
+        bottom: 26px;
+    }
+
+    #cart.card {
+        border-radius: 14px;
+    }
+}
