@@ -1,0 +1,26 @@
+﻿@model Movie_Site_Management_System.Models.Theatre
+@section Styles {
+    <link rel="stylesheet" href="~/css/theatre/theatre-crud.css" asp-append-version="true" />
+}
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <label asp-for="Name" class="form-label fw-bold text-glass"></label>
+        <input asp-for="Name" class="form-control glass-control" placeholder="e.g., Star Cineplex Bashundhara" />
+        <span asp-validation-for="Name" class="text-danger small"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="City" class="form-label fw-bold text-glass"></label>
+        <input asp-for="City" class="form-control glass-control" placeholder="e.g., Dhaka" />
+        <span asp-validation-for="City" class="text-danger small"></span>
+    </div>
+
+    <div class="col-12">
+        <div class="form-check form-switch glass-switch">
+            <input class="form-check-input" asp-for="IsActive" />
+            <label class="form-check-label fw-bold" asp-for="IsActive">Active</label>
+        </div>
+        <span asp-validation-for="IsActive" class="text-danger small"></span>
+    </div>
+</div>

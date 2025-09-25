@@ -5,6 +5,7 @@
 
 @{
     ViewData["Title"] = "Theatre Details";
+    ViewBag.GlassHeader = true;
 
     DateOnly currentDate = (ViewBag.Date is DateOnly d)
         ? d
@@ -21,171 +22,190 @@
         .OrderBy(g => g.Key)
         .ToList();
 
-    // Halls table from controller (anonymous types)
     var halls = ViewBag.Halls as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
 }
 
-<h2 class="mb-3">@Model?.Name</h2>
-
-<!-- Theatre info -->
-<div class="card mb-4">
-    <div class="card-body">
-        <dl class="row mb-0">
-            <dt class="col-sm-3">Address</dt>
-            <dd class="col-sm-9">@Model?.Address</dd>
-
-            <dt class="col-sm-3">City</dt>
-            <dd class="col-sm-9">@Model?.City</dd>
-
-            <dt class="col-sm-3">Latitude / Longitude</dt>
-            <dd class="col-sm-9">@Model?.Lat.ToString() / @Model?.Lng.ToString()</dd>
-
-            <dt class="col-sm-3">Active</dt>
-            <dd class="col-sm-9">@(Model?.IsActive == true ? "Yes" : "No")</dd>
-
-            <dt class="col-sm-3">Created At (UTC)</dt>
-            <dd class="col-sm-9">@Model?.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")</dd>
-        </dl>
-    </div>
-</div>
-
-<!-- Halls of this theatre -->
-<div class="card mb-4">
-    <div class="card-header fw-semibold">Halls</div>
-    <div class="card-body p-0">
-        @if (!halls.Any())
-        {
-            <div class="p-3 text-muted">No halls found for this theatre.</div>
-        }
-        else
-        {
-            <div class="table-responsive">
-                <table class="table table-sm table-hover mb-0 align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Name</th>
-                            <th class="text-end" style="width:110px;">Capacity</th>
-                            <th class="text-center" style="width:110px;">Seatmap</th>
-                            <th class="text-center" style="width:100px;">Active</th>
-                            <th class="text-end" style="width:90px;">Seats</th>
-                            <th class="text-end" style="width:90px;">Slots</th>
-                            <th class="text-end" style="width:90px;">Shows</th>
-                            <th style="width:180px;"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var h in halls)
-                        {
-                            <tr>
-                                <td>@h.Name</td>
-                                <td class="text-end">@h.Capacity</td>
-                                <td class="text-center">@h.SeatmapVersion</td>
-                                <td class="text-center">
-                                    @if ((bool)h.IsActive)
-                                    {
-                                        <span class="badge bg-success">Yes</span>
-                                    }
-                                    else
-                                    {
-
-                                        <span class="badge bg-secondary">No</span>
-                                    }
-                                </td>
-                                <td class="text-end">@h.SeatCount</td>
-                                <td class="text-end">@h.SlotCount</td>
-                                <td class="text-end">@h.ShowCount</td>
-                                <td class="text-end">
-                                    <a class="btn btn-sm btn-outline-secondary"
-                                       asp-controller="Halls" asp-action="Details" asp-route-id="@(h.HallId)">Details</a>
-                                    <a class="btn btn-sm btn-outline-primary"
-                                       asp-controller="Halls" asp-action="Edit" asp-route-id="@(h.HallId)">Edit</a>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
-    </div>
-</div>
-
-<!-- Date navigation -->
-<div class="d-flex align-items-center justify-content-between mb-3">
-    <h4 class="mb-0">Shows on @currentDate.ToString("yyyy-MM-dd")</h4>
-    <div class="d-flex gap-2">
-        <a asp-action="Details" asp-route-id="@Model?.TheatreId" asp-route-date="@prevDate"
-           class="btn btn-outline-secondary btn-sm">◀ Previous</a>
-
-        <form method="get" asp-action="Details" class="d-flex gap-2">
-            <input type="hidden" name="id" value="@Model?.TheatreId" />
-            <input type="date" class="form-control form-control-sm"
-                   name="date" value="@currentDate.ToString("yyyy-MM-dd")" />
-            <button class="btn btn-primary btn-sm" type="submit">Go</button>
-        </form>
-
-        <a asp-action="Details" asp-route-id="@Model?.TheatreId" asp-route-date="@nextDate"
-           class="btn btn-outline-secondary btn-sm">Next ▶</a>
-    </div>
-</div>
-
-@if (!grouped.Any())
-{
-    <div class="alert alert-info">No shows scheduled for this date.</div>
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-glass-ultra.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/theatre/theatre-crud.css" asp-append-version="true" />
 }
-else
-{
-    @foreach (var hallGroup in grouped)
-    {
-        <div class="card mb-3">
-            <div class="card-header fw-semibold">@hallGroup.Key</div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-sm table-hover mb-0 align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th style="width:90px;">Slot</th>
-                                <th>Movie</th>
-                                <th style="width:180px;">Start</th>
-                                <th style="width:120px;">Language</th>
-                                <th style="width:120px;">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var s in hallGroup.OrderBy(x => x.HallSlot?.SlotNumber))
-                            {
-                                var slotText = s.HallSlot?.SlotNumber.ToString() ?? "—";
-                                var startText = s.HallSlot?.StartTime.ToString("HH\\:mm") ?? "—";
 
-                                <tr>
-                                    <td>@slotText</td>
-                                    <td>@(s.Movie?.Title ?? $"Movie #{s.MovieId}")</td>
-                                    <td>@startText</td>
-                                    <td>@(s.Language ?? "—")</td>
-                                    <td>
-                                        @if (s.IsCancelled)
-                                        {
-                                            <span class="badge bg-danger">Cancelled</span>
-                                        }
-                                        else if (s.IsActive)
-                                        {
-                                            <span class="badge bg-success">Active</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-secondary">Inactive</span>
-                                        }
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+<section class="admin-ultra-shell">
+    <div class="film-rail film-rail--left" aria-hidden="true"></div>
+    <div class="film-rail film-rail--right" aria-hidden="true"></div>
+    <div class="ultra-aura"></div>
+    <div class="film-grain"></div>
+
+    <div class="container py-4 position-relative">
+        <div class="ultra-card">
+            <div class="ultra-card__shine"></div>
+
+            <div class="ultra-card__header">
+                <h2 class="ultra-title mb-0">
+                    <svg class="title-icon" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="cinexGradT" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#7dd3fc" />
+                                <stop offset="50%" stop-color="#a78bfa" />
+                                <stop offset="100%" stop-color="#60a5fa" />
+                            </linearGradient>
+                        </defs>
+                        <rect x="2" y="5" width="20" height="14" rx="3" ry="3" fill="url(#cinexGradT)" />
+                    </svg>
+                    <span>@Model?.Name</span>
+                </h2>
+                <div class="d-flex gap-2">
+                    <a asp-action="Edit" asp-route-id="@Model?.TheatreId" class="btn chip btn-sm">Edit</a>
+                    <a asp-action="Index" class="btn chip chip--muted btn-sm">Back to List</a>
                 </div>
             </div>
-        </div>
-    }
-}
 
-<div class="mt-3 d-flex gap-2">
-    <a asp-action="Edit" asp-route-id="@Model?.TheatreId" class="btn btn-primary">Edit</a>
-    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
-</div>
+            <!-- Scrollable content -->
+            <div class="ultra-scroll p-3">
+                <!-- Theatre info -->
+                <div class="kv-dim">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-3">Address</dt>
+                        <dd class="col-sm-9">@Model?.Address</dd>
+                        <dt class="col-sm-3">City</dt>
+                        <dd class="col-sm-9">@Model?.City</dd>
+                        <dt class="col-sm-3">Latitude / Longitude</dt>
+                        <dd class="col-sm-9">@Model?.Lat.ToString() / @Model?.Lng.ToString()</dd>
+                        <dt class="col-sm-3">Created At (UTC)</dt>
+                        <dd class="col-sm-9">@Model?.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")</dd>
+                    </dl>
+                </div>
+
+                <!-- Halls -->
+                <div class="mt-4">
+                    <h5 class="mb-2">Halls</h5>
+                    @if (!halls.Any())
+                    {
+                        <div class="ultra-alert">No halls found for this theatre.</div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table ultra-table align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th class="text-end">Capacity</th>
+                                        <th class="text-center">Seatmap</th>
+                                        <th class="text-center">Active</th>
+                                        <th class="text-end">Seats</th>
+                                        <th class="text-end">Slots</th>
+                                        <th class="text-end">Shows</th>
+                                        <th class="text-center" style="width: 220px">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var h in halls)
+                                    {
+                                        var inactive = ((bool)h.IsActive) ? "" : "ultra-row--inactive";
+                                        <tr class="ultra-row @inactive">
+                                            <td>
+                                                <div class="cell-title">
+                                                    <span class="movie-dot" aria-hidden="true"></span>
+                                                    @h.Name
+                                                </div>
+                                                <div class="cell-sub">Hall ID: @h.HallId</div>
+                                            </td>
+                                            <td class="text-end">@h.Capacity</td>
+                                            <td class="text-center">@h.SeatmapVersion</td>
+                                            <td class="text-center">
+                                                <span class="pill @(((bool)h.IsActive) ? "pill--yes" : "pill--no")">
+                                                    @(((bool)h.IsActive) ? "Yes" : "No")
+                                                </span>
+                                            </td>
+                                            <td class="text-end">@h.SeatCount</td>
+                                            <td class="text-end">@h.SlotCount</td>
+                                            <td class="text-end">@h.ShowCount</td>
+                                            <td class="text-center">
+                                                <div class="d-flex justify-content-center gap-2">
+                                                    <a class="btn chip btn-sm" asp-controller="Halls" asp-action="Details" asp-route-id="@(h.HallId)">Details</a>
+                                                    <a class="btn chip chip--muted btn-sm" asp-controller="Halls" asp-action="Edit" asp-route-id="@(h.HallId)">Edit</a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+
+                <!-- Date navigation -->
+                <div class="d-flex align-items-center justify-content-between mt-4 mb-2">
+                    <h5 class="mb-0">Shows on @currentDate.ToString("yyyy-MM-dd")</h5>
+                    <div class="d-flex gap-2">
+                        <a asp-action="Details" asp-route-id="@Model?.TheatreId" asp-route-date="@prevDate"
+                           class="btn chip chip--muted btn-sm">◀ Previous</a>
+
+                        <form method="get" asp-action="Details" class="d-flex gap-2">
+                            <input type="hidden" name="id" value="@Model?.TheatreId" />
+                            <input type="date" class="form-control form-control-sm"
+                                   name="date" value="@currentDate.ToString("yyyy-MM-dd")" />
+                            <button class="btn chip btn-sm" type="submit">Go</button>
+                        </form>
+
+                        <a asp-action="Details" asp-route-id="@Model?.TheatreId" asp-route-date="@nextDate"
+                           class="btn chip chip--muted btn-sm">Next ▶</a>
+                    </div>
+                </div>
+
+                @if (!grouped.Any())
+                {
+                    <div class="ultra-alert">No shows scheduled for this date.</div>
+                }
+                else
+                {
+                    @foreach (var hallGroup in grouped)
+                    {
+                        <div class="table-responsive mt-2">
+                            <table class="table ultra-table align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th style="width:90px;">Slot</th>
+                                        <th>Movie</th>
+                                        <th style="width:180px;">Start</th>
+                                        <th style="width:140px;">Language</th>
+                                        <th style="width:140px;">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var s in hallGroup.OrderBy(x => x.HallSlot?.SlotNumber))
+                                    {
+                                        var slotText = s.HallSlot?.SlotNumber.ToString() ?? "—";
+                                        var startText = s.HallSlot?.StartTime.ToString("HH\\:mm") ?? "—";
+                                        var rowInactive = s.IsCancelled || !s.IsActive ? "ultra-row--inactive" : "";
+                                        <tr class="ultra-row @rowInactive">
+                                            <td>@slotText</td>
+                                            <td>@(s.Movie?.Title ?? $"Movie #{s.MovieId}")</td>
+                                            <td>@startText</td>
+                                            <td>@(s.Language ?? "—")</td>
+                                            <td>
+                                                @if (s.IsCancelled)
+                                                {
+                                                    <span class="pill pill--no">Cancelled</span>
+                                                }
+                                                else if (s.IsActive)
+                                                {
+                                                    <span class="pill pill--yes">Active</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="pill pill--no">Inactive</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</section>

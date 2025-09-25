@@ -1,72 +1,98 @@
 ﻿@model Movie_Site_Management_System.Models.Theatre
 @{
     ViewData["Title"] = "Create Theatre";
+    ViewBag.GlassHeader = true;
 }
 
-<h2 class="mb-3">Create Theatre</h2>
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-glass-ultra.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/theatre/theatre-crud.css" asp-append-version="true" />
+}
 
-<div class="card shadow-sm">
-    <div class="card-body">
-        <form asp-action="Create" method="post">
-            @Html.AntiForgeryToken()
+<section class="admin-ultra-shell">
+    <!-- Neon film rails -->
+    <div class="film-rail film-rail--left" aria-hidden="true"></div>
+    <div class="film-rail film-rail--right" aria-hidden="true"></div>
 
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+    <!-- Aura + grain -->
+    <div class="ultra-aura"></div>
+    <div class="film-grain"></div>
 
-            <div class="row g-3">
-                <!-- Name -->
-                <div class="col-md-6">
-                    <label asp-for="Name" class="form-label"></label>
-                    <input asp-for="Name" class="form-control" placeholder="e.g., Star Cineplex Bashundhara" />
-                    <span asp-validation-for="Name" class="text-danger"></span>
-                </div>
+    <div class="container py-4 position-relative">
+        <div class="ultra-card">
+            <div class="ultra-card__shine"></div>
 
-                <!-- City -->
-                <div class="col-md-6">
-                    <label asp-for="City" class="form-label"></label>
-                    <input asp-for="City" class="form-control" placeholder="e.g., Dhaka" />
-                    <span asp-validation-for="City" class="text-danger"></span>
-                </div>
+            <div class="ultra-card__header">
+                <h2 class="ultra-title mb-0">
+                    <svg class="title-icon" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="cinexGradC" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#7dd3fc" />
+                                <stop offset="50%" stop-color="#a78bfa" />
+                                <stop offset="100%" stop-color="#60a5fa" />
+                            </linearGradient>
+                        </defs>
+                        <rect x="2" y="5" width="20" height="14" rx="3" ry="3" fill="url(#cinexGradC)" />
+                    </svg>
+                    <span>Create Theatre</span>
+                </h2>
+                <a asp-action="Index" class="btn chip chip--muted btn-sm">Back to List</a>
+            </div>
 
-                <!-- Address -->
-                <div class="col-12">
-                    <label asp-for="Address" class="form-label"></label>
-                    <input asp-for="Address" class="form-control" placeholder="Street, area, mall level, etc." />
-                    <span asp-validation-for="Address" class="text-danger"></span>
-                </div>
+            <!-- Scrollable content -->
+            <div class="ultra-scroll p-3">
+                <form asp-action="Create" method="post" novalidate class="ultra-form">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-                <!-- Lat / Lng -->
-                <div class="col-md-6">
-                    <label asp-for="Lat" class="form-label"></label>
-                    <input asp-for="Lat" class="form-control" type="number" step="0.000001" placeholder="e.g., 23.810300" />
-                    <span asp-validation-for="Lat" class="text-danger"></span>
-                </div>
-                <div class="col-md-6">
-                    <label asp-for="Lng" class="form-label"></label>
-                    <input asp-for="Lng" class="form-control" type="number" step="0.000001" placeholder="e.g., 90.412500" />
-                    <span asp-validation-for="Lng" class="text-danger"></span>
-                </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="Name" class="form-label">Name</label>
+                            <input asp-for="Name" class="form-control" placeholder="e.g., Star Cineplex Bashundhara" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="City" class="form-label">City</label>
+                            <input asp-for="City" class="form-control" placeholder="e.g., Dhaka" />
+                            <span asp-validation-for="City" class="text-danger"></span>
+                        </div>
 
-                <!-- IsActive -->
-                <div class="col-12">
-                    <div class="form-check">
-                        <input class="form-check-input" asp-for="IsActive" />
-                        <label class="form-check-label" asp-for="IsActive"></label>
+                        <div class="col-12">
+                            <label asp-for="Address" class="form-label">Address</label>
+                            <input asp-for="Address" class="form-control" placeholder="Street, area, mall level, etc." />
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Lat" class="form-label">Latitude</label>
+                            <input asp-for="Lat" class="form-control" type="number" step="0.000001" placeholder="23.810300" />
+                            <span asp-validation-for="Lat" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Lng" class="form-label">Longitude</label>
+                            <input asp-for="Lng" class="form-control" type="number" step="0.000001" placeholder="90.412500" />
+                            <span asp-validation-for="Lng" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input class="form-check-input" asp-for="IsActive" />
+                                <label class="form-check-label" asp-for="IsActive">Active</label>
+                            </div>
+                            <span asp-validation-for="IsActive" class="text-danger"></span>
+                        </div>
                     </div>
-                    <span asp-validation-for="IsActive" class="text-danger"></span>
-                </div>
-            </div>
 
-            <div class="mt-4 d-flex gap-2">
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-check2-circle"></i> Save
-                </button>
-                <a asp-action="Index" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left"></i> Back to List
-                </a>
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn chip btn-sm">
+                            <i class="bi bi-check2-circle"></i> Save
+                        </button>
+                        <a asp-action="Index" class="btn chip chip--muted btn-sm">
+                            <i class="bi bi-arrow-left"></i> Back to List
+                        </a>
+                    </div>
+                </form>
             </div>
-        </form>
+        </div>
     </div>
-</div>
-
-
-}
+</section>

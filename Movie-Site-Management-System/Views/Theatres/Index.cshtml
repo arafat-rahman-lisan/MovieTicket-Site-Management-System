@@ -1,47 +1,98 @@
-﻿@model IEnumerable<Theatre>
-@using Movie_Site_Management_System.Models
+﻿@model IEnumerable<Movie_Site_Management_System.Models.Theatre>
 @{
     ViewData["Title"] = "Theatres";
+    ViewBag.GlassHeader = true;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="mb-0">Theatres</h2>
-    <a asp-controller="Theatres" asp-action="Create" class="btn btn-success btn-sm">+ Add Theatre</a>
-</div>
+<link rel="stylesheet" href="~/css/admin-glass-ultra.css" asp-append-version="true" />
 
-@if (Model == null || !Model.Any())
-{
-    <div class="alert alert-warning mb-0">No theatres found.</div>
-}
-else
-{
-    <table class="table table-striped table-bordered align-middle">
-        <thead class="table-light">
-            <tr>
-                <th>Name</th>
-                <th>City</th>
-                <th>Active</th>
-                <th style="width:220px">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var t in Model)
+<section class="admin-ultra-shell">
+    <!-- Neon film rails -->
+    <div class="film-rail film-rail--left" aria-hidden="true"></div>
+    <div class="film-rail film-rail--right" aria-hidden="true"></div>
+
+    <!-- Animated aura + grain -->
+    <div class="ultra-aura"></div>
+    <div class="film-grain"></div>
+
+    <div class="container py-4 position-relative">
+        <div class="ultra-card">
+            <div class="ultra-card__shine"></div>
+
+            <div class="ultra-card__header">
+                <h2 class="ultra-title mb-0">
+                    <!-- SVG film tile -->
+                    <svg class="title-icon" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="cinexGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#7dd3fc" />
+                                <stop offset="50%" stop-color="#a78bfa" />
+                                <stop offset="100%" stop-color="#60a5fa" />
+                            </linearGradient>
+                        </defs>
+                        <rect x="2" y="5" width="20" height="14" rx="3" ry="3" fill="url(#cinexGrad)" />
+                        <rect x="5" y="7" width="2" height="2" rx="1" fill="#0b1020" opacity=".85" />
+                        <rect x="5" y="11" width="2" height="2" rx="1" fill="#0b1020" opacity=".85" />
+                        <rect x="5" y="15" width="2" height="2" rx="1" fill="#0b1020" opacity=".85" />
+                        <rect x="17" y="7" width="2" height="2" rx="1" fill="#0b1020" opacity=".85" />
+                        <rect x="17" y="11" width="2" height="2" rx="1" fill="#0b1020" opacity=".85" />
+                        <rect x="17" y="15" width="2" height="2" rx="1" fill="#0b1020" opacity=".85" />
+                    </svg>
+                    <span>Theatres</span>
+                </h2>
+
+                <a asp-controller="Theatres" asp-action="Create" class="btn ultra-btn">
+                    + Add Theatre
+                </a>
+            </div>
+
+            @if (Model == null || !Model.Any())
             {
-                <tr>
-                    <td>@t.Name</td>
-                    <td>@t.City</td>
-                    <td>
-                        <span class="badge @(t.IsActive ? "bg-success" : "bg-secondary")">
-                            @(t.IsActive ? "Yes" : "No")
-                        </span>
-                    </td>
-                    <td class="text-start">
-                        <a asp-controller="Theatres" asp-action="Edit" asp-route-id="@t.TheatreId" class="btn btn-sm btn-outline-primary me-1">Edit</a>
-                        <a asp-controller="Theatres" asp-action="Details" asp-route-id="@t.TheatreId" class="btn btn-sm btn-secondary me-1">Details</a>
-                        <a asp-controller="Theatres" asp-action="Delete" asp-route-id="@t.TheatreId" class="btn btn-sm btn-danger">Delete</a>
-                    </td>
-                </tr>
+                <div class="ultra-alert">No theatres found.</div>
             }
-        </tbody>
-    </table>
-}
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table ultra-table align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>City</th>
+                                <th class="text-center">Active</th>
+                                <th class="text-center" style="width: 320px">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var t in Model.OrderBy(x => x.City).ThenBy(x => x.Name))
+                            {
+                                var inactive = !t.IsActive ? "ultra-row--inactive" : "";
+                                <tr class="ultra-row @inactive">
+                                    <td>
+                                        <div class="cell-title">
+                                            <span class="movie-dot" aria-hidden="true"></span>
+                                            @t.Name
+                                        </div>
+                                        <div class="cell-sub">CINEX Theatre • ID: @t.TheatreId</div>
+                                    </td>
+                                    <td>@t.City</td>
+                                    <td class="text-center">
+                                        <span class="pill @(t.IsActive ? "pill--yes" : "pill--no")">
+                                            @(t.IsActive ? "Yes" : "No")
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="actions-grid">
+                                            <a asp-controller="Theatres" asp-action="Edit" asp-route-id="@t.TheatreId" class="btn chip">Edit</a>
+                                            <a asp-controller="Theatres" asp-action="Details" asp-route-id="@t.TheatreId" class="btn chip chip--muted">Details</a>
+                                            <a asp-controller="Theatres" asp-action="Delete" asp-route-id="@t.TheatreId" class="btn chip chip--danger">Delete</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</section>
