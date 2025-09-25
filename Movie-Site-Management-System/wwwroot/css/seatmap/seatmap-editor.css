@@ -1,1 +1,191 @@
+﻿/* ============================================================
+   CINEX — Seat Map Editor (Admin)
+   Theatre Rails + Sky Screen • Soft Glass
+   (Tile size preserved with --tile)
+   ============================================================ */
 
+:root {
+    --tile: 56px; /* DO NOT CHANGE (requested) */
+    --gap: 10px;
+    --sky: #38bdf8; /* enabled tone */
+    --disabled: #ef4444; /* disabled tone (cinema red) */
+}
+
+/* ---------- Page ---------- */
+body {
+    background: radial-gradient(900px 600px at 15% -10%, #1f2942, transparent 60%), linear-gradient(180deg, #121a2b, #0b0f1c 60%);
+    color: #fff;
+    overflow-x: hidden;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+/* ---------- Side Theatre Rails (subtle) ---------- */
+.rails {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.rail {
+    width: 56px;
+    background: linear-gradient(180deg, rgba(239,68,68,.12), rgba(239,68,68,.18));
+    box-shadow: inset 0 0 18px rgba(239,68,68,.35);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    padding: 22px 0;
+}
+
+    .rail::before, .rail::after {
+        content: "";
+        display: block;
+        width: 40px;
+        height: 12px;
+        margin: 0 auto;
+        border-radius: 2px;
+        background: #0a0f1d;
+        box-shadow: inset 0 2px 5px rgba(0,0,0,.6);
+    }
+
+/* ---------- Stage ---------- */
+.seatmap-stage {
+    position: relative;
+    margin: 0 auto;
+    max-width: 980px;
+    padding: 26px 20px 150px;
+    border-radius: 18px;
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.16);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 18px 48px rgba(0,0,0,.38), inset 0 10px 26px rgba(255,255,255,.04);
+    z-index: 1;
+    overflow: hidden;
+}
+
+/* ---------- Grid ---------- */
+.seatmap-grid {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: repeat(10, var(--tile));
+    gap: var(--gap);
+    justify-content: center;
+    width: max-content;
+    margin: 0 auto;
+    padding: 16px;
+    border-radius: 14px;
+    background: rgba(31,41,55,.55);
+    border: 1px solid rgba(200,220,255,.3);
+    box-shadow: inset 0 8px 20px rgba(0,0,0,.25);
+}
+
+/* ---------- Tiles (white text, neon hover) ---------- */
+.seat-tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--tile);
+    height: calc(var(--tile) - 8px);
+    border-radius: 12px;
+    font-weight: 800;
+    color: #fff;
+    background: rgba(56,189,248,.18);
+    border: 1px solid rgba(200,220,255,.35);
+    box-shadow: inset 0 4px 10px rgba(0,0,0,.25);
+    transition: transform .15s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+}
+
+    .seat-tile.is-enabled:hover {
+        border-color: var(--sky);
+        box-shadow: 0 0 10px var(--sky), 0 0 22px rgba(56,189,248,.45);
+        transform: translateY(-2px);
+    }
+
+    .seat-tile.is-enabled {
+        background: rgba(56,189,248,.22);
+        color: #fff;
+    }
+
+    .seat-tile.is-disabled {
+        background: rgba(239,68,68,.28);
+        border-color: rgba(239,68,68,.6);
+        color: #fff;
+        cursor: not-allowed;
+    }
+
+/* ---------- Screen (red glow for editor) ---------- */
+.editor-screen-wrap {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 22px;
+    height: 130px;
+    pointer-events: none;
+}
+
+.editor-screen-glow {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 32px;
+    width: 80%;
+    max-width: 940px;
+    height: 110px;
+    background: radial-gradient(ellipse at center, rgba(239,68,68,.7), transparent 70%);
+    filter: blur(16px);
+    opacity: .88;
+    animation: editorPulse 1.9s ease-in-out infinite;
+}
+
+@keyframes editorPulse {
+    0%,100% {
+        opacity: .9;
+        transform: translateX(-50%) translateY(0)
+    }
+
+    50% {
+        opacity: .55;
+        transform: translateX(-50%) translateY(-6px)
+    }
+}
+
+.editor-screen-bar {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 0;
+    width: 74%;
+    max-width: 940px;
+    height: 16px;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #ffffff, #e7eefc);
+    box-shadow: 0 8px 26px rgba(255,255,255,.7);
+}
+
+    .editor-screen-bar::before {
+        content: "SCREEN";
+        position: absolute;
+        bottom: 22px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 3px;
+        color: #fff;
+        text-shadow: 0 0 10px rgba(239,68,68,.8);
+    }
+
+/* ---------- Mobile ---------- */
+@media (max-width:576px) {
+    :root {
+        --tile: 50px;
+        --gap: 8px;
+    }
+
+    .seatmap-stage {
+        padding: 18px 12px 130px;
+    }
+}
