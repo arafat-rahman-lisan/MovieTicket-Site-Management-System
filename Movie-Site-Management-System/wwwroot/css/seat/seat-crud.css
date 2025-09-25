@@ -1,1 +1,279 @@
+﻿/* ===========================================================
+   STAR CINEPLEX — SEAT CRUD (Ultra Glass + Film Rails + Glossy)
+   Path: /wwwroot/css/seat/seat-crud.css
+   =========================================================== */
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@500;600&display=swap');
+
+:root {
+    --cine-bg: #07090f;
+    --cine-card: rgba(16, 22, 33, .60);
+    --cine-card-br: rgba(125, 140, 175, .28);
+    --cine-text: #eaf0f7;
+    --cine-muted: #a9b4c7;
+    --neon-cyan: #38bdf8;
+    --neon-blue: #3b82f6;
+    --neon-violet: #8b5cf6;
+    --neon-green: #22c55e;
+    --neon-red: #ef4444;
+    --neon-amber: #f59e0b;
+    --row-odd: rgba(255,255,255,.055);
+    --row-even: rgba(255,255,255,.025);
+    --row-hover: rgba(59,130,246,.14);
+    --row-border: rgba(255,255,255,.08);
+}
+
+/* ---------- Ultra card ---------- */
+.ultra-card {
+    background: var(--cine-card);
+    border: 1px solid var(--cine-card-br);
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    overflow: hidden;
+    position: relative;
+}
+
+    /* rotating neon gloss */
+    .ultra-card::before {
+        content: "";
+        position: absolute;
+        inset: -2px;
+        border-radius: 26px;
+        background: conic-gradient( from 0deg, rgba(56,189,248,.0) 0deg, rgba(56,189,248,.5) 60deg, rgba(59,130,246,.65) 120deg, rgba(139,92,246,.6) 180deg, rgba(59,130,246,.65) 240deg, rgba(56,189,248,.5) 300deg, rgba(56,189,248,.0) 360deg );
+        -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0) border-box;
+        mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0) border-box;
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        animation: cinex-spin 12s linear infinite;
+        opacity: .45;
+        pointer-events: none;
+    }
+
+@keyframes cinex-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.ultra-card__shine {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(900px 520px at -10% -15%, rgba(139,92,246,.18), transparent 60%), radial-gradient(820px 480px at 120% -10%, rgba(59,130,246,.16), transparent 60%);
+}
+
+/* ---------- Header ---------- */
+.ultra-card__header {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    backdrop-filter: blur(8px);
+    background: linear-gradient(180deg, rgba(10,14,22,.72), rgba(10,14,22,.46));
+    border-bottom: 1px solid var(--cine-card-br);
+    padding: 20px;
+}
+
+.ultra-title {
+    color: var(--cine-text);
+    font-weight: 700;
+    letter-spacing: .3px;
+    margin: 0;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+    .header-actions .btn {
+        border-radius: 999px;
+        padding: 8px 14px;
+        border: 1px solid rgba(255,255,255,.08);
+    }
+
+        .header-actions .btn.btn-primary {
+            background: linear-gradient(135deg, rgba(59,130,246,.95), rgba(139,92,246,.95));
+            box-shadow: 0 6px 20px rgba(59,130,246,.35);
+        }
+
+        .header-actions .btn.btn-outline-light {
+            background: rgba(255,255,255,.06);
+        }
+
+/* ---------- Toolbar ---------- */
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+}
+
+    .toolbar .btn, .toolbar .form-select {
+        height: 38px;
+    }
+
+    .toolbar .form-select {
+        min-width: 320px;
+    }
+
+/* ---------- Global Inputs ---------- */
+.form-control, .form-select {
+    background: rgba(15,20,30,.85);
+    border: 1px solid var(--cine-card-br);
+    color: var(--neon-cyan);
+    border-radius: 12px;
+}
+
+    .form-control::placeholder {
+        color: rgba(234,240,247,.6);
+    }
+
+/* ---------- Neon Dropdown Fix ---------- */
+.form-select {
+    color: var(--neon-cyan) !important;
+    background-color: rgba(15,20,30,.9) !important;
+    border: 1px solid var(--cine-card-br) !important;
+}
+
+    .form-select:focus {
+        color: var(--neon-cyan) !important;
+        background-color: rgba(15,20,30,1) !important;
+        border-color: var(--neon-violet) !important;
+        box-shadow: 0 0 0 0.2rem rgba(139,92,246,.35);
+    }
+
+    .form-select option {
+        background-color: #0b0f1a !important;
+        color: #eaf0f7 !important;
+    }
+
+        .form-select option:checked {
+            background-color: var(--neon-blue) !important;
+            color: #fff !important;
+        }
+
+/* ---------- Helpers ---------- */
+.card-help {
+    font-size: .95rem;
+    color: var(--cine-muted);
+}
+
+.badge {
+    font-weight: 600;
+    border: 1px solid rgba(255,255,255,.12);
+}
+
+    .badge.bg-success {
+        background: rgba(34,197,94,.18) !important;
+        color: #a7f3d0;
+        border-color: rgba(16,185,129,.35);
+    }
+
+    .badge.bg-danger {
+        background: rgba(239,68,68,.20) !important;
+        color: #fecaca;
+        border-color: rgba(248,113,113,.35);
+    }
+
+/* ---------- Table ---------- */
+
+
+.table thead th {
+    background: linear-gradient( 145deg, rgba(59,130,246,.22) 0%, rgba(139,92,246,.22) 50%, rgba(56,189,248,.18) 100% ) !important;
+    color: var(--cine-text) !important;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    text-align: center;
+    letter-spacing: 0.2px;
+    border: none !important;
+    padding: 14px 12px;
+    position: relative;
+    font-size: 1rem;
+    border-radius: 6px 6px 0 0;
+}
+
+    /* neon underline */
+    .table thead th::after {
+        content: "";
+        position: absolute;
+        left: 10%;
+        right: 10%;
+        bottom: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--neon-blue), var(--neon-violet), transparent );
+        opacity: .85;
+        border-radius: 2px;
+    }
+
+/* smooth shadow under header */
+.table thead {
+    box-shadow: 0 3px 10px rgba(59,130,246,.2);
+}
+
+
+
+.table {
+    color: var(--cine-text);
+    border-color: var(--row-border);
+}
+
+    .table tbody tr {
+        border-bottom: 1px solid var(--row-border) !important;
+    }
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: var(--row-odd) !important;
+}
+
+.table-striped > tbody > tr:nth-of-type(even) {
+    background-color: var(--row-even) !important;
+}
+
+.table tbody tr td, .table tbody tr th {
+    color: var(--cine-text) !important;
+}
+
+.table-hover > tbody > tr:hover {
+    background-color: var(--row-hover) !important;
+}
+
+/* ---------- Bulk Tools ---------- */
+#bulkTools .card {
+    background: rgba(255,255,255,.04);
+    border: 1px solid var(--cine-card-br);
+    border-radius: 16px;
+}
+
+#bulkTools .btn, #bulkTools .form-control, #bulkTools .form-select {
+    border-radius: 12px;
+}
+
+/* ---------- Buttons ---------- */
+.btn-dark, .btn-secondary {
+    background: rgba(255,255,255,.08);
+    color: var(--cine-text);
+    border: 1px solid rgba(255,255,255,.12);
+}
+
+    .btn-dark:hover, .btn-secondary:hover {
+        background: rgba(255,255,255,.14);
+    }
+
+.btn-outline-light {
+    color: #eaf0f7;
+    border-color: rgba(255,255,255,.3);
+}
+
+    .btn-outline-light:hover {
+        background: rgba(255,255,255,.1);
+    }
+
+.btn-danger {
+    background: rgba(239,68,68,.88);
+    border-color: rgba(248,113,113,.6);
+}
+
+    .btn-danger:hover {
+        background: rgba(239,68,68,1);
+    }
