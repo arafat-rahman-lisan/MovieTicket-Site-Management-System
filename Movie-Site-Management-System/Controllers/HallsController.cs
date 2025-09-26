@@ -225,7 +225,14 @@ namespace Movie_Site_Management_System.Controllers
             if (hall == null) return NotFound();
 
             var slotCount = await _db.HallSlots.CountAsync(s => s.HallId == id);
-            var seatCount = await _db.Seats.CountAsync(s => s.HallId == id);
+
+            // seats and links
+            var seats = await _db.Seats
+                .Where(s => s.HallId == id)
+                .Select(s => new { s.SeatId })
+                .ToListAsync();
+            var seatCount = seats.Count;
+            var seatIds = seats.Select(s => s.SeatId).ToList();
 
             var showCount = await (
                 from sh in _db.Shows
@@ -234,23 +241,35 @@ namespace Movie_Site_Management_System.Controllers
                 select sh
             ).CountAsync();
 
+            int seatLinks = 0;
+            if (seatIds.Count > 0)
+            {
+                seatLinks += await _db.ShowSeats.CountAsync(x => seatIds.Contains(x.SeatId));
+                seatLinks += await _db.BookingSeats.CountAsync(x => seatIds.Contains(x.SeatId));
+                seatLinks += await _db.SeatBlocks.CountAsync(x => seatIds.Contains(x.SeatId));
+            }
+
             ViewBag.SlotCount = slotCount;
             ViewBag.SeatCount = seatCount;
             ViewBag.ShowCount = showCount;
+            ViewBag.SeatLinks = seatLinks;
+
+            // Can allow admin to delete seats with the hall only if:
+            // no shows, and seats are not linked anywhere.
+            ViewBag.CanDeleteSeats = seatCount > 0 && seatLinks == 0 && showCount == 0;
 
             return View(hall);
         }
 
-        // POST: /Halls/Delete/5
+        // POST: /Halls/Delete/5  (supports "deleteSeats" checkbox)
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(long id)
+        public async Task<IActionResult> DeleteConfirmed(long id, bool? deleteSeats)
         {
-            var hall = await _db.Halls.FindAsync(id);
+            var hall = await _db.Halls.FirstOrDefaultAsync(h => h.HallId == id);
             if (hall == null) return NotFound();
-                
+
             var hasSlots = await _db.HallSlots.AnyAsync(s => s.HallId == id);
-            var hasSeats = await _db.Seats.AnyAsync(s => s.HallId == id);
             var hasShows = await (
                 from sh in _db.Shows
                 join hs in _db.HallSlots on sh.HallSlotId equals hs.HallSlotId
@@ -258,15 +277,57 @@ namespace Movie_Site_Management_System.Controllers
                 select sh
             ).AnyAsync();
 
-            if (hasSlots || hasSeats || hasShows)
+            // Seats and links
+            var seats = await _db.Seats.Where(s => s.HallId == id).ToListAsync();
+            var seatIds = seats.Select(s => s.SeatId).ToList();
+            int seatLinks = 0;
+            if (seatIds.Count > 0)
             {
-                TempData["Error"] = "Cannot delete this hall because it has related Slots/Seats/Shows. Delete those first.";
-                return RedirectToAction(nameof(Details), new { id });
+                seatLinks += await _db.ShowSeats.CountAsync(x => seatIds.Contains(x.SeatId));
+                seatLinks += await _db.BookingSeats.CountAsync(x => seatIds.Contains(x.SeatId));
+                seatLinks += await _db.SeatBlocks.CountAsync(x => seatIds.Contains(x.SeatId));
             }
 
-            _db.Halls.Remove(hall);
-            await _db.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            // Hard dependencies block deletion
+            if (hasShows || hasSlots)
+            {
+                TempData["Danger"] = "Cannot delete this hall because it still has Shows and/or Slots. Remove those first.";
+                return RedirectToAction(nameof(Delete), new { id });
+            }
+
+            // If seats exist but admin didn't confirm deleting them, bounce back
+            if (seats.Count > 0 && deleteSeats != true)
+            {
+                TempData["Warning"] = "This hall has seats. Tick 'Also delete seats' to confirm.";
+                return RedirectToAction(nameof(Delete), new { id });
+            }
+
+            // Seats referenced elsewhere — do not allow force delete
+            if (seats.Count > 0 && seatLinks > 0)
+            {
+                TempData["Danger"] = "Some seats are referenced by ShowSeats/Bookings/Blocks. Remove those references first.";
+                return RedirectToAction(nameof(Delete), new { id });
+            }
+
+            using var tx = await _db.Database.BeginTransactionAsync();
+            try
+            {
+                if (seats.Count > 0 && deleteSeats == true)
+                    _db.Seats.RemoveRange(seats);
+
+                _db.Halls.Remove(hall);
+                await _db.SaveChangesAsync();
+                await tx.CommitAsync();
+
+                TempData["Success"] = $"Hall '{hall.Name}' was deleted.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateException ex)
+            {
+                await tx.RollbackAsync();
+                TempData["Danger"] = "Delete failed due to related data. " + ex.Message;
+                return RedirectToAction(nameof(Delete), new { id });
+            }
         }
     }
 }
