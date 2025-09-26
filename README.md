@@ -26,7 +26,15 @@ Filter by **date, theatre, location, or language**
 
 ![Image Alt](https://github.com/arafat-rahman-lisan/MovieTicket-Site-Management-System/blob/00ac973a66100f71f8c4ab7419ce9d0824f437e2/get%20ticket.png)
 
+Real-time **seat map** with seat hold logic (**2-minute auto release**). 
+**Book seats, confirm booking, proceed to payment**.
 
+![Image Alt](https://github.com/arafat-rahman-lisan/MovieTicket-Site-Management-System/blob/930e6b6367377246941b37048aefac15d56ee62c/seatmap.png)
+
+
+![Image Alt](https://github.com/arafat-rahman-lisan/MovieTicket-Site-Management-System/blob/ce99c6a67a86f4ce7b84d5e035ff6642ca2949ff/seatmap.png)
+
+![Image Alt](https://github.com/arafat-rahman-lisan/MovieTicket-Site-Management-System/blob/ce99c6a67a86f4ce7b84d5e035ff6642ca2949ff/confirm2.png)
 
 Clone the repository, then from the project folder:
 # Restore & build
