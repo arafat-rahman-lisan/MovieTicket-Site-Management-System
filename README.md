@@ -18,6 +18,7 @@ Filter by **date, theatre, location, or language**
 
 https://github.com/arafat-rahman-lisan/MovieTicket-Site-Management-System/blob/729e43dcb072a33dec654a111368c8cc93d93554/Screenshot%202025-09-27%20034340.png
 
+Screenshot 2025-09-27 034340.png
 
 Clone the repository, then from the project folder:
 # Restore & build
