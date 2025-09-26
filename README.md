@@ -5,7 +5,11 @@ It covers the entire flow:
 
 **movies → theatres/halls → showtimes → seat map → booking → payment → invoice PDF.**
 
-Admins get a manage dropdown theatres, halls, shows, users, and payments.
+Admins use a single Manage dropdown in the navbar—linking to 
+
+Theatres, Halls, Hall Slots, Seat Types, Seats, Users, Schedule Builder, and Payments → Management (KPIs + filters by date/method/status)
+
+—all role-protected and styled with the Ultra Glass dashboard.
 
 Clone the repository, then from the project folder:
 # Restore & build
