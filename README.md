@@ -22,7 +22,7 @@ Admins use a single Manage dropdown in the navbar—linking to
 
 ![Image Alt](https://github.com/arafat-rahman-lisan/MovieTicket-Site-Management-System/blob/1edbcabd84dff6641f5af0fbdbda115e3c72b592/details.png)
 
- Get Ticket by Theatres
+ Get Ticket by **Theatres**
 
 ![Image Alt](https://github.com/arafat-rahman-lisan/MovieTicket-Site-Management-System/blob/00ac973a66100f71f8c4ab7419ce9d0824f437e2/get%20ticket.png)
 
