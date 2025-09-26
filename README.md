@@ -1,6 +1,6 @@
 # CINEX 🎬 – Movie Ticket Management System #
 
-CINEX (Star Cineplex Clone) is a full-stack ASP.NET Core MVC application for online movie ticket booking.
+CINEX is a full-stack ASP.NET Core MVC application for online movie ticket booking.
 It covers the entire flow:
 
 **movies → theatres/halls → showtimes → seat map → booking → payment → invoice PDF.**
