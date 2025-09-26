@@ -11,6 +11,9 @@ Admins use a single Manage dropdown in the navbar—linking to
 
 —all role-protected.
 
+**Project Demonstration :**
+https://drive.google.com/file/d/1JG7huw6qL3Fw1rP2YCNr-M8DnT_7aXu0/view?usp=drive_link
+
 # ✨ Features
 
  Browse movies (**Now Showing, Coming Soon, Top Rated, Genres**). 
@@ -38,6 +41,15 @@ Admins use a single Manage dropdown in the navbar—linking to
  Download **QuestPDF invoice** after successful payment.
 
 ![Image Alt](https://github.com/arafat-rahman-lisan/MovieTicket-Site-Management-System/blob/531655e472e2a7c5e29b1c1b5fd3073c3d440cea/Invoice.png)
+
+# 🛠 Admin Side 
+**Manage** - Theatres, Halls, Hall Slots, Seat Types, and Seats. 
+**Schedule Builder** for creating shows (group by theatre, hall, slot). 
+**User Management** (create, edit, reset password, delete). 
+**Payment Management Dashboard**: filter by date, method, status; view KPIs & revenue. 
+Ultra-glassmorphism UI with **retro film rails** design across CRUD pages.
+
+
 
 Clone the repository, then from the project folder:
 # Restore & build
