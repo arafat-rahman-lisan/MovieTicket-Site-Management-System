@@ -64,6 +64,7 @@ Ultra-glassmorphism UI with **retro film rails** design across CRUD pages.
 ### Setup
 bash
 # 1. Clone repo
-git clone https://github.com/your-username/Movie-Site-Management-System.git
+git clone https://github.com/arafat-rahman-lisan/MovieTicket-Site-Management-System.git
+
 cd Movie-Site-Management-System
 
