@@ -36,6 +36,10 @@ Real-time **seat map** with seat hold logic (**2-minute auto release**).
 
 ![Image Alt](https://github.com/arafat-rahman-lisan/MovieTicket-Site-Management-System/blob/ce99c6a67a86f4ce7b84d5e035ff6642ca2949ff/confirm2.png)
 
+Download **QuestPDF invoice** after successful payment.
+
+![Image Alt](https://github.com/arafat-rahman-lisan/MovieTicket-Site-Management-System/blob/531655e472e2a7c5e29b1c1b5fd3073c3d440cea/Invoice.png)
+
 Clone the repository, then from the project folder:
 # Restore & build
 dotnet restore
