@@ -32,7 +32,7 @@ Admins use a single Manage dropdown in the navbar—linking to
 ![Image Alt](https://github.com/arafat-rahman-lisan/MovieTicket-Site-Management-System/blob/930e6b6367377246941b37048aefac15d56ee62c/seatmap.png)
 
 
-![Image Alt](https://github.com/arafat-rahman-lisan/MovieTicket-Site-Management-System/blob/ce99c6a67a86f4ce7b84d5e035ff6642ca2949ff/seatmap.png)
+![Image Alt](https://github.com/arafat-rahman-lisan/MovieTicket-Site-Management-System/blob/771226769ced1761aca2a446769a52abf230b1c3/confirm2.png)
 
 
  Download **QuestPDF invoice** after successful payment.
