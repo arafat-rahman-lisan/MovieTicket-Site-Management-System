@@ -50,6 +50,14 @@ https://drive.google.com/file/d/1JG7huw6qL3Fw1rP2YCNr-M8DnT_7aXu0/view?usp=drive
 Ultra-glassmorphism UI with **retro film rails** design across CRUD pages.
 
 
+**🚀Getting Started**
+
+### Prerequisites 
+**.NET 8 SDK**
+**SQL Server (local or remote)** 
+**Node.js (optional, for front-end builds)**
+
+
 
 Clone the repository, then from the project folder:
 # Restore & build
