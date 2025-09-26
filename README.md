@@ -1,4 +1,4 @@
-**CINEX 🎬 – Movie Ticket Management System**
+# CINEX 🎬 – Movie Ticket Management System #
 A simple cinema ticketing application built with ASP.NET Core MVC and EF Core. Supports theatres, halls, slots, shows, seats with snapshot pricing, and user bookings.
 Getting started
 Install the prerequisites:
