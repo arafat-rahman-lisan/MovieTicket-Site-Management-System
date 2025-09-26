@@ -1,10 +1,9 @@
 # CINEX 🎬 – Movie Ticket Management System #
-A simple cinema ticketing application built with ASP.NET Core MVC and EF Core. Supports theatres, halls, slots, shows, seats with snapshot pricing, and user bookings.
-Getting started
-Install the prerequisites:
-- .NET SDK 8+
-- SQL Server (LocalDB or full SQL Server). PostgreSQL also works if you switch the EF provider/config.
-- (Optional) Docker Desktop if you want to run with containers
+
+CINEX (Star Cineplex Clone) is a full-stack ASP.NET Core MVC application for online movie ticket booking.
+It covers the entire flow: movies → theatres/halls → showtimes → seat map → booking → payment → invoice PDF.
+Admins get a manage dropdown theatres, halls, shows, users, and payments.
+
 Clone the repository, then from the project folder:
 # Restore & build
 dotnet restore
