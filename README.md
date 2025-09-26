@@ -13,21 +13,21 @@ Admins use a single Manage dropdown in the navbar—linking to
 
 # ✨ Features
 
-# Browse movies (**Now Showing, Coming Soon, Top Rated, Genres**). 
-# Filter by **date, theatre, location, or language**
+ Browse movies (**Now Showing, Coming Soon, Top Rated, Genres**). 
+ Filter by **date, theatre, location, or language**
 
 ![Image Alt](https://github.com/arafat-rahman-lisan/MovieTicket-Site-Management-System/blob/729e43dcb072a33dec654a111368c8cc93d93554/Screenshot%202025-09-27%20034340.png)
 
-# Watch trailer or view detailed synopsis.
+ Watch trailer or view detailed synopsis.
 
 ![Image Alt](https://github.com/arafat-rahman-lisan/MovieTicket-Site-Management-System/blob/1edbcabd84dff6641f5af0fbdbda115e3c72b592/details.png)
 
-# Get Ticket by Theatres
+ Get Ticket by Theatres
 
 ![Image Alt](https://github.com/arafat-rahman-lisan/MovieTicket-Site-Management-System/blob/00ac973a66100f71f8c4ab7419ce9d0824f437e2/get%20ticket.png)
 
-# Real-time **seat map** with seat hold logic (**2-minute auto release**). 
-# **Book seats, confirm booking, proceed to payment**.
+ Real-time **seat map** with seat hold logic (**2-minute auto release**). 
+ **Book seats, confirm booking, proceed to payment**.
 
 ![Image Alt](https://github.com/arafat-rahman-lisan/MovieTicket-Site-Management-System/blob/930e6b6367377246941b37048aefac15d56ee62c/seatmap.png)
 
@@ -36,7 +36,7 @@ Admins use a single Manage dropdown in the navbar—linking to
 
 ![Image Alt](https://github.com/arafat-rahman-lisan/MovieTicket-Site-Management-System/blob/ce99c6a67a86f4ce7b84d5e035ff6642ca2949ff/confirm2.png)
 
-# Download **QuestPDF invoice** after successful payment.
+ Download **QuestPDF invoice** after successful payment.
 
 ![Image Alt](https://github.com/arafat-rahman-lisan/MovieTicket-Site-Management-System/blob/531655e472e2a7c5e29b1c1b5fd3073c3d440cea/Invoice.png)
 
