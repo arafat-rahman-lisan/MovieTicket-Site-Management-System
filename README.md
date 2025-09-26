@@ -9,7 +9,7 @@ Admins use a single Manage dropdown in the navbar—linking to
 
 **Theatres, Halls, Hall Slots, Seat Types, Seats, Users, Schedule Builder, and Payments → Management (KPIs + filters by date/method/status)**
 
-—all role-protected and styled with the Ultra Glass dashboard.
+—all role-protected.
 
 Clone the repository, then from the project folder:
 # Restore & build
