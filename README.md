@@ -44,9 +44,13 @@ https://drive.google.com/file/d/1JG7huw6qL3Fw1rP2YCNr-M8DnT_7aXu0/view?usp=drive
 
 # 🛠 Admin Side 
 **Manage** - Theatres, Halls, Hall Slots, Seat Types, and Seats. 
+
 **Schedule Builder** for creating shows (group by theatre, hall, slot). 
+
 **User Management** (create, edit, reset password, delete). 
+
 **Payment Management Dashboard**: filter by date, method, status; view KPIs & revenue. 
+
 Ultra-glassmorphism UI with **retro film rails** design across CRUD pages.
 
 
