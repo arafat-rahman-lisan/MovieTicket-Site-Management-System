@@ -122,7 +122,7 @@ WITH MOVE 'E_Ticket_Management' TO 'C:\SQLData\E_Ticket_Management.mdf',
 
 
 
-**3) Set the Connection String & Secrets**
+# **3) Set the Connection String & Secrets**
 
 || Do not store real secrets in appsettings.json. Use User Secrets in development.
 
@@ -153,7 +153,7 @@ If you used a different DB name in restore, update it in the connection string.
 If your SQL Server uses SQL Auth:
 Server=localhost;Database=E_Ticket_Management;User Id=sa;Password=YourPassword;TrustServerCertificate=True;MultipleActiveResultSets=true
 
-**4) Run the App**
+# **4) Run the App**
 
 _#If you restored the DB, usually no migration is needed.
 
