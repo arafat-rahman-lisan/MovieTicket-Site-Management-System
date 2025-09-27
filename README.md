@@ -90,6 +90,12 @@ File path (adjust if different):
 
 5) In Files tab, verify MDF/LDF paths are writable.
 
+6) After wiring , Open the PM in VS and run the command below,
+
+-- Add-InitialMigration
+-- UPDATE-DATABASE
+-
+
 Click OK to restore.
 
 
