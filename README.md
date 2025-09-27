@@ -93,8 +93,9 @@ File path (adjust if different):
 6) After wiring , Open the PM in VS and run the command below,
 
 -- Add-InitialMigration
+
 -- UPDATE-DATABASE
--
+
 
 Click OK to restore.
 
