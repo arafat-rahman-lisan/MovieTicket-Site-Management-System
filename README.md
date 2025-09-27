@@ -66,5 +66,109 @@ bash
 # 1. Clone repo
 git clone https://github.com/arafat-rahman-lisan/MovieTicket-Site-Management-System.git
 
-cd Movie-Site-Management-System
+or **Download**
+
+# 2) Restore the Database from .bak
+
+File path (adjust if different):
+./Data/Backups/E-Ticket-Management.bak (or wherever the .bak lives in your repo)
+
+
+**A) Easiest (Windows + SSMS GUI)**
+
+1) Open SSMS → connect to your local SQL Server instance (e.g., localhost or .\SQLEXPRESS).
+
+2) Right-click Databases → Restore Database…
+
+3) Source: Device → Add… → select E-Ticket-Management.bak.
+
+4) Destination: Database name → E_Ticket_Management (or your choice).
+
+5) In Files tab, verify MDF/LDF paths are writable.
+
+Click OK to restore.
+
+
+**B) Command Line (Windows PowerShell)**
+
+**Change these paths/instance as needed**
+
+
+_$SqlInstance = ".\SQLEXPRESS"       # or "localhost"
+$DbName     = "E_Ticket_Management"
+$BakPath    = "C:\path\to\E-Ticket-Management.bak"
+
+sqlcmd -S $SqlInstance -Q "RESTORE DATABASE [$DbName]
+FROM DISK = N'$BakPath'
+WITH REPLACE, RECOVERY;"_
+
+
+|| If you get logical name/file path issues, you can move/relocate with MOVE options:
+
+_sqlcmd -S $SqlInstance -Q "
+RESTORE FILELISTONLY FROM DISK = N'$BakPath';
+"
+#Note the logical names, then:
+sqlcmd -S $SqlInstance -Q "
+RESTORE DATABASE [$DbName] FROM DISK = N'$BakPath'
+WITH MOVE 'E_Ticket_Management' TO 'C:\SQLData\E_Ticket_Management.mdf',
+     MOVE 'E_Ticket_Management_log' TO 'C:\SQLData\E_Ticket_Management_log.ldf',
+     REPLACE, RECOVERY;
+"_
+
+
+
+**3) Set the Connection String & Secrets**
+
+|| Do not store real secrets in appsettings.json. Use User Secrets in development.
+
+From the project folder (where the .csproj lives):
+
+# Set your SQL Server connection string
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=localhost;Database=E_Ticket_Management;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true"
+
+# Seed Admin user (the app seeds roles/admin on startup)
+dotnet user-secrets set "AdminUser:Email" "admin@cinex.com"
+dotnet user-secrets set "AdminUser:Password" "YourStrongPassword#2025"
+
+# (Optional) Google OAuth
+dotnet user-secrets set "Authentication:Google:ClientId" "YOUR_GOOGLE_CLIENT_ID"
+dotnet user-secrets set "Authentication:Google:ClientSecret" "YOUR_GOOGLE_CLIENT_SECRET"
+
+# (Optional) SMTP for invoice emails
+dotnet user-secrets set "Smtp:Host" "smtp.yourhost.com"
+dotnet user-secrets set "Smtp:Port" "587"
+dotnet user-secrets set "Smtp:User" "no-reply@cinex.com"
+dotnet user-secrets set "Smtp:Pass" "StrongSmtpPassword"
+
+
+**Notes**
+
+If you used a different DB name in restore, update it in the connection string.
+
+If your SQL Server uses SQL Auth:
+Server=localhost;Database=E_Ticket_Management;User Id=sa;Password=YourPassword;TrustServerCertificate=True;MultipleActiveResultSets=true
+
+**4) Run the App**
+
+_#If you restored the DB, usually no migration is needed.
+
+#But running migrations won't hurt if the schema matches:
+
+dotnet ef database update
+
+#Run
+dotnet run
+
+#Output: app listening on https://localhost:5001 (or shown URL)_
+
+
+**Default Access**
+
+**Admin:** login with the email/password you set in user-secrets.
+
+**Public:** browse movies, details, seat map, proceed to booking/payment.
+
+**After successful payment:** download the PDF invoice.
+
 
