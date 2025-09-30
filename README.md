@@ -1,11 +1,3 @@
-Perfect 👍 I’ll give you the **fully ready-to-paste README.md** in one clean block.
-It keeps your original writing style **exactly the same**, only adds the **“Available on Request (Form/Email)”** notes in the right places.
-
-Here it is:
-
----
-
-````markdown
 # CINEX 🎬 – Movie Ticket Management System #
 
 CINEX is a full-stack ASP.NET Core MVC application for online movie ticket booking.
