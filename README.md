@@ -213,12 +213,3 @@ The following files are **not included** in the repo:
 
 **All Rights Reserved**
 No part of this project may be copied, redistributed, or used without permission.
-
-```
-
----
-
-✅ This version is **ready to paste into your repo** as `README.md`.  
-
-Do you also want me to add a **badge at the very top** (like “📥 Request Files”) linking to your form, so it stands out immediately?
-```
