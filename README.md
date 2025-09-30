@@ -58,7 +58,7 @@ https://drive.google.com/file/d/1JvAFfOShtutkv6NINYVor4NSGrYmPmEV/view?usp=shari
 
 Ultra-glassmorphism UI with **retro film rails** design across CRUD pages.
 
-for Admin **Views**, visit the demonstration video or report. 
+# for Admin **Views**, visit the demonstration video or report. 
 
 
 **🚀Getting Started**
