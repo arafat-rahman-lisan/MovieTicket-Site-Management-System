@@ -1,3 +1,11 @@
+Perfect 👍 I’ll give you the **fully ready-to-paste README.md** in one clean block.
+It keeps your original writing style **exactly the same**, only adds the **“Available on Request (Form/Email)”** notes in the right places.
+
+Here it is:
+
+---
+
+````markdown
 # CINEX 🎬 – Movie Ticket Management System #
 
 CINEX is a full-stack ASP.NET Core MVC application for online movie ticket booking.
@@ -21,7 +29,7 @@ https://drive.google.com/file/d/1JvAFfOShtutkv6NINYVor4NSGrYmPmEV/view?usp=shari
 
 # ✨ Features
 
- Browse movies (**Now Showing, Coming Soon, Top Rated, Genres**). 
+ Browse movies (**Now Showing, Coming Soon, Top Rated, Genres**).  
  # Filter by **date, theatre, location, or language**
 
 ![Image Alt](https://github.com/arafat-rahman-lisan/MovieTicket-Site-Management-System/blob/729e43dcb072a33dec654a111368c8cc93d93554/Screenshot%202025-09-27%20034340.png)
@@ -34,7 +42,7 @@ https://drive.google.com/file/d/1JvAFfOShtutkv6NINYVor4NSGrYmPmEV/view?usp=shari
 
 ![Image Alt](https://github.com/arafat-rahman-lisan/MovieTicket-Site-Management-System/blob/00ac973a66100f71f8c4ab7419ce9d0824f437e2/get%20ticket.png)
 
- Real-time **seat map** with seat hold logic (**2-minute auto release**). 
+ Real-time **seat map** with seat hold logic (**2-minute auto release**).  
 # **Book seats, confirm booking, proceed to payment**.
 
 ![Image Alt](https://github.com/arafat-rahman-lisan/MovieTicket-Site-Management-System/blob/930e6b6367377246941b37048aefac15d56ee62c/seatmap.png)
@@ -48,87 +56,89 @@ https://drive.google.com/file/d/1JvAFfOShtutkv6NINYVor4NSGrYmPmEV/view?usp=shari
 ![Image Alt](https://github.com/arafat-rahman-lisan/MovieTicket-Site-Management-System/blob/531655e472e2a7c5e29b1c1b5fd3073c3d440cea/Invoice.png)
 
 # 🛠 Admin Side 
-**Manage** - Theatres, Halls, Hall Slots, Seat Types, and Seats. 
+**Manage** - Theatres, Halls, Hall Slots, Seat Types, and Seats.  
 
-**Schedule Builder** for creating shows (group by theatre, hall, slot). 
+**Schedule Builder** for creating shows (group by theatre, hall, slot).  
 
-**User Management** (create, edit, reset password, delete). 
+**User Management** (create, edit, reset password, delete).  
 
-**Payment Management Dashboard**: filter by date, method, status; view KPIs & revenue. 
+**Payment Management Dashboard**: filter by date, method, status; view KPIs & revenue.  
 
 Ultra-glassmorphism UI with **retro film rails** design across CRUD pages.
 
 # for Admin **Views**, visit the demonstration video or report. 
 
-
-
-
+---
 
 ### Prerequisites 
 
-**.NET 8 SDK**
-
-**SQL Server (local or remote)** 
-
+**.NET 8 SDK**  
+**SQL Server (local or remote)**  
 **Node.js (optional, for front-end builds)**
 
+---
 
 ### Setup
-bash
+```bash
 # 1. Clone repo
 git clone https://github.com/arafat-rahman-lisan/MovieTicket-Site-Management-System.git
+````
 
 or **Download**
+
+---
 
 # 2) Restore the Database from .bak
 
 File path (adjust if different):
-./Data/Backups/E-Ticket-Management.bak (or wherever the .bak lives in your repo)
+`./Data/Backups/E-Ticket-Management.bak`
 
+📌 **Note:** The `.bak` file is **only available on request**
+👉 [Request via Google Form](https://forms.gle/VFchq3unKmCrMKHm7)
+📧 Or email: **[Arafatrahmanlis02@gmail.com](mailto:Arafatrahmanlis02@gmail.com)**
+
+---
 
 **A) Easiest (Windows + SSMS GUI)**
 
-1) Open SSMS → connect to your local SQL Server instance (e.g., localhost or .\SQLEXPRESS).
+1. Open SSMS → connect to your local SQL Server instance (e.g., localhost or .\SQLEXPRESS).
+2. Right-click Databases → Restore Database…
+3. Source: Device → Add… → select E-Ticket-Management.bak.
+4. Destination: Database name → E_Ticket_Management (or your choice).
+5. In Files tab, verify MDF/LDF paths are writable.
+6. After wiring , Open the PM in VS and run the command below,
 
-2) Right-click Databases → Restore Database…
-
-3) Source: Device → Add… → select E-Ticket-Management.bak.
-**[.bak file is only available on request]**
-
-4) Destination: Database name → E_Ticket_Management (or your choice).
-
-5) In Files tab, verify MDF/LDF paths are writable.
-
-6) After wiring , Open the PM in VS and run the command below,
-
--- Add-Migration InitialCreate
-
--- UPDATE-DATABASE
-
+```powershell
+Add-Migration InitialCreate
+Update-Database
+```
 
 Click OK to restore.
 
-**[(StartUp.cs and appsettings.json)
-files are only available on request]**
+---
 
+**[(Startup.cs and appsettings.json files are only available on request)]**
+👉 [Request via Google Form](https://forms.gle/VFchq3unKmCrMKHm7)
+📧 Or email: **[Arafatrahmanlis02@gmail.com](mailto:Arafatrahmanlis02@gmail.com)**
+
+---
 
 **B) Command Line (Windows PowerShell)**
 
-**Change these paths/instance as needed**
-
-
-_$SqlInstance = ".\SQLEXPRESS"       # or "localhost"
+```powershell
+$SqlInstance = ".\SQLEXPRESS"       # or "localhost"
 $DbName     = "E_Ticket_Management"
 $BakPath    = "C:\path\to\E-Ticket-Management.bak"
 
 sqlcmd -S $SqlInstance -Q "RESTORE DATABASE [$DbName]
 FROM DISK = N'$BakPath'
-WITH REPLACE, RECOVERY;"_
-
+WITH REPLACE, RECOVERY;"
+```
 
 || If you get logical name/file path issues, you can move/relocate with MOVE options:
 
-_sqlcmd -S $SqlInstance -Q "
+```powershell
+sqlcmd -S $SqlInstance -Q "
 RESTORE FILELISTONLY FROM DISK = N'$BakPath';
 "
 #Note the logical names, then:
@@ -137,9 +147,10 @@ RESTORE DATABASE [$DbName] FROM DISK = N'$BakPath'
 WITH MOVE 'E_Ticket_Management' TO 'C:\SQLData\E_Ticket_Management.mdf',
      MOVE 'E_Ticket_Management_log' TO 'C:\SQLData\E_Ticket_Management_log.ldf',
      REPLACE, RECOVERY;
-"_
+"
+```
 
-
+---
 
 # **3) Set the Connection String & Secrets**
 
@@ -147,6 +158,7 @@ WITH MOVE 'E_Ticket_Management' TO 'C:\SQLData\E_Ticket_Management.mdf',
 
 From the project folder (where the .csproj lives):
 
+```powershell
 # Set your SQL Server connection string
 dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=localhost;Database=E_Ticket_Management;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true"
 
@@ -163,35 +175,58 @@ dotnet user-secrets set "Smtp:Host" "smtp.yourhost.com"
 dotnet user-secrets set "Smtp:Port" "587"
 dotnet user-secrets set "Smtp:User" "no-reply@cinex.com"
 dotnet user-secrets set "Smtp:Pass" "StrongSmtpPassword"
-
+```
 
 **Notes**
 
-If you used a different DB name in restore, update it in the connection string.
+* If you used a different DB name in restore, update it in the connection string.
+* If your SQL Server uses SQL Auth:
+  `Server=localhost;Database=E_Ticket_Management;User Id=sa;Password=YourPassword;TrustServerCertificate=True;MultipleActiveResultSets=true`
 
-If your SQL Server uses SQL Auth:
-Server=localhost;Database=E_Ticket_Management;User Id=sa;Password=YourPassword;TrustServerCertificate=True;MultipleActiveResultSets=true
+---
 
 # **4) Run the App**
 
-_#If you restored the DB, usually no migration is needed.
-
-#But running migrations won't hurt if the schema matches:
-
+```powershell
 dotnet ef database update
-
-#Run
 dotnet run
+```
 
-#Output: app listening on https://localhost:5001 (or shown URL)_
+Output: app listening on **[https://localhost:5001](https://localhost:5001)** (or shown URL).
 
+---
 
 **Default Access**
 
-**Admin:** login with the email/password you set in user-secrets.
+* **Admin:** login with the email/password you set in user-secrets.
+* **Public:** browse movies, details, seat map, proceed to booking/payment.
+* **After successful payment:** download the PDF invoice.
 
-**Public:** browse movies, details, seat map, proceed to booking/payment.
+---
 
-**After successful payment:** download the PDF invoice.
+# 📬 Request Sensitive Files
 
+The following files are **not included** in the repo:
 
+* `.bak` database backup
+* `Startup.cs`
+* `appsettings.json`
+
+👉 Request here: [Google Form](https://forms.gle/VFchq3unKmCrMKHm7)
+📧 Or email: **[Arafatrahmanlis02@gmail.com](mailto:Arafatrahmanlis02@gmail.com)**
+
+---
+
+# 📜 License
+
+**All Rights Reserved**
+No part of this project may be copied, redistributed, or used without permission.
+
+```
+
+---
+
+✅ This version is **ready to paste into your repo** as `README.md`.  
+
+Do you also want me to add a **badge at the very top** (like “📥 Request Files”) linking to your form, so it stands out immediately?
+```
