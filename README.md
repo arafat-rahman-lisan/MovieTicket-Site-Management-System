@@ -61,7 +61,8 @@ Ultra-glassmorphism UI with **retro film rails** design across CRUD pages.
 # for Admin **Views**, visit the demonstration video or report. 
 
 
-**🚀Getting Started**
+
+
 
 ### Prerequisites 
 
