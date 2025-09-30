@@ -93,6 +93,7 @@ File path (adjust if different):
 2) Right-click Databases → Restore Database…
 
 3) Source: Device → Add… → select E-Ticket-Management.bak.
+**[.bak file is only available on request]**
 
 4) Destination: Database name → E_Ticket_Management (or your choice).
 
@@ -106,6 +107,9 @@ File path (adjust if different):
 
 
 Click OK to restore.
+
+**[(StartUp.cs and appsettings.json)
+files are only available on request]**
 
 
 **B) Command Line (Windows PowerShell)**
