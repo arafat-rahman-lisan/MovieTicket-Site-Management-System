@@ -34,8 +34,8 @@ https://drive.google.com/file/d/1JvAFfOShtutkv6NINYVor4NSGrYmPmEV/view?usp=shari
 
 ![Image Alt](https://github.com/arafat-rahman-lisan/MovieTicket-Site-Management-System/blob/00ac973a66100f71f8c4ab7419ce9d0824f437e2/get%20ticket.png)
 
- # Real-time **seat map** with seat hold logic (**2-minute auto release**). 
- **Book seats, confirm booking, proceed to payment**.
+ Real-time **seat map** with seat hold logic (**2-minute auto release**). 
+# **Book seats, confirm booking, proceed to payment**.
 
 ![Image Alt](https://github.com/arafat-rahman-lisan/MovieTicket-Site-Management-System/blob/930e6b6367377246941b37048aefac15d56ee62c/seatmap.png)
 
